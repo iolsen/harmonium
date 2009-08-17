@@ -480,7 +480,7 @@ public class Harmonium extends HDApplication {
 			}
 			
 		}
-
+		
 		private void pushNowPlayingScreen()
 		{
 			// push Now Playing Screen
@@ -494,14 +494,9 @@ public class Harmonium extends HDApplication {
 		}
 		
 		public void enqueueNext(Playable playable) {
-			if (this.shuffleMode) {
-				this.shuffledMusicQueue.add(this.musicIndex + 1, playable);
-				this.musicQueue.add(playable);
-			}
-			else {
-				this.musicQueue.add(this.musicIndex + 1, playable);
-				this.shuffledMusicQueue.add(playable);
-			}
+			int nextIndex = this.musicIndex + 1;
+			this.shuffledMusicQueue.add(nextIndex, playable);
+			this.musicQueue.add(nextIndex, playable);
 			pushNowPlayingScreen();
 		}
 		
@@ -560,10 +555,16 @@ public class Harmonium extends HDApplication {
 			int nextIndex;
 			Playable nextTrack;
 			
-			if(! this.musicQueue.isEmpty() ){
+			List<Playable> currentQueue;
+			if (this.shuffleMode)
+				currentQueue = this.shuffledMusicQueue;
+			else
+				currentQueue = this.musicQueue;
+			
+			if(! currentQueue.isEmpty() ){
 				
 				// See if the last track in the music queue has been reached
-				if( this.musicIndex >= (this.musicQueue.size() - 1) ) {
+				if( this.musicIndex >= (currentQueue.size() - 1) ) {
 					// We have reached the last track
 					if(this.repeatMode) {
 						// We are in repeat mode, so get info for the first index
@@ -579,13 +580,7 @@ public class Harmonium extends HDApplication {
 					nextIndex = this.musicIndex + 1;
 				}
 				
-				// Are we in shuffle mode?
-				if(this.shuffleMode) {
-					nextTrack = this.shuffledMusicQueue.get(nextIndex);
-				}
-				else {
-					nextTrack = this.musicQueue.get(nextIndex);
-				}
+				nextTrack = currentQueue.get(nextIndex);
 				
 				// return the title of the next track to be played
 				return nextTrack.getTrackName() + " - " + nextTrack.getArtistName();
@@ -596,7 +591,15 @@ public class Harmonium extends HDApplication {
 		}
 		
 		public void playPrevious() {
+
 			if(! this.musicQueue.isEmpty() ) {
+
+				List<Playable> currentQueue;
+				if (this.shuffleMode)
+					currentQueue = this.shuffledMusicQueue;
+				else
+					currentQueue = this.musicQueue;
+
 				// Stop any track that might be playing
 				if(this.nowPlaying != null) {
 					this.nowPlaying.stop(this.nowPlayingScreen);
@@ -614,7 +617,7 @@ public class Harmonium extends HDApplication {
 						// We are on the first track of the playlist
 						if(this.repeatMode) {
 							// Reset to the first track if we are in repeat mode
-							this.musicIndex = this.musicQueue.size() - 1;
+							this.musicIndex = currentQueue.size() - 1;
 						}
 						else {
 							// not in repeat mode, so stop playing music and exit
@@ -629,12 +632,7 @@ public class Harmonium extends HDApplication {
 				}
 
 				// Play the track
-				if(this.shuffleMode) {
-					this.nowPlaying = this.shuffledMusicQueue.get(this.musicIndex);
-				}
-				else {
-					this.nowPlaying = this.musicQueue.get(this.musicIndex);
-				}
+				this.nowPlaying = currentQueue.get(this.musicIndex);
 				
 				if( this.nowPlaying.play(this.nowPlayingScreen) ) {
 					this.playRate = PlayRate.NORMAL;
@@ -666,19 +664,9 @@ public class Harmonium extends HDApplication {
 				this.nowPlayingScreen.update(this.nowPlaying);
 			}
 			else
-				this.playPrevious();
+				throw new Exception("Play failed.");
 		}
 		
-
-		public void jumpTo(Playable jumpToItem)
-		{
-			// Find the index of the item in the current playlist
-			if (this.shuffleMode) {
-				
-			}
-			
-		}
-
 		public void stop() {
 			if(this.nowPlaying != null) {
 				if( this.nowPlaying.stop(this.nowPlayingScreen) ) {
@@ -782,17 +770,16 @@ public class Harmonium extends HDApplication {
 		}
 
 		/**
-		 * @param shuffleMode the shuffleMode to set
-		 */
-		public void setShuffleMode(boolean shuffleMode) {
-			this.shuffleMode = shuffleMode;
-		}
-		
-		/**
 		 * Toggles the shuffle mode of the playlist.
 		 */
 		public void toggleShuffleMode() {
 			this.shuffleMode = ! this.shuffleMode;
+
+			if (this.shuffleMode)
+				this.musicIndex = this.shuffledMusicQueue.indexOf(this.nowPlaying);
+			else
+				this.musicIndex = this.musicQueue.indexOf(this.nowPlaying);
+			
 			if(this.nowPlayingScreen != null) {
 				this.nowPlayingScreen.updateShuffle();
 			}
