@@ -389,7 +389,7 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 		else {
 			this.shuffleModeText.setValue("Off");
 		}
-		this.nextTrackText.setValue( this.app.getDiscJockey().getNextTrackInfo() );
+		updateNext();
 	}
 	
 	public void updateRepeat() {
@@ -399,6 +399,10 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 		else {
 			this.repeatModeText.setValue("Off");
 		}
+		updateNext();
+	}
+	
+	public void updateNext() {
 		this.nextTrackText.setValue( this.app.getDiscJockey().getNextTrackInfo() );
 	}
 	

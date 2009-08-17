@@ -464,14 +464,7 @@ public class Harmonium extends HDApplication {
 				else
 					this.nowPlaying = this.musicQueue.get(this.musicIndex);
 				
-				// push Now Playing Screen
-				if(this.nowPlayingScreen == null) {
-					this.nowPlayingScreen = new NowPlayingScreen(app, this.nowPlaying);
-				}
-				else {
-					this.nowPlayingScreen.update(this.nowPlaying);
-				}
-				this.app.push(this.nowPlayingScreen, TRANSITION_NONE);
+				pushNowPlayingScreen();
 				
 				// Start playing music
 				if( this.nowPlaying.play(this.nowPlayingScreen) ) {
@@ -486,6 +479,36 @@ public class Harmonium extends HDApplication {
 				this.app.play("bonk.snd");
 			}
 			
+		}
+
+		private void pushNowPlayingScreen()
+		{
+			// push Now Playing Screen
+			if(this.nowPlayingScreen == null) {
+				this.nowPlayingScreen = new NowPlayingScreen(app, this.nowPlaying);
+			}
+			else {
+				this.nowPlayingScreen.update(this.nowPlaying);
+			}
+			this.app.push(this.nowPlayingScreen, TRANSITION_NONE);
+		}
+		
+		public void enqueueNext(Playable playable) {
+			if (this.shuffleMode) {
+				this.shuffledMusicQueue.add(this.musicIndex + 1, playable);
+				this.musicQueue.add(playable);
+			}
+			else {
+				this.musicQueue.add(this.musicIndex + 1, playable);
+				this.shuffledMusicQueue.add(playable);
+			}
+			pushNowPlayingScreen();
+		}
+		
+		public void enqueueAtEnd(Playable playable) {
+			this.musicQueue.add(playable);
+			this.shuffledMusicQueue.add(playable);
+			pushNowPlayingScreen();
 		}
 		
 		public void playNext() {
@@ -624,6 +647,38 @@ public class Harmonium extends HDApplication {
 			}
 		}
 		
+		public void playItemInQueue(Playable playItem) throws Exception {
+			
+			int index;
+			if (this.shuffleMode)
+				index = this.shuffledMusicQueue.indexOf(playItem);
+			else
+				index = this.musicQueue.indexOf(playItem);
+
+			if (index < 0)
+				throw new Exception("Item not in current queue.");
+
+			this.musicIndex = index;
+			this.nowPlaying = playItem;
+
+			if( this.nowPlaying.play(this.nowPlayingScreen) ) {
+				this.playRate = PlayRate.NORMAL;
+				this.nowPlayingScreen.update(this.nowPlaying);
+			}
+			else
+				this.playPrevious();
+		}
+		
+
+		public void jumpTo(Playable jumpToItem)
+		{
+			// Find the index of the item in the current playlist
+			if (this.shuffleMode) {
+				
+			}
+			
+		}
+
 		public void stop() {
 			if(this.nowPlaying != null) {
 				if( this.nowPlaying.stop(this.nowPlayingScreen) ) {
@@ -686,6 +741,14 @@ public class Harmonium extends HDApplication {
 
 		public Playable getNowPlaying() {
 			return this.nowPlaying;
+		}
+		
+		public List<Playable> getCurrentPlaylist() {
+			return this.musicQueue;
+		}
+		
+		public boolean hasCurrentPlaylist() {
+			return this.musicQueue != null && this.musicQueue.size() > 0;
 		}
 		
 		public boolean isPlaying() {
@@ -779,8 +842,6 @@ public class Harmonium extends HDApplication {
 		{
 			return this.nowPlayingScreen;
 		}
-		
-		
 
 	}
 }

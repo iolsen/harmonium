@@ -40,12 +40,16 @@ public class TrackScreen extends HAlbumInfoListScreen {
 	private String screenTitle;
 	private Playable playableTrack;
 	private PlaylistEligible trackParent;
-	private final String playTrackString = "Play This Track";
-	private final String playOnlyTrackString = "Play Only This Track";
+	private final String playTrackString = "Play This Track Now";
+	private final String playOnlyTrackString = "Play Only This Track Now";
 	private final String addTrackToPlaylistString = "Add Track to Playlist";
 	private final String playParentAlbumString = "Play Album Starting With This Track";
 	private final String playParentPlaylistString = "Play Playlist Starting With This Track";
 	private final String playParentDiscString = "Play Disc Starting With This Track";
+	
+	private final String enqueueTrackNext = "Play This Track Next";
+	private final String enqueueTrackEnd = "Add Track to \"Now Playing\" Playlist";
+	
 	private HList list;
 	
 	public TrackScreen(Harmonium app, final Playable thisTrack) {
@@ -69,6 +73,11 @@ public class TrackScreen extends HAlbumInfoListScreen {
 								listHeight,											// height of list
 								this.rowHeight										// height of each row
 		);
+		if (this.app.getDiscJockey().isPlaying()) {
+			// Something's playing now, so add the enqueue options.
+			this.list.add(this.enqueueTrackNext);
+			this.list.add(this.enqueueTrackEnd);
+		}
 		if (trackParent != null) {
 			if (trackParent instanceof Album)
 				this.list.add(this.playParentAlbumString);
@@ -150,6 +159,12 @@ public class TrackScreen extends HAlbumInfoListScreen {
 			repeatMode = this.app.getPreferences().getTrackDefaultRepeatMode();
 
 			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode, playableTrack);
+    	}
+    	else if (menuOption.equals(enqueueTrackNext)) {
+    		this.app.getDiscJockey().enqueueNext(this.playableTrack);
+    	}
+    	else if (menuOption.equals(enqueueTrackEnd)) {
+    		this.app.getDiscJockey().enqueueAtEnd(this.playableTrack);
     	}
     	else
     		this.app.play("bonk.snd");

@@ -17,7 +17,7 @@
  * License along with Harmonium.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 package org.dazeend.harmonium.screens;
 
 import java.util.ArrayList;
@@ -32,80 +32,111 @@ import com.tivo.hme.bananas.BView;
 
 /**
  * @author Charles Perry (harmonium@DazeEnd.org)
- *
+ * 
  */
-public class BrowsePlaylistsScreen extends HSkipListScreen {
+public class BrowsePlaylistsScreen extends HSkipListScreen
+{
+
+	private static final String NOW_PLAYING_PLAYLIST = "\"Now Playing\" Playlist";
 
 	/**
 	 * @param app
 	 * @param title
 	 */
-	public BrowsePlaylistsScreen(Harmonium app) {
+	public BrowsePlaylistsScreen(Harmonium app)
+	{
 		super(app, "Browse Playlists");
-		
+
 		this.app = app;
+
+		if (app.getDiscJockey().hasCurrentPlaylist())
+			this.list.add(NOW_PLAYING_PLAYLIST);
+
 		List<PlaylistFile> sortedPlaylists = new ArrayList<PlaylistFile>();
-		sortedPlaylists.addAll( MusicCollection.getMusicCollection( this.app.getHFactory() ).getPlaylists() );
+		sortedPlaylists.addAll(MusicCollection.getMusicCollection(this.app.getHFactory()).getPlaylists());
 		Collections.sort(sortedPlaylists);
-		this.list.add( sortedPlaylists.toArray() );
+		this.list.add(sortedPlaylists.toArray());
+
 	}
 
 	@Override
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("select") || action.equals("right")) {
-        	PlaylistFile playlist = (PlaylistFile)list.get( list.getFocus() );
-        	this.app.push(new PlaylistScreen(this.app, playlist), TRANSITION_LEFT);
+        	Object selected = list.get(list.getFocus()); 
+        	       	
+        	if ( selected instanceof String && selected.equals(NOW_PLAYING_PLAYLIST)) {
+        		this.app.push(new PlaylistScreen(this.app, this.app.getDiscJockey().getCurrentPlaylist()), TRANSITION_LEFT);
+        	}
+        	else {
+            	PlaylistFile playlist = (PlaylistFile)list.get( list.getFocus() );
+            	this.app.push(new PlaylistScreen(this.app, playlist), TRANSITION_LEFT);
+        	}
         }
         return super.handleAction(view, action);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.tivo.hme.bananas.BView#handleKeyPress(int, long)
 	 */
 	@Override
-	public boolean handleKeyPress(int code, long rawcode) {
-		
+	public boolean handleKeyPress(int code, long rawcode)
+	{
+
 		this.app.checkKeyPressToResetInactivityTimer(code);
-		
-		if(code == KEY_PLAY) {
-			PlaylistFile playlist = (PlaylistFile)list.get( list.getFocus() );
-			this.app.getDiscJockey().play(playlist.getMembers(), playlist.getShuffleMode(this.app), playlist.getRepeatMode(this.app));
+
+		if (code == KEY_PLAY)
+		{
+			PlaylistFile playlist = (PlaylistFile) list.get(list.getFocus());
+			this.app.getDiscJockey().play(playlist.getMembers(), playlist.getShuffleMode(this.app),
+					playlist.getRepeatMode(this.app));
 			return true;
-		}
-		else if(code == KEY_CLEAR) {
+		} else if (code == KEY_CLEAR)
+		{
 			this.app.play("select.snd");
-			this.app.push(new DeletePlaylistScreen(this.app, (PlaylistFile)list.get( list.getFocus() ) ), TRANSITION_LEFT);
+			this.app
+					.push(new DeletePlaylistScreen(this.app, (PlaylistFile) list.get(list.getFocus())), TRANSITION_LEFT);
 			return true;
 		}
-		
+
 		return super.handleKeyPress(code, rawcode);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see com.tivo.hme.bananas.BScreen#handleEnter(java.lang.Object, boolean)
 	 */
 	@Override
-	public boolean handleEnter(Object screenArgument, boolean isReturning) {
-		
-		if(isReturning) {
-			// this is needed so that the list will remain sorted and consistant after returning from child screens
-			PlaylistFile focusedPlaylist = (PlaylistFile)list.get( list.getFocus() );
-			this.list.clear();
-			List<PlaylistFile> sortedPlaylists = new ArrayList<PlaylistFile>();
-			sortedPlaylists.addAll( MusicCollection.getMusicCollection( this.app.getHFactory() ).getPlaylists() );
-			Collections.sort(sortedPlaylists);
-			this.list.add( sortedPlaylists.toArray() );
+	public boolean handleEnter(Object screenArgument, boolean isReturning)
+	{
+		if (isReturning)
+		{
+			if (list.contains(NOW_PLAYING_PLAYLIST) == false && app.getDiscJockey().hasCurrentPlaylist())
+				this.list.add(0, NOW_PLAYING_PLAYLIST);
 			
-			if(this.list.contains(focusedPlaylist)) {
-				this.list.setFocus(this.list.indexOf(focusedPlaylist), false);
-			}
-			else {
-				this.list.setFocus(0, false);
+			// this is needed so that the list will remain sorted and consistant
+			// after returning from child screens
+			Object focusedItem = list.get(list.getFocus());
+			if (focusedItem instanceof PlaylistFile) {
+				PlaylistFile focusedPlaylist = (PlaylistFile)focusedItem;
+				this.list.clear();
+				List<PlaylistFile> sortedPlaylists = new ArrayList<PlaylistFile>();
+				sortedPlaylists.addAll(MusicCollection.getMusicCollection(this.app.getHFactory()).getPlaylists());
+				Collections.sort(sortedPlaylists);
+				this.list.add(sortedPlaylists.toArray());
+
+				if (this.list.contains(focusedPlaylist))
+				{
+					this.list.setFocus(this.list.indexOf(focusedPlaylist), false);
+				} else
+				{
+					this.list.setFocus(0, false);
+				}
 			}
 		}
 		return super.handleEnter(screenArgument, isReturning);
 	}
-	
-	
-	
+
 }

@@ -20,9 +20,12 @@
  
 package org.dazeend.harmonium.screens;
 
+import java.util.List;
+
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.HPLFile;
 import org.dazeend.harmonium.music.MusicCollection;
+import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistFile;
 
 import com.tivo.hme.bananas.BView;
@@ -33,7 +36,8 @@ import com.tivo.hme.bananas.BView;
  */
 public class PlaylistScreen extends HListScreen {
 
-	private PlaylistFile playlist;
+	private PlaylistFile playlistFile;
+	private List<Playable> playlist;
 	
 	private static final String PLAY_LABEL = "Play";
 	private static final String BROWSE_LABEL = "Browse";
@@ -46,18 +50,17 @@ public class PlaylistScreen extends HListScreen {
 	 * @param app
 	 * @param title
 	 */
-	public PlaylistScreen(Harmonium app, PlaylistFile playlist) {
-		super(app, playlist.toString());
+	public PlaylistScreen(Harmonium app, PlaylistFile playlistFile) {
+		this(app, playlistFile.toString());
 		
-		this.app = app;
-		this.playlist = playlist;
+		this.playlistFile = playlistFile;
 		
 		list.add(PLAY_LABEL);
 		list.add(BROWSE_LABEL);
-		
-		if( playlist.getClass() == HPLFile.class ) {
+
+		if( playlistFile.getClass() == HPLFile.class ) {
 			// These options apply only to HPL Playlists
-			if(! this.playlist.getMembers().isEmpty() ) {
+			if(! this.playlistFile.getMembers().isEmpty() ) {
 				// only allow playlist members to be edited if there are members to edit
 				list.add(EDIT_PLAYLIST_LABEL);
 			}
@@ -68,28 +71,49 @@ public class PlaylistScreen extends HListScreen {
 		list.add(DELETE_LABEL);
 	}
 	
+	public PlaylistScreen(Harmonium app, List<Playable> playlist) {
+		this (app, "\"Now Playing\" Playlist");
+		
+		this.playlist = playlist;
+
+		list.add(BROWSE_LABEL);
+		
+		// Ian TODO: Implement editing the "Now Playing" Playlist
+		//list.add(EDIT_PLAYLIST_LABEL);
+	}
+	
+	private PlaylistScreen(Harmonium app, String title) {
+		super(app, title);
+
+		this.app = app;
+	}
+	
+	
 	@Override
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("select") || action.equals("right")) {
         	String menuOption = (String)list.get( list.getFocus() );
         	
         	if(menuOption.equals(BROWSE_LABEL) ) {
-        		this.app.push(new BrowsePlaylistScreen(this.app, this.playlist), TRANSITION_LEFT);
+        		if (this.playlistFile != null )
+        			this.app.push(new BrowsePlaylistScreen(this.app, this.playlistFile), TRANSITION_LEFT);
+        		else
+        			this.app.push(new BrowsePlaylistScreen(this.app, this.playlist), TRANSITION_LEFT);
         	}
         	else if( menuOption.equals(PLAY_LABEL) ) {
-        		this.app.getDiscJockey().play(this.playlist.getMembers(), this.playlist.getShuffleMode(this.app), this.playlist.getRepeatMode(this.app));
+        		this.app.getDiscJockey().play(this.playlistFile.getMembers(), this.playlistFile.getShuffleMode(this.app), this.playlistFile.getRepeatMode(this.app));
         	}
         	else if(menuOption.equals(EDIT_DESCRIPTION_LABEL) ) {
-        		this.app.push(new EditPlaylistDescriptionScreen(this.app, (HPLFile)this.playlist), TRANSITION_LEFT);
+        		this.app.push(new EditPlaylistDescriptionScreen(this.app, (HPLFile)this.playlistFile), TRANSITION_LEFT);
         	}
         	else if(menuOption.equals(DELETE_LABEL)) {
-        		this.app.push(new DeletePlaylistScreen(this.app, this.playlist), TRANSITION_LEFT);
+        		this.app.push(new DeletePlaylistScreen(this.app, this.playlistFile), TRANSITION_LEFT);
         	}
         	else if(menuOption.equals(EDIT_PLAYLIST_LABEL)) {
-        		this.app.push(new EditPlaylistScreen(this.app, (HPLFile)this.playlist), TRANSITION_LEFT);
+        		this.app.push(new EditPlaylistScreen(this.app, (HPLFile)this.playlistFile), TRANSITION_LEFT);
         	}
         	else if(menuOption.equals(EDIT_OPTIONS_LABEL)) {
-        		this.app.push(new EditPlaylistOptionsScreen(this.app, (HPLFile)this.playlist), TRANSITION_LEFT);
+        		this.app.push(new EditPlaylistOptionsScreen(this.app, (HPLFile)this.playlistFile), TRANSITION_LEFT);
         	}
         	
         	return true;
@@ -103,22 +127,25 @@ public class PlaylistScreen extends HListScreen {
 	@Override
 	public boolean handleEnter(Object screenArgument, boolean isReturning) {
 		if(isReturning) {
-			// See if this playlist still exists
-			if(MusicCollection.getMusicCollection(this.app.getHFactory()).getPlaylists().contains(this.playlist)) {
-				// The playlist does exist, so update the title of this screen to match the
-				// description. (We may have just edited the description.)
-				this.titleText.setValue(this.playlist.toString());
-				
-				// Check to see if the playlist still has members
-				if(this.playlist.getMembers().isEmpty()) {
-					// The playlist is empty, so delete the option to edit it's members
-					this.list.remove(EDIT_PLAYLIST_LABEL);
-					this.list.setFocus(0, false);
+			
+			if (this.playlistFile != null) {
+				// See if this playlist still exists
+				if(MusicCollection.getMusicCollection(this.app.getHFactory()).getPlaylists().contains(this.playlistFile)) {
+					// The playlist does exist, so update the title of this screen to match the
+					// description. (We may have just edited the description.)
+					this.titleText.setValue(this.playlistFile.toString());
+					
+					// Check to see if the playlist still has members
+					if(this.playlistFile.getMembers().isEmpty()) {
+						// The playlist is empty, so delete the option to edit it's members
+						this.list.remove(EDIT_PLAYLIST_LABEL);
+						this.list.setFocus(0, false);
+					}
 				}
-			}
-			else {
-				// The playlist has been deleted, so pop this screen
-				this.app.pop();
+				else {
+					// The playlist has been deleted, so pop this screen
+					this.app.pop();
+				}
 			}
 		}
 		return super.handleEnter(screenArgument, isReturning);
