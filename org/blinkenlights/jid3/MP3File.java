@@ -271,7 +271,7 @@ public class MP3File extends MediaFile
                         // there is a tag in this file.. skip over them
                         // read version information
                         int iVersion = oSourceIS.read();
-                        //int iPatch = oSourceIS.read();
+                        oSourceIS.read();
                         if (iVersion > 4)
                         {
                             // close and remove temp file
@@ -646,8 +646,8 @@ public class MP3File extends MediaFile
                     {
                         // there is a tag in this file.. skip over it
                         // read version information
-                        //int iVersion = oSourceIS.read();
-                        //int iPatch = oSourceIS.read();
+                        oSourceIS.read();
+                        oSourceIS.read();
                         // skip flags
                         oSourceIS.skip(1);
                         // get tag length

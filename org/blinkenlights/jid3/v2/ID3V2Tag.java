@@ -139,7 +139,7 @@ abstract public class ID3V2Tag extends ID3Tag
             
             // check which version of v2 tags we have
             int iMinorVersion = oID3DIS.readUnsignedByte();
-            //int iPatchVersion = oID3DIS.readUnsignedByte();
+            oID3DIS.readUnsignedByte();
                     
             if (iMinorVersion == 3)
             {
