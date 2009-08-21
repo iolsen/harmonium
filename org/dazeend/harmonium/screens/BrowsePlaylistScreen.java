@@ -57,13 +57,17 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 		tracks.addAll( playlist );
 		this.list.add( tracks.toArray() );
 	}
+	
+	public boolean isNowPlayingPlaylist() {
+		return playlistFile == null;
+	}
 
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("right") || action.equals("select")) {
 
         	PlaylistEligible musicItem = (PlaylistEligible)list.get( list.getFocus() );
             
-        	if (this.playlistFile != null)
+        	if (!isNowPlayingPlaylist())
         		this.app.push(new TrackScreen(this.app, (Playable)musicItem, this.playlistFile), TRANSITION_LEFT);
         	else {
         		try

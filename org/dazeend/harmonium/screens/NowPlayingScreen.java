@@ -29,6 +29,7 @@ import org.dazeend.harmonium.Harmonium.DiscJockey;
 import org.dazeend.harmonium.music.MP3File;
 import org.dazeend.harmonium.music.Playable;
 
+import com.tivo.hme.bananas.BScreen;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.HmeEvent;
@@ -551,6 +552,15 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 		this.app.checkKeyPressToResetInactivityTimer(key);
 		
 		switch(key) {
+		case KEY_INFO:
+			pop();
+			BScreen s = app.getCurrentScreen();
+			if (s instanceof BrowsePlaylistScreen) {
+				if(((BrowsePlaylistScreen)s).isNowPlayingPlaylist())
+					return true;
+			}
+			app.push(new BrowsePlaylistScreen(app, this.app.getDiscJockey().getCurrentPlaylist()), TRANSITION_LEFT);
+			return true;
 		case KEY_LEFT:
 			switch( this.app.getDiscJockey().getPlayRate() ) {
 			case NORMAL:

@@ -86,17 +86,28 @@ public class BrowsePlaylistsScreen extends HSkipListScreen
 
 		this.app.checkKeyPressToResetInactivityTimer(code);
 
-		if (code == KEY_PLAY)
+    	Object selected = list.get(list.getFocus()); 
+
+    	if (code == KEY_PLAY)
 		{
-			PlaylistFile playlist = (PlaylistFile) list.get(list.getFocus());
-			this.app.getDiscJockey().play(playlist.getMembers(), playlist.getShuffleMode(this.app),
-					playlist.getRepeatMode(this.app));
+        	if ( selected instanceof String && selected.equals(NOW_PLAYING_PLAYLIST)) {
+        		this.app.push(this.app.getDiscJockey().getNowPlayingScreen(), TRANSITION_LEFT);
+        	}
+        	else {
+				PlaylistFile playlist = (PlaylistFile)selected;
+				this.app.getDiscJockey().play(playlist.getMembers(), playlist.getShuffleMode(this.app),
+						playlist.getRepeatMode(this.app));
+        	}
 			return true;
 		} else if (code == KEY_CLEAR)
 		{
-			this.app.play("select.snd");
-			this.app
-					.push(new DeletePlaylistScreen(this.app, (PlaylistFile) list.get(list.getFocus())), TRANSITION_LEFT);
+        	if ( selected instanceof String && selected.equals(NOW_PLAYING_PLAYLIST)) {
+        		this.app.play("bonk.snd");
+        	}
+        	else {
+				this.app.play("select.snd");
+				this.app.push(new DeletePlaylistScreen(this.app, (PlaylistFile)selected), TRANSITION_LEFT);
+        	}
 			return true;
 		}
 
@@ -111,11 +122,11 @@ public class BrowsePlaylistsScreen extends HSkipListScreen
 	@Override
 	public boolean handleEnter(Object screenArgument, boolean isReturning)
 	{
+		if (list.contains(NOW_PLAYING_PLAYLIST) == false && app.getDiscJockey().hasCurrentPlaylist())
+			this.list.add(0, NOW_PLAYING_PLAYLIST);
+
 		if (isReturning)
 		{
-			if (list.contains(NOW_PLAYING_PLAYLIST) == false && app.getDiscJockey().hasCurrentPlaylist())
-				this.list.add(0, NOW_PLAYING_PLAYLIST);
-			
 			// this is needed so that the list will remain sorted and consistant
 			// after returning from child screens
 			Object focusedItem = list.get(list.getFocus());
