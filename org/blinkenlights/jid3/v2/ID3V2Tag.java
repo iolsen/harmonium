@@ -35,6 +35,7 @@ import org.blinkenlights.jid3.io.*;
  *
  * Base class representing all ID3 V2 tags.
  */
+@SuppressWarnings("unchecked")
 abstract public class ID3V2Tag extends ID3Tag
 {
     /** Flag indicating whether unsynchronization is used in this tag or not. */
@@ -138,7 +139,7 @@ abstract public class ID3V2Tag extends ID3Tag
             
             // check which version of v2 tags we have
             int iMinorVersion = oID3DIS.readUnsignedByte();
-            int iPatchVersion = oID3DIS.readUnsignedByte();
+            //int iPatchVersion = oID3DIS.readUnsignedByte();
                     
             if (iMinorVersion == 3)
             {

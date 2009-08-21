@@ -36,6 +36,7 @@ import org.blinkenlights.jid3.util.*;
  *
  * Frame containing event timing codes.
  */
+@SuppressWarnings("unchecked")
 public class ETCOID3V2Frame extends ID3V2Frame
 {
     private TimestampFormat m_oTimestampFormat;

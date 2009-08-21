@@ -35,6 +35,7 @@ import org.blinkenlights.jid3.util.*;
  *
  * @author  paul
  */
+@SuppressWarnings("unchecked")
 public class SYTCID3V2Frame extends ID3V2Frame
 {
     private TimestampFormat m_oTimestampFormat = null;

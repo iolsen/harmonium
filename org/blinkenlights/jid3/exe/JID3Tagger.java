@@ -36,6 +36,7 @@ import org.blinkenlights.jid3.util.*;
  *
  * @author  paul
  */
+@SuppressWarnings("unchecked")
 public class JID3Tagger
 {
     private Map m_oCmdLineMap = null;
@@ -216,7 +217,7 @@ public class JID3Tagger
         }
     }
     
-    private static Map parseCommandLineArgs(String[] args)
+	private static Map parseCommandLineArgs(String[] args)
         throws ID3Exception
     {
         Map oMap = new HashMap();
@@ -262,8 +263,8 @@ public class JID3Tagger
                 try
                 {
                     String sTrack = args[i].replaceFirst("--track=", "");
-                    int iTrackNumber;
-                    int iTotalTracks;
+                    //int iTrackNumber;
+                    //int iTotalTracks;
                     if (sTrack.indexOf('/') > 0)
                     {
                         String[] asParts = sTrack.split("/", 2);

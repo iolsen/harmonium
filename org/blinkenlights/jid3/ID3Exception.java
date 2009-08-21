@@ -32,6 +32,7 @@ import java.io.*;
  * Exception thrown to indicate ID3 related errors.
  *
  */
+@SuppressWarnings("serial")
 public class ID3Exception extends Exception
 {
     public ID3Exception()

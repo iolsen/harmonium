@@ -36,6 +36,7 @@ import org.blinkenlights.jid3.util.*;
  *
  * Frame containing equalization information for the playback of the track.
  */
+@SuppressWarnings("unchecked")
 public class EQUAID3V2Frame extends ID3V2Frame
 {
     private byte m_byAdjustmentBits;

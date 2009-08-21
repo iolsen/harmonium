@@ -35,6 +35,7 @@ import org.blinkenlights.jid3.*;
  * Represents the content type of the track (ie. its genre details).
  *
  */
+@SuppressWarnings("unchecked")
 public class ContentType
 {
     private Set m_oGenreSet = null;

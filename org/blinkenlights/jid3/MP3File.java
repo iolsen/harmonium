@@ -36,6 +36,7 @@ import org.blinkenlights.jid3.v2.*;
  *
  * A class representing an MP3 file.
  */
+@SuppressWarnings("unchecked")
 public class MP3File extends MediaFile
 {
     /** Construct an object representing the MP3 file specified.
@@ -270,7 +271,7 @@ public class MP3File extends MediaFile
                         // there is a tag in this file.. skip over them
                         // read version information
                         int iVersion = oSourceIS.read();
-                        int iPatch = oSourceIS.read();
+                        //int iPatch = oSourceIS.read();
                         if (iVersion > 4)
                         {
                             // close and remove temp file
@@ -645,8 +646,8 @@ public class MP3File extends MediaFile
                     {
                         // there is a tag in this file.. skip over it
                         // read version information
-                        int iVersion = oSourceIS.read();
-                        int iPatch = oSourceIS.read();
+                        //int iVersion = oSourceIS.read();
+                        //int iPatch = oSourceIS.read();
                         // skip flags
                         oSourceIS.skip(1);
                         // get tag length

@@ -40,6 +40,7 @@ import org.blinkenlights.jid3.util.*;
  *
  * Object representing a v2.3.0 tag, containing frames, which can be written to a file.
  */
+@SuppressWarnings("unchecked")
 public class ID3V2_3_0Tag extends ID3V2Tag implements ID3Observer, ID3Visitable
 {
     /** Containers for frames for which there can be more than one in a tag. */
@@ -63,7 +64,7 @@ public class ID3V2_3_0Tag extends ID3V2Tag implements ID3Observer, ID3Visitable
     protected List m_oEncryptedFrameList = null;
     protected List m_oUnknownFrameList = null;
     
-    public ID3V2_3_0Tag()
+	public ID3V2_3_0Tag()
     {
         super(false, false, false);
         

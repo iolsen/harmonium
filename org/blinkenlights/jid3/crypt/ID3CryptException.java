@@ -30,6 +30,7 @@ import org.blinkenlights.jid3.*;
  *
  * @author  paul
  */
+@SuppressWarnings("serial")
 public class ID3CryptException extends ID3Exception
 {
     public ID3CryptException()

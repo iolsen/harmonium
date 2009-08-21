@@ -36,6 +36,7 @@ import org.blinkenlights.jid3.util.*;
  *
  * Frame containing an involved people list.
  */
+@SuppressWarnings("unchecked")
 public class IPLSID3V2Frame extends ID3V2Frame
 {
     private TextEncoding m_oTextEncoding;

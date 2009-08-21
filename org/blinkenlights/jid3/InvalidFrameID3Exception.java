@@ -30,6 +30,7 @@ import java.io.*;
  *
  * @author  paul
  */
+@SuppressWarnings("serial")
 public class InvalidFrameID3Exception extends ID3Exception
 {
     /** Creates a new instance of InvalidFrameID3Exception */

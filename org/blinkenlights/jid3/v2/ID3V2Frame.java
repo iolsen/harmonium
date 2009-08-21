@@ -37,6 +37,8 @@ import org.blinkenlights.jid3.util.*;
  *
  * The base class for all ID3 V2 frames.
  */
+
+@SuppressWarnings("unchecked")
 abstract public class ID3V2Frame implements ID3Subject, ID3Visitable
 {
     // observers to changes in this object
@@ -272,14 +274,14 @@ abstract public class ID3V2Frame implements ID3Subject, ID3Visitable
 	            boolean bTagAlterPreservationFlag = ((iFirstFlags & 0x80) != 0);
 	            boolean bFileAlterPreservationFlag = ((iFirstFlags & 0x40) != 0);
 	            boolean bReadOnlyFlag = ((iFirstFlags & 0x20) != 0);
-	            boolean bUnknownFirstByteFlags = ((iFirstFlags & 0x1f) != 0);
+	            //boolean bUnknownFirstByteFlags = ((iFirstFlags & 0x1f) != 0);
 	            
 	            // read second flags byte
 	            int iSecondFlags = oID3DIS.readUnsignedByte();
 	            boolean bCompressionFlag = ((iSecondFlags & 0x80) != 0);
 	            boolean bEncryptionFlag = ((iSecondFlags & 0x40) != 0);
 	            boolean bGroupingIdentityFlag = ((iSecondFlags & 0x20) != 0);
-	            boolean bUnknownSecondByteFlags = ((iSecondFlags & 0x1f) != 0);
+	            //boolean bUnknownSecondByteFlags = ((iSecondFlags & 0x1f) != 0);
 	            
 	            // get length of uncompressed frame if compression set
 	            int iUncompressedSize = iFrameSize;

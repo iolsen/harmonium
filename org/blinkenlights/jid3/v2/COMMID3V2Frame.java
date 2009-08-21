@@ -121,7 +121,7 @@ public class COMMID3V2Frame extends ID3V2Frame
     {
         TextEncoding oOrigTextEncoding = m_oTextEncoding;
         String sOrigLanguage = m_sLanguage;
-        String sOrigShortDescription = m_sShortDescription;
+        //String sOrigShortDescription = m_sShortDescription;
         String sOrigActualText = m_sActualText;
         
         if ((sLanguage == null) || (sLanguage.length() != 3))

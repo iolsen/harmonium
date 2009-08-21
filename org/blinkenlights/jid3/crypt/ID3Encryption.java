@@ -30,6 +30,7 @@ import java.util.*;
  *
  * @author  paul
  */
+@SuppressWarnings("unchecked")
 public class ID3Encryption
 {
     private static ID3Encryption s_oInstance;
