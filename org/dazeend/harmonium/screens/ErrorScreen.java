@@ -47,6 +47,7 @@ public class ErrorScreen extends HScreen {
 		messageText.setFlags(RSRC_VALIGN_TOP | RSRC_HALIGN_LEFT | RSRC_TEXT_WRAP);
         messageText.setFont(app.hSkin.barFont);
         messageText.setValue(message);
+        setManagedView(messageText);        
 		
 		returnButton = new BButton(	this.getNormal(), 
 									this.safeTitleH, 

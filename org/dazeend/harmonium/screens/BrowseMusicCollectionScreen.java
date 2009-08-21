@@ -67,6 +67,7 @@ public class BrowseMusicCollectionScreen extends HSkipListScreen {
 		enterNote.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
 		enterNote.setFlags(RSRC_HALIGN_CENTER + RSRC_VALIGN_BOTTOM);
 		enterNote.setValue("press ENTER to add the entire music collection to a playlist");
+		setManagedView(enterNote);
 	}
 	
 	public boolean handleAction(BView view, Object action) {

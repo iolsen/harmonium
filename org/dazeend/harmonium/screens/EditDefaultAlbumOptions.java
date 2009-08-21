@@ -73,6 +73,7 @@ public class EditDefaultAlbumOptions extends HScreen {
 		repeatText.setValue("Repeat Mode:");
 		repeatText.setFlags(RSRC_HALIGN_LEFT);
 		repeatText.setVisible(true);
+		setManagedView(repeatText);
 		
 		// Create repeat button
 		int buttonWidth = ( this.screenWidth - (2 * this.safeTitleH) ) / 3;
@@ -107,6 +108,7 @@ public class EditDefaultAlbumOptions extends HScreen {
 		shuffleText.setValue("Shuffle Mode:");
 		shuffleText.setFlags(RSRC_HALIGN_LEFT);
 		shuffleText.setVisible(true);
+		setManagedView(shuffleText);
 		
 		// Create shuffle button
 		this.shuffleButton = new BButton(	this,
@@ -139,6 +141,7 @@ public class EditDefaultAlbumOptions extends HScreen {
 		sortText.setValue("Sort Tracks by:");
 		sortText.setFlags(RSRC_HALIGN_LEFT);
 		sortText.setVisible(true);
+		setManagedView(sortText);
 		
 		this.sortButton = new BButton(	this,
 											3 * ( this.screenWidth - (2 * this.safeTitleH) ) / 4,

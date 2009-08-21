@@ -108,7 +108,8 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 		albumNameBGText.setShadow(false);
 		albumNameBGText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_BOTTOM);
 		albumNameBGText.setFont(app.hSkin.paragraphFont);
-
+		setManagedView(albumNameBGText);
+		
 		// Put album name info in album art view
 		albumNameText = new BText(	albumInfo, 		// parent
 									leftEdgeCoord,	// x coord relative to parent
@@ -120,7 +121,7 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 		albumNameText.setShadow(false);
 		albumNameText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_BOTTOM);
 		albumNameText.setFont(app.hSkin.paragraphFont);
-	
+		setManagedView(albumNameText);
 
 		// Put in album name label
 		BText albumNameLabelText = new BText(	albumInfo,
@@ -134,6 +135,7 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 		albumNameLabelText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_TOP);
 		albumNameLabelText.setFont(app.hSkin.paragraphLabelFont);
 		albumNameLabelText.setValue("Album");
+		setManagedView(albumNameLabelText);
 												
 		// Create BG text for crossfade
 		albumArtistBGText = new BText(	albumInfo,						// parent
@@ -146,6 +148,7 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 		albumArtistBGText.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
 		albumArtistBGText.setShadow(false);
 		albumArtistBGText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_BOTTOM);
+		setManagedView(albumArtistBGText);
 		
 		// Put album artist name in album art view
 		albumArtistText = new BText(	albumInfo,						// parent
@@ -158,7 +161,7 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 		albumArtistText.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
 		albumArtistText.setShadow(false);
 		albumArtistText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_BOTTOM);
-	
+		setManagedView(albumArtistText);	
 		
 		// Put in album artist label
 		BText albumArtistNameLabelText = new BText(	albumInfo,							// parent
@@ -172,6 +175,7 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 		albumArtistNameLabelText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_TOP);
 		albumArtistNameLabelText.setFont(app.hSkin.paragraphLabelFont);
 		albumArtistNameLabelText.setValue("Album Artist");
+		setManagedView(albumArtistNameLabelText);
 		
 		// Create BG text for crossfade
 		yearBGText = new BText(	albumInfo,									// parent
@@ -184,6 +188,7 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 		yearBGText.setShadow(false);
 		yearBGText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_BOTTOM);
 		yearBGText.setFont(app.hSkin.paragraphFont);
+		setManagedView(yearBGText);
 		
 		// Put year in album art view
 		yearText = new BText(	albumInfo,									// parent
@@ -196,7 +201,7 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 		yearText.setShadow(false);
 		yearText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_BOTTOM);
 		yearText.setFont(app.hSkin.paragraphFont);
-	
+		setManagedView(yearText);
 		
 		// Put in year label
 		BText yearLabelText = new BText(	albumInfo,									// parent
@@ -210,6 +215,7 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 		yearLabelText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_TOP);
 		yearLabelText.setFont(app.hSkin.paragraphLabelFont);
 		yearLabelText.setValue("Year");
+		setManagedView(yearLabelText);
 
 		// Set up list for contents of musicItem
 		list = new HSkipList(	this.getNormal(), 								// Put list on "normal" level

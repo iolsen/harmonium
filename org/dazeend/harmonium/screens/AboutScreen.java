@@ -70,6 +70,7 @@ public class AboutScreen extends HScreen {
 		messageText.setColor(HSkin.NTSC_WHITE);
 		messageText.setValue(this.message);
 		messageText.setVisible(true);
+		setManagedView(messageText);
 		
 		// Refresh the scroll pane
 		this.scrollPane.refresh();

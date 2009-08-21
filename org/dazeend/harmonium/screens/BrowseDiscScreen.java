@@ -64,6 +64,7 @@ public class BrowseDiscScreen extends HAlbumInfoListScreen {
 		enterNote.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
 		enterNote.setFlags(RSRC_HALIGN_CENTER + RSRC_VALIGN_BOTTOM);
 		enterNote.setValue("press ENTER for playlist and other options");
+		setManagedView(enterNote);
 	}
 	
 	public boolean handleAction(BView view, Object action) {

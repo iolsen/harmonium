@@ -66,6 +66,7 @@ public class EditDefaultTrackOptions extends HScreen {
 		repeatText.setValue("Repeat Mode:");
 		repeatText.setFlags(RSRC_HALIGN_LEFT);
 		repeatText.setVisible(true);
+		setManagedView(repeatText);
 		
 		// Create repeat button
 		int buttonWidth = ( this.screenWidth - (2 * this.safeTitleH) ) / 3;

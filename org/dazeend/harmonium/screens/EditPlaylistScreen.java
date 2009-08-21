@@ -32,6 +32,7 @@ import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
+import com.tivo.hme.sdk.View;
 
 /**
  * @author Charles Perry (harmonium@DazeEnd.org)
@@ -81,7 +82,12 @@ public class EditPlaylistScreen extends HScreen {
 		        text.setFont( ( (Harmonium)this.getBApp() ).hSkin.barFont );
 		        text.setColor(HSkin.BAR_TEXT_COLOR);
 		        text.setValue( String.valueOf(index + 1) + ". " + ((Playable)this.get(index)).getTrackName() + " - " + ((Playable)this.get(index)).getArtistName());
-	            
+
+		        View p = parent;
+		        while (p instanceof HManagedResourceScreen == false && p != null)
+		        	p = p.getParent();
+		        if (p != null)
+		        	((HManagedResourceScreen)p).setManagedView(text);
 			}
 			
 		}

@@ -66,6 +66,7 @@ public class EditDefaultApplicationOptions extends HScreen {
 		screenSaverText.setValue("Screen Blanking:");
 		screenSaverText.setFlags(RSRC_HALIGN_LEFT);
 		screenSaverText.setVisible(true);
+		setManagedView(screenSaverText);
 		
 		// Create screensaver button
 		int buttonWidth = ( this.screenWidth - (2 * this.safeTitleH) ) / 3;

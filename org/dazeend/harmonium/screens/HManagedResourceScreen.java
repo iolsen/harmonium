@@ -1,8 +1,7 @@
 package org.dazeend.harmonium.screens;
 
 import java.awt.Image;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.dazeend.harmonium.Harmonium;
@@ -15,7 +14,9 @@ import com.tivo.hme.sdk.View;
 
 public abstract class HManagedResourceScreen extends BScreen {
 
-	private List<Resource> _managedResources;
+	private Vector<Resource> _managedResources;
+	private Vector<View> _managedViews;
+	
 	private ReentrantLock _lock = new ReentrantLock();
 	private Boolean _freeOnExit = true;
 	
@@ -24,7 +25,8 @@ public abstract class HManagedResourceScreen extends BScreen {
 	public HManagedResourceScreen(BApplication app) {
 		super(app);
 		this.app = (Harmonium) app;
-		_managedResources = new ArrayList<Resource>();
+		_managedResources = new Vector<Resource>();
+		_managedViews = new Vector<View>();
 	}
 	
 	protected void doNotFreeResourcesOnExit()
@@ -80,6 +82,38 @@ public abstract class HManagedResourceScreen extends BScreen {
 		}
 	}
 	
+	// This view will be recursed and all its resources will be removed.
+	protected void setManagedView(View view) {
+		_managedViews.add(view);
+	}
+	
+	protected void removeManagedView(View view)
+	{
+		_lock.lock();
+		try {
+			cleanup(view);
+		} finally {
+			_lock.unlock();
+		}
+	}
+	
+	protected void cleanupManagedImages() {
+		_lock.lock();
+		try {
+			for ( Resource r : _managedResources )
+			{
+				if (app.isInSimulator())
+					System.out.println("removeManagedResource:" + r.toString());
+				r.remove();
+			}
+			_managedResources.clear();
+			
+			flush();
+		} finally {
+			_lock.unlock();
+		}
+	}
+
 	protected void cleanupAllManagedResources()
 	{
 		_lock.lock();
@@ -91,6 +125,14 @@ public abstract class HManagedResourceScreen extends BScreen {
 				r.remove();
 			}
 			_managedResources.clear();
+
+			for ( View v : _managedViews )
+				cleanup(v);
+			_managedViews.clear();
+			
+			this.remove();
+			
+			flush();
 		} finally {
 			_lock.unlock();
 		}
@@ -111,9 +153,19 @@ public abstract class HManagedResourceScreen extends BScreen {
 		_managedResources.add(ir);
 		return ir;
 	}
-
-	@Override
-	public boolean handleExit() {
+	
+	public static void cleanup(View v) {
+		if (v != null) {
+			int childCount = v.getChildCount();
+			for (int i = 0; i < childCount; i++)
+				cleanup(v.getChild(i));
+			Resource r = v.getResource();
+			if (r != null)
+				r.remove();
+		}
+	}
+	
+	public void cleanup(){
 		if (_freeOnExit)
 		{
 			new Thread() {
@@ -122,6 +174,5 @@ public abstract class HManagedResourceScreen extends BScreen {
 				}
 			}.start();
 		}
-		return super.handleExit();
 	}
 }

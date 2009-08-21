@@ -29,6 +29,7 @@ import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
+import com.tivo.hme.sdk.View;
 
 /**
  * Defines a generic screen for this app. Displays screen title and catches
@@ -70,7 +71,6 @@ public class HScreen extends HManagedResourceScreen {
 				Harmonium.SAFE_ACTION_V,
 				this.screenWidth - (2 * this.safeTitleH),
 				(int)((0.24 * this.screenHeight) - Harmonium.SAFE_ACTION_V)
-		
 		);
 		
 		// Set title attributes
@@ -80,6 +80,7 @@ public class HScreen extends HManagedResourceScreen {
 		this.titleText.setShadow(HSkin.TITLE_SHADOW_COLOR, HSkin.TITLE_SHADOW_OFFSET);
 		this.titleText.setFlags(RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_TEXT_WRAP);
 		this.titleText.setValue(this.screenTitle);
+		setManagedView(titleText);
 	}
 
 	/* (non-Javadoc)
@@ -99,7 +100,7 @@ public class HScreen extends HManagedResourceScreen {
 				}
 			}
 			else {
-				getBApp().pop();
+				app.pop();
 			}
 		}
 		return super.handleAction(arg0, arg1);
@@ -145,6 +146,12 @@ public class HScreen extends HManagedResourceScreen {
 		        text.setFont( ( (Harmonium)this.getBApp() ).hSkin.barFont );
 		        text.setColor(HSkin.BAR_TEXT_COLOR);
 		        text.setValue( this.get(index).toString() );
+		        
+		        View p = parent;
+		        while (p instanceof HManagedResourceScreen == false && p != null)
+		        	p = p.getParent();
+		        if (p != null)
+		        	((HManagedResourceScreen)p).setManagedView(text);
 			}
 		}
 

@@ -328,7 +328,7 @@ public class NowPlayingScreen extends HManagedResourceScreen {
        		// Update views with new info
     		new Thread() {
     			public void run() {
-    				cleanupAllManagedResources();
+    				cleanupManagedImages();
 		    		ImageResource albumArtImage;
 		    		if(musicItem.hasAlbumArt()) {
 		    			// Scaling image in case it is bigger than 640x480 (max TiVo allows). Scaling to size

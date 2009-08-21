@@ -93,7 +93,8 @@ public class BrowseAlbumArtistScreen extends HAlbumInfoListScreen {
 		enterNote.setFont(app.hSkin.paragraphFont);
 		enterNote.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
 		enterNote.setFlags(RSRC_HALIGN_CENTER + RSRC_VALIGN_BOTTOM);
-		enterNote.setValue("press ENTER to add this album artist to a playlist");		
+		enterNote.setValue("press ENTER to add this album artist to a playlist");
+		setManagedView(enterNote);
 	}
 		
 	public boolean handleAction(BView view, Object action) {

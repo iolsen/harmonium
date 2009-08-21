@@ -36,9 +36,11 @@ import org.dazeend.harmonium.music.MusicCollection;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
 import org.dazeend.harmonium.screens.ExitScreen;
+import org.dazeend.harmonium.screens.HManagedResourceScreen;
 import org.dazeend.harmonium.screens.MainMenuScreen;
 import org.dazeend.harmonium.screens.NowPlayingScreen;
 import com.almilli.tivo.bananas.hd.HDApplication;
+import com.tivo.hme.bananas.BScreen;
 import com.tivo.hme.interfaces.IArgumentList;
 import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.sdk.Factory;
@@ -309,6 +311,15 @@ public class Harmonium extends HDApplication {
 		return true;
 	}
 	
+	@Override
+	public void pop()
+	{
+		BScreen currentScreen = getCurrentScreen();
+		super.pop();
+		if (currentScreen instanceof HManagedResourceScreen)
+			((HManagedResourceScreen)currentScreen).cleanup();
+	}
+
 	/**
 	 * Server side factory.
 	 * 
@@ -638,10 +649,8 @@ public class Harmonium extends HDApplication {
 					this.playRate = PlayRate.NORMAL;
 					this.nowPlayingScreen.update(this.nowPlaying);
 				}
-				else {
+				else
 					this.playPrevious();
-				}
-
 			}
 		}
 		
@@ -664,7 +673,7 @@ public class Harmonium extends HDApplication {
 				this.nowPlayingScreen.update(this.nowPlaying);
 			}
 			else
-				throw new Exception("Play failed.");
+				this.playPrevious();
 		}
 		
 		public void stop() {

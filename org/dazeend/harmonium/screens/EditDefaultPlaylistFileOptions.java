@@ -67,6 +67,7 @@ public class EditDefaultPlaylistFileOptions extends HScreen {
 		repeatText.setValue("Repeat Mode:");
 		repeatText.setFlags(RSRC_HALIGN_LEFT);
 		repeatText.setVisible(true);
+		setManagedView(repeatText);
 		
 		// Create repeat button
 		int buttonWidth = ( this.screenWidth - (2 * this.safeTitleH) ) / 3;
@@ -101,6 +102,7 @@ public class EditDefaultPlaylistFileOptions extends HScreen {
 		shuffleText.setValue("Shuffle Mode:");
 		shuffleText.setFlags(RSRC_HALIGN_LEFT);
 		shuffleText.setVisible(true);
+		setManagedView(shuffleText);
 		
 		// Create repeat button
 		this.shuffleButton = new BButton(	this,
