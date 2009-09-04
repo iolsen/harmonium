@@ -20,9 +20,7 @@
  
 package org.dazeend.harmonium.music;
 
-import java.awt.Button;
 import java.awt.Image;
-import java.awt.MediaTracker;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -334,7 +332,7 @@ public class MP3File implements Playable {
 	//@Override
 	public synchronized Image getAlbumArt() {
 		
-		Image albumImage = null;
+		Image img = null;
 		
 		try {
 			// Create an org.blinkenlights.jid3.MP3File to read tag data from
@@ -365,7 +363,7 @@ public class MP3File implements Playable {
 							String tempMimeType = frame.getMimeType();
 							for(TivoImageFormat format : TivoImageFormat.values()) {
 								if(format.getMimeType().equals(tempMimeType)) {
-									albumImage = (new ImageIcon(frame.getPictureData()).getImage());
+									img = new ImageIcon(frame.getPictureData()).getImage();
 									break;
 								}
 							}
@@ -376,14 +374,13 @@ public class MP3File implements Playable {
 					
 					// If we didn't find an attached picture that claims to be of the front cover, just grab
 					// the first valid image.
-					if(albumImage == null) {
+					if(img == null) {
 						for(APICID3V2Frame frame : APICFrames) {
 							// Make sure that the MIME type for this album art can be understood by TiVo
 							String tempMimeType = frame.getMimeType();
 							for(TivoImageFormat format : TivoImageFormat.values()) {
 								if(format.getMimeType().equals(tempMimeType)) {
-									albumImage = (new ImageIcon(frame.getPictureData()).getImage());
-									
+									img = new ImageIcon(frame.getPictureData()).getImage();
 									break;
 								}
 							}
@@ -391,14 +388,14 @@ public class MP3File implements Playable {
 					}
 				}
 			}
-			hasAlbumArt = (albumImage != null);
+			hasAlbumArt = (img != null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			albumImageFetched = true;
 		}
 		
-		return albumImage;
+		return img;
 	}
 
 	/* (non-Javadoc)
@@ -457,8 +454,8 @@ public class MP3File implements Playable {
 	//@Override
 	public Image getScaledAlbumArt(int width, int height) {
 		if(this.hasAlbumArt()) {
-	        ImageIcon icon = new ImageIcon(this.getAlbumArt());
 	        Image img = this.getAlbumArt();
+	        ImageIcon icon = new ImageIcon(img);
 	        int imgW = icon.getIconWidth();
 	        int imgH = icon.getIconHeight();
 	        
@@ -475,18 +472,18 @@ public class MP3File implements Playable {
 	        
 	        if (scale < 1.0f) {
 	            img = img.getScaledInstance(scaleW, scaleH, Image.SCALE_FAST);
-	            try {
-	            	// the media tracker reqires a component, so we use this button
-	                Button mediaTrackerComp = new Button();
-	                
-	                // use MediaTracker to wait for image to be completely scaled. (I think? TiVo code.)
-	                MediaTracker mt = new MediaTracker(mediaTrackerComp);
-	                mt.addImage(img, 0);
-	                mt.waitForAll();
-	            } catch(InterruptedException e) {
-	            }
+//	            try {
+//	            	// the media tracker reqires a component, so we use this button
+//	                Button mediaTrackerComp = new Button();
+//	                
+//	                // use MediaTracker to wait for image to be completely scaled. (I think? TiVo code.)
+//	                MediaTracker mt = new MediaTracker(mediaTrackerComp);
+//	                mt.addImage(img, 0);
+//	                mt.waitForAll();
+//	            } catch(InterruptedException e) {
+//	            }
 	        }
-	        
+	        	        
 	        return img;
 		}
 		return null;

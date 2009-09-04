@@ -154,13 +154,11 @@ public class BrowseAlbumArtistScreen extends HAlbumInfoListScreen {
 
 	@Override
 	public boolean handleEnter(Object arg0, boolean arg1) {
-		list.initImageCache(true);
 		return super.handleEnter(arg0, arg1);
 	}
 	
 	@Override
 	public boolean handleExit() {
-		list.initImageCache(false);
 		return super.handleExit();
 	}
 }

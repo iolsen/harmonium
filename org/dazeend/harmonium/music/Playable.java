@@ -22,6 +22,7 @@ package org.dazeend.harmonium.music;
 
 import java.awt.Image;
 import java.io.File;
+import java.io.IOException;
 
 import org.dazeend.harmonium.screens.NowPlayingScreen;
 
@@ -36,7 +37,7 @@ import org.dazeend.harmonium.screens.NowPlayingScreen;
 
 
 public interface Playable extends PlaylistEligible, AlbumReadable {
-	
+
 	/**
 	 * Enumerates image types that TiVo can natively display.
 	 * 
@@ -134,6 +135,7 @@ public interface Playable extends PlaylistEligible, AlbumReadable {
 	 * @param width		The maximum width of the scaled image
 	 * @param height	The maximum height of the scaled image
 	 * @return
+	 * @throws IOException 
 	 */
 	public Image getScaledAlbumArt(int width, int height);
 	

@@ -787,11 +787,16 @@ public class Harmonium extends HDApplication {
 			if (this.shuffleMode)
 				this.musicIndex = this.shuffledMusicQueue.indexOf(this.nowPlaying);
 			else
-				this.musicIndex = this.musicQueue.indexOf(this.nowPlaying);
+				this.musicIndex = getNowPlayingIndex();
 			
 			if(this.nowPlayingScreen != null) {
 				this.nowPlayingScreen.updateShuffle();
 			}
+		}
+		
+		// Returns the index of the currently playing song in the non-shuffle queue.
+		public int getNowPlayingIndex() {
+			return this.musicQueue.indexOf(this.nowPlaying);
 		}
 		
 		/**

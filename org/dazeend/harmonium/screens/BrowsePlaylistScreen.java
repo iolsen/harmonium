@@ -122,15 +122,20 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 		return super.handleKeyPress(key, rawcode);
 	}
 
+	public void focusNowPlaying() {
+    	if (isNowPlayingPlaylist()) {
+    		int index = this.app.getDiscJockey().getNowPlayingIndex();
+    		this.list.setFocus(index, false);
+    	}
+	}
+	
 	@Override
 	public boolean handleEnter(Object arg0, boolean arg1) {
-		list.initImageCache(true);
 		return super.handleEnter(arg0, arg1);
 	}
 	
 	@Override
 	public boolean handleExit() {
-		list.initImageCache(false);
 		return super.handleExit();
 	}
 }

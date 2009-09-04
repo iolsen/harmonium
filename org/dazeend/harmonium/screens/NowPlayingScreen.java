@@ -90,15 +90,9 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 		// Add art to view
 		new Thread() {
 			public void run() {
-				ImageResource albumArtImage;
-				if(musicItem.hasAlbumArt()) {
-		    		albumArtImage = createManagedImage( musicItem.getScaledAlbumArt(artSide, artSide) );
-				}
-				else {
-					// default_album_art.gif has known dimensions of 300x300, so no scaling is needed
-					albumArtImage = createManagedImage("default_album_art.gif");
-				}
+				ImageResource albumArtImage = createManagedImage(musicItem, artSide, artSide);
 				setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
+	    		flush(); // Necessay to ensure UI updates, because we're in another thread.
 			}
 		}.start();
 		
@@ -329,18 +323,7 @@ public class NowPlayingScreen extends HManagedResourceScreen {
        		// Update views with new info
     		new Thread() {
     			public void run() {
-    				cleanupManagedImages();
-		    		ImageResource albumArtImage;
-		    		if(musicItem.hasAlbumArt()) {
-		    			// Scaling image in case it is bigger than 640x480 (max TiVo allows). Scaling to size
-		    			// of albumArtView which we know is no bigger than 480x480.
-		        		albumArtImage = createManagedImage( musicItem.getScaledAlbumArt(albumArtView.getWidth(), albumArtView.getHeight()) );
-		    		}
-		    		else {
-		    			// default_album_art.gif has known dimensions of 300x300, so no scaling is needed
-		    			albumArtImage = createManagedImage("default_album_art.gif");
-		    		}
-		    		
+		    		ImageResource albumArtImage = createManagedImage( musicItem, albumArtView.getWidth(), albumArtView.getHeight());
 		    		setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
 		    		flush(); // Necessay to ensure UI updates, because we're in another thread.
     			}
@@ -554,12 +537,18 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 		switch(key) {
 		case KEY_INFO:
 			pop();
+			BrowsePlaylistScreen bps;
 			BScreen s = app.getCurrentScreen();
 			if (s instanceof BrowsePlaylistScreen) {
-				if(((BrowsePlaylistScreen)s).isNowPlayingPlaylist())
+				bps = (BrowsePlaylistScreen)s;
+				if(bps.isNowPlayingPlaylist()) {
+					bps.focusNowPlaying();
 					return true;
+				}
 			}
-			app.push(new BrowsePlaylistScreen(app, this.app.getDiscJockey().getCurrentPlaylist()), TRANSITION_LEFT);
+			bps = new BrowsePlaylistScreen(app, this.app.getDiscJockey().getCurrentPlaylist());
+			app.push(bps, TRANSITION_LEFT);
+			bps.focusNowPlaying();
 			return true;
 		case KEY_LEFT:
 			switch( this.app.getDiscJockey().getPlayRate() ) {

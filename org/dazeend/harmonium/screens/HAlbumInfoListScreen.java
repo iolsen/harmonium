@@ -20,9 +20,7 @@
  
 package org.dazeend.harmonium.screens;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import java.io.IOException;
 import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.AlbumReadable;
@@ -255,18 +253,12 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 	 *
 	 */
 	private void loadImage(AlbumReadable musicItem) {
-		ImageResource albumArtImage;
-		if(musicItem.hasAlbumArt()) {
-			// Scale image to less of 640x480 or size of albumArtView. 
-			// (640x480 is the maximum image size that TiVo can load.)
-			int artHeight = Math.min(this.albumArtView.getHeight(), 480);
-			int artWidth = Math.min(this.albumArtView.getWidth(), 640);
-    		albumArtImage = createManagedImage( musicItem.getScaledAlbumArt(artHeight, artWidth) );
-		}
-		else {
-			// default_album_art.gif has known dimensions of 300x300, so no scaling is needed
-			albumArtImage = createManagedImage("default_album_art.gif");
-		}
+
+		// Scale image to less of 640x480 or size of albumArtView. 
+		// (640x480 is the maximum image size that TiVo can load.)
+		int artWidth = Math.min(this.albumArtView.getWidth(), 640);
+		int artHeight = Math.min(this.albumArtView.getHeight(), 480);
+		ImageResource albumArtImage = createManagedImage(musicItem, artWidth, artHeight);
 		
 		this.setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
 	}
@@ -287,8 +279,6 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 		BText 	albumArtistBGText;
 		BText 	yearText;
 		BText 	yearBGText;
-		List<ImageResource> imageCache = new ArrayList<ImageResource>();
-		Boolean imageCacheBuilt = false;
 		
 		private AlbumReadable oldMusicItem;
 		
@@ -363,24 +353,25 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
         		// Move the current art to the background
 	        	setManagedResource(this.albumArtBGView, this.albumArtView.getResource(), RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
        
-        		// Put the new image in the foreground, preferably using cached image
-        		if( imageCacheBuilt || imageCache.size() > focusItem ) {
-        			// Cached image is available: use it.
-        			setManagedResource(this.albumArtView, this.imageCache.get(focusItem), RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
-        		}
-        		else {
-					new Thread()
+        		// Put the new image in the foreground on another thread
+				new Thread()
+				{
+					public void run()
 					{
-						public void run()
+						// The image isn't yet in the cache, so fetch it ourselves in another thread.  This looks like it has the potential 
+						// to screw up the animation below, and it sometimes does, but it seems to give the best performance perception: you 
+						// can move through this list with decent speed even if the cache is still loading and music is playing.
+	        			try
 						{
-							// The image isn't yet in the cache, so fetch it ourselves in another thread.  This looks like it has the potential 
-							// to screw up the animation below, and it sometimes does, but it seems to give the best performance perception: you 
-							// can move through this list with decent speed even if the cache is still loading and music is playing.
-		        			setManagedResource(albumArtView, getAlbumImage((AlbumReadable)get(focusItem)), RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
-		        			flush();
+							setManagedResource(albumArtView, getAlbumImage((AlbumReadable)get(focusItem)), RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
+						} catch (IOException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
-					}.start();
-        		}
+	        			flush();
+					}
+				}.start();
         		
 	    		// Perform the crossfade between images using an animation to match highlight movement
 	    		this.albumArtView.setTransparency(1.0f);		// start transparent, then fade IN
@@ -424,89 +415,11 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
             }
 	    }
 	    
-	    protected synchronized void initImageCache(Boolean build)
-	    {
-	    	if (build)
-	    		buildImageCache();
-	    	else
-	    		resetImageCache();	
-	    }
-	    
-	    private synchronized void resetImageCache() {
-	    	new Thread()
-	    	{
-	    		public void run()
-	    		{
-	    	    	lockManagedResources();
-	    	    	try {
-	    	    		
-	    	    		if (!imageCacheBuilt)
-	    	    			return;
-	    	    		
-	    				imageCacheBuilt = false;
-	    				if (app.isInSimulator())
-	    					System.out.println("imageCacheBuilt = false");
-	    				imageCache.clear();
-	    			} finally {
-	    				unlockManagedResources();
-	    			}
-	    		}
-	    	}.start();
-	    }
-	    
-	    /**
-	     * Caches the album art for list items.
-	     * 
-	     */
-		private synchronized void buildImageCache() {	
+		private ImageResource getAlbumImage(AlbumReadable musicItem) throws IOException {
 			
-			new Thread()
-			{
-				public void run()
-				{
-					lockManagedResources();
-					try {
-						
-						if (imageCacheBuilt)
-							return;
-
-						assert(imageCache.size() == 0);
-						for(int i = 0; i < size(); ++i) {
-							AlbumReadable musicItem = (AlbumReadable)get(i);
-							imageCache.add(getAlbumImage(musicItem));
-						}
-	    				if (app.isInSimulator())
-	    					System.out.println("imageCacheBuilt = true");
-						imageCacheBuilt = true;
-					} catch (Exception e) {
-						e.printStackTrace();
-					} finally {
-						unlockManagedResources();
-					}
-				}
-			}.start();
-		}
-		
-		private ImageResource getAlbumImage(AlbumReadable musicItem) {
-			
-			if (app.isInSimulator())
-				try {
-					Thread.sleep(250); // better simulate performance of real Tivo.
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-
-			if(musicItem.hasAlbumArt()) {
-				// Scale image to less of 640x480 or size of albumArtView. 
-				// (640x480 is the maximum image size that TiVo can load.)
-				int artHeight = Math.min(this.albumArtView.getHeight(), 480);
-				int artWidth = Math.min(this.albumArtView.getWidth(), 640);
-				if ( artHeight > 0 && artWidth > 0 )
-					return createManagedImage(musicItem.getScaledAlbumArt(artHeight, artWidth));
-			}
-
-			// default_album_art.gif has known dimensions of 300x300, so no scaling is needed
-			return createManagedImage("default_album_art.gif");
+			int artWidth = Math.min(this.albumArtView.getWidth(), 640);
+			int artHeight = Math.min(this.albumArtView.getHeight(), 480);
+			return createManagedImage(musicItem, artWidth, artHeight);
 		}
 	}
 
