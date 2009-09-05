@@ -27,6 +27,7 @@ import java.util.List;
 import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.AlbumArtist;
+import org.dazeend.harmonium.music.CompareTracksByName;
 import org.dazeend.harmonium.music.MusicCollection;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
@@ -44,7 +45,7 @@ public class BrowseMusicByTrackScreen extends HSkipListScreen
 		// Add all tracks from music collection to screen
 		List<Playable> tracks = new ArrayList<Playable>();
 		tracks.addAll( thisMusicCollection.listMemberTracks(app) );
-		Collections.sort(tracks, this.app.getPreferences().getMusicCollectionTrackComparator());
+		Collections.sort(tracks, new CompareTracksByName());
 
 		this.list.add(tracks.toArray());
 		

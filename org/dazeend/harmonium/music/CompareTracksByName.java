@@ -50,11 +50,11 @@ public class CompareTracksByName implements Comparator<Playable> {
 		}
 		else if( (! track1.getTrackNameTitleSortForm().equals("") ) && (! track2.getTrackNameTitleSortForm().equals("") ) ) {
 			// both tracks have names/titles set, so compare them
-			return track1.getTrackNameTitleSortForm().compareTo(track2.getTrackNameTitleSortForm());
+			return track1.getTrackNameTitleSortForm().compareToIgnoreCase(track2.getTrackNameTitleSortForm());
 		}
 		
 		// neither track has a title set, so compare by filename.
-		return track1.getFilename().compareTo( track2.getFilename() );		
+		return track1.getFilename().compareToIgnoreCase( track2.getFilename() );		
 	}
 
 }
