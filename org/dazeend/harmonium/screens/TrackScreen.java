@@ -22,6 +22,7 @@ package org.dazeend.harmonium.screens;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.Album;
@@ -59,38 +60,47 @@ public class TrackScreen extends HAlbumInfoListScreen {
 	public TrackScreen(Harmonium app, final Playable thisTrack, final PlaylistEligible trackParent) {
 		super( app, (AlbumReadable) thisTrack, thisTrack.toString() );
 		
+		Vector<String> listCommands = new Vector<String>(5);
+		
 		this.screenTitle = thisTrack.toString();
 		this.playableTrack = thisTrack;
 		this.trackParent = trackParent;
 		
 		// Set up modified list
-		int itemsInList = trackParent == null ? 2 : 3;
-		int listHeight = itemsInList * rowHeight;
-		this.list = new HList(	this.getNormal(), 									// Put list on "normal" level
-								this.safeTitleH , 									// x coord. of button
-								this.screenHeight - this.safeTitleV - listHeight, 	// y coord - Align with bottom of screen
-								(this.screenWidth * 3/4), 							// width of button (3/4s of screen)
-								listHeight,											// height of list
-								this.rowHeight										// height of each row
-		);
 		if (this.app.getDiscJockey().isPlaying()) {
 			// Something's playing now, so add the enqueue options.
-			this.list.add(this.enqueueTrackNext);
-			this.list.add(this.enqueueTrackEnd);
+			listCommands.add(this.enqueueTrackNext);
+			listCommands.add(this.enqueueTrackEnd);
 		}
 		if (trackParent != null) {
 			if (trackParent instanceof Album)
-				this.list.add(this.playParentAlbumString);
+				listCommands.add(this.playParentAlbumString);
 			else if (trackParent instanceof Disc)
-				this.list.add(this.playParentDiscString);
+				listCommands.add(this.playParentDiscString);
 			else
-				this.list.add(this.playParentPlaylistString);
-			this.list.add(this.playOnlyTrackString);
+				listCommands.add(this.playParentPlaylistString);
+			listCommands.add(this.playOnlyTrackString);
 		}
-		else
-			this.list.add(this.playTrackString);
-		this.list.add(this.addTrackToPlaylistString);
+		else {
+			listCommands.add(this.playTrackString);
+		}
+		listCommands.add(this.addTrackToPlaylistString);
+
+		int listHeight = Math.min(5, listCommands.size()) * rowHeight;
+
+		this.list = new HList(	this.getNormal(), 									// Put list on "normal" level
+								this.safeTitleH, 									// x coord. of button
+								this.screenHeight - this.safeTitleV - listHeight, 	// y coord - Align with bottom of screen
+								(screenWidth - (2 * safeTitleH)), 					// width of list (full screen)
+								listHeight,											// height of list
+								this.rowHeight										// height of each row
+		);
+		
+		for (String listCommand : listCommands)
+			this.list.add(listCommand);
+
 		this.setFocusDefault(this.list);
+		
 	}
 	
 	/* (non-Javadoc)
