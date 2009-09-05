@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Charles Perry
+ * Copyright 2009 Ian Olsen
  *
  * This file is part of Harmonium, the TiVo music player.
  *
@@ -17,7 +17,7 @@
  * License along with Harmonium.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 package org.dazeend.harmonium.screens;
 
 import java.util.ArrayList;
@@ -27,7 +27,6 @@ import java.util.List;
 import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.AlbumArtist;
-import org.dazeend.harmonium.music.CompareAlbumArtists;
 import org.dazeend.harmonium.music.MusicCollection;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
@@ -35,23 +34,16 @@ import org.dazeend.harmonium.music.PlaylistEligible;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 
-public class BrowseMusicCollectionScreen extends HSkipListScreen {
-	
-	public BrowseMusicCollectionScreen(Harmonium app, MusicCollection thisMusicCollection) {
-		super(app, thisMusicCollection.toString());
+public class BrowseMusicByTrackScreen extends HSkipListScreen
+{
+	public BrowseMusicByTrackScreen(Harmonium app, MusicCollection thisMusicCollection) {
+		super(app, "All Tracks");
 		
 		this.app = app;
 		
-		// If this music collection is broken into album artists, add them to the screen
-		List<AlbumArtist> albumArtists = new ArrayList<AlbumArtist>();
-		albumArtists.addAll( thisMusicCollection.getAlbumArtistList() );
-		Collections.sort(albumArtists, new CompareAlbumArtists() );
-		this.list.add( albumArtists.toArray() );
-		
-		// If this album has any tracks that are not identified as members of a disc,
-		// add them to the screen.
+		// Add all tracks from music collection to screen
 		List<Playable> tracks = new ArrayList<Playable>();
-		tracks.addAll( thisMusicCollection.getTrackList() );
+		tracks.addAll( thisMusicCollection.listMemberTracks(app) );
 		Collections.sort(tracks, this.app.getPreferences().getMusicCollectionTrackComparator());
 
 		this.list.add(tracks.toArray());
@@ -72,14 +64,8 @@ public class BrowseMusicCollectionScreen extends HSkipListScreen {
 	
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("right") || action.equals("select")) {
-        	PlaylistEligible musicItem = (PlaylistEligible)this.list.get( this.list.getFocus() );
- 
-        	if(musicItem.getClass() == AlbumArtist.class) {
-        		this.app.push(new BrowseAlbumArtistScreen(this.app, (AlbumArtist)musicItem), TRANSITION_LEFT);
-        	}
-        	else {
-        		this.app.push(new TrackScreen(this.app, (Playable)musicItem), TRANSITION_LEFT);
-        	}
+        	Playable musicItem = (Playable)this.list.get( this.list.getFocus() );
+    		this.app.push(new TrackScreen(this.app, musicItem), TRANSITION_LEFT);
             return true;
         }  
    

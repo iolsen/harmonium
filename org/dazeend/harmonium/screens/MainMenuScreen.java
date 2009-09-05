@@ -68,7 +68,7 @@ public class MainMenuScreen extends HListScreen {
         	String menuOption = (String)list.get( list.getFocus() );
         	
         	if( menuOption.equals(BROWSE_MUSIC) ) {
-        		this.app.push(new BrowseMusicCollectionScreen(this.app, this.musicCollection), TRANSITION_LEFT);
+        		this.app.push(new BrowseMusicByWhatScreen(this.app, this.musicCollection), TRANSITION_LEFT);
         		return true;
         	}
         	else if(menuOption.equals(BROWSE_PLAYLISTS)) {

@@ -59,7 +59,7 @@ public class MusicCollection implements PlaylistEligible {
 	
 	// Instance variables
 	private List<AlbumArtist>	albumArtistList = new ArrayList<AlbumArtist>();
-	private List<Playable>		trackList = new ArrayList<Playable>();
+	private List<Playable>		albumlessTrackList = new ArrayList<Playable>();
 	private String				musicRoot = "";
 	private String				playlistRoot = "";
 	private Map<String, Playable>	trackMap = new HashMap<String, Playable>(512);	// used to map canonical file paths to Playable objects. Used for playlist lookup
@@ -150,7 +150,7 @@ public class MusicCollection implements PlaylistEligible {
 		}
 		else {
 			// The track is not part of an album artist, so just delete it from the list
-			this.trackList.remove(track);
+			this.albumlessTrackList.remove(track);
 		}
 	}
 	
@@ -213,12 +213,12 @@ public class MusicCollection implements PlaylistEligible {
 		else {
 			// newTrack does not belong to an album artist.
 			// Check to ensure that the newTrack is not already a direct member of this music collection.
-			if(this.trackList.contains(newTrack)) {
+			if(this.albumlessTrackList.contains(newTrack)) {
 				return false;
 			}
 	
 			// If we got this far, then the track is not yet in this music collection as a direct member, so add it.
-			if(this.trackList.add(newTrack)) {
+			if(this.albumlessTrackList.add(newTrack)) {
 				// The track was successfully added. Return TRUE.
 				return true;
 			}
@@ -246,7 +246,7 @@ public class MusicCollection implements PlaylistEligible {
 		
  		// Get tracks that are direct members of the music root
  		List<Playable> sortedTrackList = new ArrayList<Playable>();
-		sortedTrackList.addAll(trackList);
+		sortedTrackList.addAll(albumlessTrackList);
 		
 		if(app != null) {
 			Collections.sort( sortedTrackList, app.getPreferences().getMusicCollectionTrackComparator() );
@@ -554,7 +554,7 @@ public class MusicCollection implements PlaylistEligible {
 			albumArtist.printMusic(outputStream);
 		}
 		
-		for(Playable track : this.trackList) {
+		for(Playable track : this.albumlessTrackList) {
 			outputStream.println("= Track: " + track.getPath());
 		}
 		outputStream.flush();
@@ -721,8 +721,8 @@ public class MusicCollection implements PlaylistEligible {
 	 * 
 	 * @return
 	 */
-	public List<Playable> getTrackList() {
-		return trackList;
+	public List<Playable> getAlbumlessTrackList() {
+		return albumlessTrackList;
 	}
 	
 	/**
@@ -737,7 +737,7 @@ public class MusicCollection implements PlaylistEligible {
 	 * 
 	 * @return
 	 */
-	public List<HPLFile> getHPLPlayslists() {
+	public List<HPLFile> getHPLPlaylists() {
 		List<HPLFile> hplList = new ArrayList<HPLFile>();
 		
 		for(PlaylistFile playlist : this.playlistFiles) {

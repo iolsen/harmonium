@@ -48,7 +48,7 @@ public class AddToPlaylistScreen extends HListScreen {
 		this.list.add(NEW_PLAYLIST_LABEL);
 		
 		// sort existing HPL playlists and add them to the list
-		List<HPLFile> sortedHPLPlaylists = MusicCollection.getMusicCollection(this.app.getHFactory()).getHPLPlayslists();
+		List<HPLFile> sortedHPLPlaylists = MusicCollection.getMusicCollection(this.app.getHFactory()).getHPLPlaylists();
 		Collections.sort(sortedHPLPlaylists);
 		this.list.add( sortedHPLPlaylists.toArray() );
 	}
