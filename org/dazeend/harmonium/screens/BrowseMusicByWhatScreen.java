@@ -11,6 +11,7 @@ public class BrowseMusicByWhatScreen extends HListScreen
 	
 	private static final String BY_ALBUM_ARTIST = "By Album Artist";
 	private static final String BY_TRACK = "By Track";
+	private static final String BY_TRACK_ARTIST = "By Track Artist";
 	
 	/**
 	 * Constructor.
@@ -25,6 +26,7 @@ public class BrowseMusicByWhatScreen extends HListScreen
 		
 		list.add(BY_ALBUM_ARTIST);
 		list.add(BY_TRACK);
+		list.add(BY_TRACK_ARTIST);
 	}
 	
 	@Override
@@ -38,6 +40,10 @@ public class BrowseMusicByWhatScreen extends HListScreen
         	}
         	if( menuOption.equals(BY_TRACK) ) {
         		this.app.push(new BrowseMusicByTrackScreen(this.app, this.musicCollection), TRANSITION_LEFT);
+        		return true;
+        	}
+        	if( menuOption.equals(BY_TRACK_ARTIST) ) {
+        		this.app.push(new BrowseMusicByTrackArtistScreen(this.app, this.musicCollection), TRANSITION_LEFT);
         		return true;
         	}
         }  

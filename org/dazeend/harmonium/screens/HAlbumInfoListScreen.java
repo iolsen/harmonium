@@ -21,9 +21,13 @@
 package org.dazeend.harmonium.screens;
 
 import java.io.IOException;
+
 import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
+import org.dazeend.harmonium.music.AlbumArtListItem;
 import org.dazeend.harmonium.music.AlbumReadable;
+import org.dazeend.harmonium.music.PlaylistEligible;
+
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.ImageResource;
@@ -37,16 +41,17 @@ import com.tivo.hme.sdk.Resource;
  */
 public class HAlbumInfoListScreen extends HSkipListScreen {
 
-	protected HSkipList list;				// the list in this screen
+	private HSkipList list;				// the list in this screen
 	protected int	rowHeight;				// the height of each row in the list
 	protected BView albumArtView;			// the view that contains the album art
 	protected BText albumNameText;			// the text that displays the album name
-	protected BText albumArtistText;		// the text that displays the album artist
+	protected BText artistNameText;		// the text that displays the album artist
 	protected BText yearText;				// the text that displays the release year for the album
 	protected BView albumArtBGView;			// the view behind the album art. Used for crossfades.
 	protected BText albumNameBGText;
 	protected BText albumArtistBGText;
 	protected BText yearBGText;
+	protected BText artistNameLabelText;
 	
 	public HAlbumInfoListScreen(Harmonium app, AlbumReadable musicItem, String title) {
 		this(app, title);
@@ -149,31 +154,30 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 		setManagedView(albumArtistBGText);
 		
 		// Put album artist name in album art view
-		albumArtistText = new BText(	albumInfo,						// parent
-										leftEdgeCoord,					// x coord relative to parent	
-										paraHeight + paraLabelHeight,	// y coord relative to parent
-										textWidth,						// width
-										paraHeight						// height
+		artistNameText = new BText(	albumInfo,						// parent
+									leftEdgeCoord,					// x coord relative to parent	
+									paraHeight + paraLabelHeight,	// y coord relative to parent
+									textWidth,						// width
+									paraHeight						// height
 		);
-		albumArtistText.setFont(app.hSkin.paragraphFont);
-		albumArtistText.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
-		albumArtistText.setShadow(false);
-		albumArtistText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_BOTTOM);
-		setManagedView(albumArtistText);	
+		artistNameText.setFont(app.hSkin.paragraphFont);
+		artistNameText.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
+		artistNameText.setShadow(false);
+		artistNameText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_BOTTOM);
+		setManagedView(artistNameText);	
 		
-		// Put in album artist label
-		BText albumArtistNameLabelText = new BText(	albumInfo,							// parent
+		artistNameLabelText = new BText(	albumInfo,							// parent
 													leftEdgeCoord,						// x coord relative to parent
 													(2 * paraHeight) + paraLabelHeight,	// y coord relative to parent
 													textWidth,							// width
 													paraLabelHeight						// height
 		);
-		albumArtistNameLabelText.setColor(HSkin.PARAGRAPH_LABEL_TEXT_COLOR);
-		albumArtistNameLabelText.setShadow(false);
-		albumArtistNameLabelText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_TOP);
-		albumArtistNameLabelText.setFont(app.hSkin.paragraphLabelFont);
-		albumArtistNameLabelText.setValue("Album Artist");
-		setManagedView(albumArtistNameLabelText);
+		artistNameLabelText.setColor(HSkin.PARAGRAPH_LABEL_TEXT_COLOR);
+		artistNameLabelText.setShadow(false);
+		artistNameLabelText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_TOP);
+		artistNameLabelText.setFont(app.hSkin.paragraphLabelFont);
+		artistNameLabelText.setValue("Album Artist");
+		setManagedView(artistNameLabelText);
 		
 		// Create BG text for crossfade
 		yearBGText = new BText(	albumInfo,									// parent
@@ -226,11 +230,18 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 		setFocusDefault(list);
 	}
 	
+	protected void addToList(AlbumArtListItem item) {
+		list.add(item);
+	}
+	
+	protected int getListY() { return list.getY(); }
+	
+	protected PlaylistEligible getListSelection() { return (PlaylistEligible)this.list.get(this.list.getFocus()); }
 
 	protected void initAlbumInfo(final AlbumReadable musicItem) {
 		
 		this.albumNameText.setValue(musicItem.getAlbumName());
-		this.albumArtistText.setValue(musicItem.getAlbumArtistName());
+		this.artistNameText.setValue(musicItem.getAlbumArtistName());
 		
 		if(musicItem.getReleaseYear() == 0) {
 			yearText.setValue("");
@@ -275,7 +286,7 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 		BView 	albumArtBGView;		// the background view used for crossfading
 		BText 	albumNameText;
 		BText 	albumNameBGText;
-		BText 	albumArtistText;
+		BText 	artistText;
 		BText 	albumArtistBGText;
 		BText 	yearText;
 		BText 	yearBGText;
@@ -303,7 +314,7 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
             this.albumArtBGView = background;
             this.albumNameText = albumNameText;
 			this.albumNameBGText = albumNameBGText;
-			this.albumArtistText = albumArtistText;
+			this.artistText = albumArtistText;
 			this.albumArtistBGText = albumArtistBGText;
 			this.yearText = yearText;
 			this.yearBGText = yearBGText;
@@ -319,7 +330,7 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 	     try {
 	    	 if (isGained) {
 
-        		final AlbumReadable newMusicItem = (AlbumReadable)this.get( this.getFocus() );
+        		final AlbumArtListItem newMusicItem = (AlbumArtListItem)this.get( this.getFocus() );
 
 		    	// When used in a playlist, the album art may or may not be different from the row that just lost focus.
 	        	// Here we store the artist and album of the row losing focus, so we can compare when we regain focus
@@ -341,7 +352,7 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 	        return super.handleFocus(isGained, gained, lost);
 	    }
 	    
-	    private void updateInfo(final AlbumReadable newMusicItem, final int focusItem)
+	    private void updateInfo(final AlbumArtListItem newMusicItem, final int focusItem)
 	    {
             // turn off painting while we update the images
         	app.getRoot().setPainting(false);
@@ -381,12 +392,12 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 
 	            // Copy text to background text items
 	            this.albumNameBGText.setValue(albumNameText.getValue());
-	            this.albumArtistBGText.setValue(albumArtistText.getValue());
+	            this.albumArtistBGText.setValue(artistText.getValue());
 	            this.yearBGText.setValue(yearText.getValue());
 	            
 	            // Update text in foreground text elements
 	            this.albumNameText.setValue(newMusicItem.getAlbumName());
-	            this.albumArtistText.setValue(newMusicItem.getAlbumArtistName());
+	            this.artistText.setValue(newMusicItem.getDisplayArtistName());
 	            if(newMusicItem.getReleaseYear() == 0) {
 	    			yearText.setValue("");
 	    		}
@@ -405,8 +416,8 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 	            // Fade in foreground elements
 	            this.albumNameText.setTransparency(1.0f);
 	            this.albumNameText.setTransparency(0.0f, anim);
-	            this.albumArtistText.setTransparency(1.0f);
-	            this.albumArtistText.setTransparency(0.0f, anim);
+	            this.artistText.setTransparency(1.0f);
+	            this.artistText.setTransparency(0.0f, anim);
 	            this.yearText.setTransparency(1.0f);
 	            this.yearText.setTransparency(0.0f, anim);
         	}

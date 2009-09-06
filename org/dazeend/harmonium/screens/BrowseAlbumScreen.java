@@ -55,21 +55,21 @@ public class BrowseAlbumScreen extends HAlbumInfoListScreen {
 		List<Disc> discs = new ArrayList<Disc>();
 		discs.addAll( thisAlbum.getDiscList() );
 		Collections.sort( discs, new CompareDiscs() );
-
-		this.list.add( discs.toArray() );
+		for (Disc disc : discs)
+			addToList(disc);
 		
 		// If this album has any tracks that are not identified as members of a disc,
 		// add them to the screen.
 		List<Playable> tracks = new ArrayList<Playable>();
 		tracks.addAll( thisAlbum.getTrackList() );
 		Collections.sort(tracks, this.app.getPreferences().getAlbumTrackComparator());
+		for (Playable track : tracks)
+			addToList(track);
 
-		this.list.add( tracks.toArray() );
-		
 		// Add a note to the bottom of the screen
 		BText enterNote = new BText(	this.getNormal(),
 										this.safeTitleH,
-										this.list.getY() + (5 * this.rowHeight) + (this.screenHeight / 100),
+										getListY() + (5 * this.rowHeight) + (this.screenHeight / 100),
 										this.screenWidth - (2 * this.safeTitleH),
 										this.app.hSkin.paragraphFontSize
 		);
@@ -82,7 +82,7 @@ public class BrowseAlbumScreen extends HAlbumInfoListScreen {
 	
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("right") || action.equals("select")) {
-        	PlaylistEligible musicItem = (PlaylistEligible)this.list.get( this.list.getFocus() );
+        	PlaylistEligible musicItem = getListSelection();
        
         	if(musicItem instanceof Disc) {
         		this.app.push(new BrowseDiscScreen(this.app, (Disc)musicItem), TRANSITION_LEFT);
@@ -114,7 +114,8 @@ public class BrowseAlbumScreen extends HAlbumInfoListScreen {
 			playlist.add( this.album );
 			boolean shuffleMode;
 			boolean repeatMode;
-			Playable startPlaying = (Playable)this.list.get(this.list.getFocus());
+			PlaylistEligible selected = getListSelection();
+			Playable startPlaying = null;
 			
 			// Ian TODO: Something's not right here.  Should we be using album shuffle
 			// 			 mode somewhere?  Why is there even a track shuffle mode?
@@ -125,7 +126,7 @@ public class BrowseAlbumScreen extends HAlbumInfoListScreen {
 			//
 			//			 Also, this logic is also used in TrackScreen.  Maybe this
 			//			 whole block should be pushed down into DiscJockey or something.
-			if(  startPlaying instanceof Disc ) {
+			if(  selected instanceof Disc ) {
 				// Playing an entire disc
 				shuffleMode = this.app.getPreferences().getDiscDefaultShuffleMode();
 				repeatMode = this.app.getPreferences().getDiscDefaultRepeatMode();
@@ -134,6 +135,7 @@ public class BrowseAlbumScreen extends HAlbumInfoListScreen {
 				// Playing an individual track
 				shuffleMode = this.app.getPreferences().getTrackDefaultShuffleMode();
 				repeatMode = this.app.getPreferences().getTrackDefaultRepeatMode();
+				startPlaying = (Playable)selected;
 			}
 			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode, startPlaying);
 			return true;

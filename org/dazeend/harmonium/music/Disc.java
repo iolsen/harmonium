@@ -35,7 +35,7 @@ import org.dazeend.harmonium.Harmonium;
  * @author Charles Perry (harmonium@DazeEnd.org)
  *
  */
-public class Disc implements PlaylistEligible, AlbumReadable {
+public class Disc implements PlaylistEligible, AlbumArtListItem {
 
 	private List<Playable>	trackList = Collections.synchronizedList( new ArrayList<Playable>() );
 	private int 			discNumber;					// Set only through constructor. Setting later could break data structure.
@@ -276,6 +276,11 @@ public class Disc implements PlaylistEligible, AlbumReadable {
 	@Override
 	public String toString() {
 		return this.toStringTitleSortForm();
+	}
+
+	public String getDisplayArtistName()
+	{
+		return getAlbumArtistName();
 	}
 	
 	

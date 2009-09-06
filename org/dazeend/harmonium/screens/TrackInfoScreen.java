@@ -21,7 +21,6 @@
 package org.dazeend.harmonium.screens;
 
 import org.dazeend.harmonium.Harmonium;
-import org.dazeend.harmonium.music.AlbumReadable;
 import org.dazeend.harmonium.music.Playable;
 
 import com.tivo.hme.bananas.BView;
@@ -37,7 +36,7 @@ public class TrackInfoScreen extends HAlbumInfoListScreen {
 	private HList list;
 	
 	public TrackInfoScreen(Harmonium app, final Playable thisTrack) {
-		super( app, (AlbumReadable) thisTrack, thisTrack.toString() );
+		super( app, thisTrack, thisTrack.toString() );
 		
 		this.screenTitle = thisTrack.toString();
 		

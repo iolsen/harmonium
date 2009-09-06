@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Charles Perry
+ * Copyright 2009 Ian Olsen
  *
  * This file is part of Harmonium, the TiVo music player.
  *
@@ -26,32 +26,27 @@ import java.util.List;
 
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.HSkin;
-import org.dazeend.harmonium.music.Album;
-import org.dazeend.harmonium.music.AlbumArtist;
-import org.dazeend.harmonium.music.BaseArtist;
+import org.dazeend.harmonium.music.CompareTracksByName;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
-
+import org.dazeend.harmonium.music.TrackArtist;
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 
-/**
- * The album artist screen to use when there are known albums.
- * 
- * @author Charles Perry (harmonium@DazeEnd.org)
- *
- */
-public class BrowseAlbumArtistScreen extends HAlbumInfoListScreen {
-	
+public class BrowseTrackArtistScreen extends HAlbumInfoListScreen
+{
 	private HAlbumArtList list;
-	private BaseArtist albumArtist;
-	private List<Playable> tracksWithNoAlbum;
+	private TrackArtist trackArtist;
+	private List<Playable> trackList;
 	
-	public BrowseAlbumArtistScreen(Harmonium app, AlbumArtist thisAlbumArtist) {
+	public BrowseTrackArtistScreen(Harmonium app, TrackArtist thisTrackArtist) {
 		// The parent constructor needs an album to initialize album info. Sent the first one.
-		super(app, thisAlbumArtist.toString() );
+		super(app, thisTrackArtist.toString() );
 		
-		this.albumArtist = thisAlbumArtist;
+		this.artistNameLabelText.setValue("Artist");
+		this.artistNameText.setValue(thisTrackArtist.getArtistName());
+		
+		this.trackArtist = thisTrackArtist;
 		
 		// Set up list for contents of musicItem
 		this.list = new HAlbumArtList(	this.getNormal(), 								// Put list on "normal" level
@@ -71,18 +66,11 @@ public class BrowseAlbumArtistScreen extends HAlbumInfoListScreen {
 										);
 		setFocusDefault(this.list);
 		
-		// Add albums to the screen
-		List<Album> albums = new ArrayList<Album>();
-		albums.addAll( thisAlbumArtist.getAlbumList() );
-		Collections.sort(albums, this.app.getPreferences().getAlbumComparator());
-
-		this.list.add( albums.toArray() );
-		
-		// If this album has any tracks that are direct members, add them to the screen.
-		tracksWithNoAlbum = new ArrayList<Playable>();
-		tracksWithNoAlbum.addAll( thisAlbumArtist.getTrackList() );
-		Collections.sort(tracksWithNoAlbum, this.app.getPreferences().getAlbumArtistTrackComparator());
-		this.list.add( tracksWithNoAlbum.toArray() );
+		// Add tracks to the screen.
+		trackList = new ArrayList<Playable>();
+		trackList.addAll( thisTrackArtist.getTrackList() );
+		Collections.sort(trackList, new CompareTracksByName());
+		this.list.add( trackList.toArray() );
 		
 		// Add a note to the bottom of the screen
 		BText enterNote = new BText(	this.getNormal(),
@@ -94,20 +82,14 @@ public class BrowseAlbumArtistScreen extends HAlbumInfoListScreen {
 		enterNote.setFont(app.hSkin.paragraphFont);
 		enterNote.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
 		enterNote.setFlags(RSRC_HALIGN_CENTER + RSRC_VALIGN_BOTTOM);
-		enterNote.setValue("press ENTER to add this album artist to a playlist");
+		enterNote.setValue("press ENTER to add this artist to a playlist");
 		setManagedView(enterNote);
 	}
 		
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("right") || action.equals("select")) {
-        	PlaylistEligible musicItem = (PlaylistEligible)list.get( list.getFocus() );
-            
-        	if(musicItem instanceof Album) {
-        		this.app.push(new BrowseAlbumScreen(this.app, (Album)musicItem), TRANSITION_LEFT);
-        	}
-        	else {
-        		this.app.push(new TrackScreen(this.app, (Playable)musicItem), TRANSITION_LEFT);
-        	}
+        	Playable musicItem = (Playable)list.get( list.getFocus() );
+    		this.app.push(new TrackScreen(this.app, (Playable)musicItem), TRANSITION_LEFT);
         	
             return true;
         }  
@@ -128,28 +110,22 @@ public class BrowseAlbumArtistScreen extends HAlbumInfoListScreen {
 			
 			List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
 			playlist.add( ( PlaylistEligible)this.list.get( this.list.getFocus() ) );
-			boolean shuffleMode;
-			boolean repeatMode;
-			
-			if( this.list.get( this.list.getFocus() ) instanceof Album ) {
-				// Playing an entire album
-				shuffleMode = this.app.getPreferences().getAlbumDefaultShuffleMode();
-				repeatMode = this.app.getPreferences().getAlbumDefaultRepeatMode();
-			}
-			else {
-				// Playing an individual track
-				shuffleMode = this.app.getPreferences().getTrackDefaultShuffleMode();
-				repeatMode = this.app.getPreferences().getTrackDefaultRepeatMode();
-			}
+
+			// Playing an individual track
+			boolean shuffleMode = this.app.getPreferences().getTrackDefaultShuffleMode();
+			boolean repeatMode = this.app.getPreferences().getTrackDefaultRepeatMode();
+
 			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode);
 			return true;
+
 		case KEY_ENTER:
 			this.app.play("select.snd");
-			this.app.push(new AddToPlaylistScreen(this.app, this.albumArtist), TRANSITION_LEFT);
+			this.app.push(new AddToPlaylistScreen(this.app, this.trackArtist), TRANSITION_LEFT);
     		return true;
 		}
 		
 		return super.handleKeyPress(key, rawcode);
 
 	}
+
 }

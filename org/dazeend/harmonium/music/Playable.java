@@ -36,7 +36,7 @@ import org.dazeend.harmonium.screens.NowPlayingScreen;
  */
 
 
-public interface Playable extends PlaylistEligible, AlbumReadable {
+public interface Playable extends PlaylistEligible, AlbumArtListItem {
 
 	/**
 	 * Enumerates image types that TiVo can natively display.

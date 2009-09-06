@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Charles Perry
+ * Copyright 2009 Ian Olsen
  *
  * This file is part of Harmonium, the TiVo music player.
  *
@@ -17,7 +17,7 @@
  * License along with Harmonium.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 package org.dazeend.harmonium.screens;
 
 import java.util.ArrayList;
@@ -26,35 +26,29 @@ import java.util.List;
 
 import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
-import org.dazeend.harmonium.music.AlbumArtist;
 import org.dazeend.harmonium.music.CompareArtists;
 import org.dazeend.harmonium.music.MusicCollection;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.TrackArtist;
 
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 
-public class BrowseMusicByAlbumArtistScreen extends HSkipListScreen {
-	
-	public BrowseMusicByAlbumArtistScreen(Harmonium app, MusicCollection thisMusicCollection) {
-		super(app, "All Album Artists");
+public class BrowseMusicByTrackArtistScreen extends HSkipListScreen
+{
+	public BrowseMusicByTrackArtistScreen(Harmonium app, MusicCollection thisMusicCollection) {
+		super(app, "All Track Artists");
 		
 		this.app = app;
 		
-		// If this music collection is broken into album artists, add them to the screen
-		List<AlbumArtist> albumArtists = new ArrayList<AlbumArtist>();
-		albumArtists.addAll( thisMusicCollection.getAlbumArtistList() );
-		Collections.sort(albumArtists, new CompareArtists() );
-		this.list.add( albumArtists.toArray() );
+		// Add track artists to list
+		List<TrackArtist> trackArtists = new ArrayList<TrackArtist>();
+		trackArtists.addAll( thisMusicCollection.getTrackArtistList() );
+		Collections.sort(trackArtists, new CompareArtists() );
+		this.list.add( trackArtists.toArray() );
 		
-		// If this album has any tracks that are not identified as members of an album,
-		// add them to the screen.
-		List<Playable> tracks = new ArrayList<Playable>();
-		tracks.addAll( thisMusicCollection.getAlbumlessTrackList() );
-		Collections.sort(tracks, this.app.getPreferences().getMusicCollectionTrackComparator());
-
-		this.list.add(tracks.toArray());
+		// Ian TODO: add tracks with no track artist
 		
 		// Add a note to the bottom of the screen
 		BText enterNote = new BText(	this.getNormal(),
@@ -69,13 +63,13 @@ public class BrowseMusicByAlbumArtistScreen extends HSkipListScreen {
 		enterNote.setValue("press ENTER to add the entire music collection to a playlist");
 		setManagedView(enterNote);
 	}
-	
+
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("right") || action.equals("select")) {
         	PlaylistEligible musicItem = (PlaylistEligible)this.list.get( this.list.getFocus() );
  
-        	if(musicItem.getClass() == AlbumArtist.class) {
-        		this.app.push(new BrowseAlbumArtistScreen(this.app, (AlbumArtist)musicItem), TRANSITION_LEFT);
+        	if(musicItem.getClass() == TrackArtist.class) {
+        		this.app.push(new BrowseTrackArtistScreen(this.app, (TrackArtist)musicItem), TRANSITION_LEFT);
         	}
         	else {
         		this.app.push(new TrackScreen(this.app, (Playable)musicItem), TRANSITION_LEFT);
@@ -102,8 +96,8 @@ public class BrowseMusicByAlbumArtistScreen extends HSkipListScreen {
 			boolean shuffleMode;
 			boolean repeatMode;
 			
-			if( this.list.get( this.list.getFocus() ) instanceof AlbumArtist ) {
-				// We're playing an entire album artist
+			if( this.list.get( this.list.getFocus() ) instanceof TrackArtist ) {
+				// We're playing an entire track artist
 				shuffleMode = this.app.getPreferences().getAlbumArtistDefaultShuffleMode();
 				repeatMode = this.app.getPreferences().getAlbumArtistDefaultRepeatMode();
 			}

@@ -18,6 +18,8 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 	private BrowsePlaylistScreen(Harmonium app, String title) {
 		super(app, title);
 
+		this.artistNameLabelText.setValue("Artist");
+		
 		// Set up list for contents of musicItem
 		this.list = new HAlbumArtList(	this.getNormal(), 								// Put list on "normal" level
 										this.safeTitleH , 									// x coord. of list
@@ -29,7 +31,7 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 										this.albumArtBGView,
 										this.albumNameText,
 										this.albumNameBGText,
-										this.albumArtistText,
+										this.artistNameText,
 										this.albumArtistBGText,
 										this.yearText,
 										this.yearBGText

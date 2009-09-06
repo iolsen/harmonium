@@ -27,12 +27,12 @@ import java.util.Comparator;
  * @throws NullPointerException
  *
  */
-public class CompareAlbumArtists implements Comparator<AlbumArtist> {
+public class CompareArtists implements Comparator<BaseArtist> {
 
 	/* (non-Javadoc)
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
-	public int compare(AlbumArtist artist1, AlbumArtist artist2) {
+	public int compare(BaseArtist artist1, BaseArtist artist2) {
 		
 		// If one of the albums is null, then throw an exception
 		if(artist1 == null || artist2 == null) {
@@ -47,7 +47,7 @@ public class CompareAlbumArtists implements Comparator<AlbumArtist> {
 			return 1;
 		}
 		else {
-			return artist1.getAlbumArtistNameTitleSortForm().compareTo(artist2.getAlbumArtistNameTitleSortForm());
+			return artist1.getAlbumArtistNameTitleSortForm().compareToIgnoreCase(artist2.getAlbumArtistNameTitleSortForm());
 		}
 		
 		

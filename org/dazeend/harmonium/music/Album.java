@@ -41,7 +41,7 @@ import org.dazeend.harmonium.Harmonium;
  * @author Charles Perry (harmonium@DazeEnd.org)
  *
  */
-public class Album implements PlaylistEligible, AlbumReadable {
+public class Album implements PlaylistEligible, AlbumArtListItem {
 
 	private List<Disc>		discList = Collections.synchronizedList( new ArrayList<Disc>() );
 	private List<Playable>	trackList = Collections.synchronizedList( new ArrayList<Playable>() );
@@ -441,6 +441,11 @@ public class Album implements PlaylistEligible, AlbumReadable {
 	 */
 	public String getAlbumArtistNameTitleSortForm() {
 		return albumArtistNameTitleSortForm;
+	}
+
+	public String getDisplayArtistName()
+	{
+		return getAlbumArtistName();
 	}
 	
 	

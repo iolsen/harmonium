@@ -25,22 +25,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.dazeend.harmonium.Harmonium;
 
-
-/**
- * @author Charles Perry (harmonium@DazeEnd.org)
- *
- */
-public class AlbumArtist implements PlaylistEligible {
+public class AlbumArtist extends BaseArtist {
 
 	private List<Album>		albumList = Collections.synchronizedList( new ArrayList<Album>() );
-	private List<Playable>	trackList = Collections.synchronizedList( new ArrayList<Playable>() );
-	private String			albumArtistName = "";	// Set only through constructor. Setting later could break data structure.
-	private String			albumArtistNameTitleSortForm = "";
 	
 	/**
 	 * Creates album artist and initialized key metadata.
@@ -48,20 +38,8 @@ public class AlbumArtist implements PlaylistEligible {
 	 * @param albumArtistName	the name of the artist that recorded this album
 	 */
 	public AlbumArtist(String albumArtistName) {
-		super();
-		this.albumArtistName = albumArtistName;
+		super(albumArtistName);
 		
-		// Put artist name in title sort form
-		// Compile pattern for matching leading articles
-		Pattern titlePattern = Pattern.compile("(?i)^(the|a|an)\\s");
-		Matcher stringMatcher = titlePattern.matcher(this.albumArtistName);
-		if(stringMatcher.lookingAt()) {
-			// Found a leading article. Move it to the end of the string.
-			this.albumArtistNameTitleSortForm = stringMatcher.replaceFirst("") + ", " + stringMatcher.group(1);
-		}
-		else {
-			this.albumArtistNameTitleSortForm = this.albumArtistName;
-		}
 	}
 
 	/**
@@ -74,7 +52,7 @@ public class AlbumArtist implements PlaylistEligible {
 	public synchronized boolean addAlbum(Album newAlbum) {
 		
 		// Check to ensure that the newAlbum is eligible to be a member of this album artist.
-		if( this.albumArtistName.compareToIgnoreCase(newAlbum.getAlbumArtistName()) != 0 ) {
+		if( this._artistName.compareToIgnoreCase(newAlbum.getAlbumArtistName()) != 0 ) {
 			return false;
 		}
 		// Check to ensure that the newAlbum is not already a member of the album artist.
@@ -122,7 +100,7 @@ public class AlbumArtist implements PlaylistEligible {
 		}
 		else {
 			// The track is not part of an album, so just delete it from the list
-			this.trackList.remove(track);
+			_trackList.remove(track);
 		}
 	}
 
@@ -135,7 +113,7 @@ public class AlbumArtist implements PlaylistEligible {
 	 */
 	public synchronized boolean addTrack(Playable newTrack) {
 		// Check to ensure that the newTrack is eligible to be a member of this album artist.
-		if( albumArtistName.compareToIgnoreCase(newTrack.getAlbumArtistName()) != 0 ) {
+		if( _artistName.compareToIgnoreCase(newTrack.getAlbumArtistName()) != 0 ) {
 			return false;
 		}
 		
@@ -186,12 +164,12 @@ public class AlbumArtist implements PlaylistEligible {
 		else {
 			// newTrack does not belong to an album.
 			// Check to ensure that the newTrack is not already a direct member of this album artist.
-			if(this.trackList.contains(newTrack)) {
+			if(this._trackList.contains(newTrack)) {
 				return false;
 			}
 	
 			// If we got this far, then the track is not yet in this album artist as a direct member, so add it.
-			if(this.trackList.add(newTrack)) {
+			if(this._trackList.add(newTrack)) {
 				// The track was successfully added. Return TRUE.
 				return true;
 			}
@@ -222,7 +200,7 @@ public class AlbumArtist implements PlaylistEligible {
 		
  		// Get tracks that are direct members of this album artist
  		List<Playable> sortedTrackList = new ArrayList<Playable>();
-		sortedTrackList.addAll(trackList);
+		sortedTrackList.addAll(_trackList);
 		
 		if(app != null) {
 			Collections.sort(sortedTrackList, app.getPreferences().getAlbumArtistTrackComparator());
@@ -235,15 +213,6 @@ public class AlbumArtist implements PlaylistEligible {
 	}
 
 	/**
-	 * Gets the name of this artist.
-	 * 
-	 * @return the albumArtistName
-	 */
-	public String getAlbumArtistName() {
-		return albumArtistName;
-	}
-
-	/**
 	 * Gets the list of albums by this artist.
 	 * 
 	 * @return the albumList
@@ -252,14 +221,6 @@ public class AlbumArtist implements PlaylistEligible {
 		return albumList;
 	}
 
-	/**
-	 * Gets the list of direct member tracks associated with this artist.
-	 * 
-	 * @return the trackList
-	 */
-	public List<Playable> getTrackList() {
-		return trackList;
-	}
 
 	/**
 	 * Prints members of this object. Used for debugging.
@@ -274,7 +235,7 @@ public class AlbumArtist implements PlaylistEligible {
 			album.printMusic(outputStream);
 		}
 		
-		for(Playable track : this.trackList) {
+		for(Playable track : this._trackList) {
 			outputStream.println("== Track: " + track.getPath());
 		}
 		outputStream.flush();
@@ -287,7 +248,7 @@ public class AlbumArtist implements PlaylistEligible {
 	public int hashCode() {
 		final int PRIME = 31;
 		int result = 1;
-		result = PRIME * result + ((albumArtistName == null) ? 0 : albumArtistName.hashCode());
+		result = PRIME * result + ((_artistName == null) ? 0 : _artistName.hashCode());
 		return result;
 	}
 
@@ -302,37 +263,12 @@ public class AlbumArtist implements PlaylistEligible {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		final AlbumArtist other = (AlbumArtist) obj;
-		if (albumArtistName == null) {
-			if (other.albumArtistName != null)
+		final BaseArtist other = (BaseArtist) obj;
+		if (_artistName == null) {
+			if (other._artistName != null)
 				return false;
-		} else if (albumArtistName.compareToIgnoreCase(other.albumArtistName) != 0)
+		} else if (_artistName.compareToIgnoreCase(other._artistName) != 0)
 			return false;
 		return true;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dazeend.harmonium.PlaylistEligible#listMemberTracks()
-	 */
-	public String toStringTitleSortForm() {
-		return this.albumArtistNameTitleSortForm;
-	}
-
-	@Override
-	public String toString() {
-		if(this.albumArtistName == null) {
-			return "";
-		}
-		return this.albumArtistName;
-	}
-
-	/**
-	 * @return the albumArtistNameTitleSortForm
-	 */
-	public String getAlbumArtistNameTitleSortForm() {
-		if(this.albumArtistNameTitleSortForm == null) {
-			return "";
-		}
-		return this.albumArtistNameTitleSortForm;
 	}
 }

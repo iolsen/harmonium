@@ -705,6 +705,11 @@ public class MP3File implements Playable {
 		return this.trackFile;
 	}
 
+	public String getDisplayArtistName()
+	{
+		return getArtistName();
+	}
+
 	
 
 	

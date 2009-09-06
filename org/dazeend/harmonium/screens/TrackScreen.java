@@ -26,7 +26,6 @@ import java.util.Vector;
 
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.Album;
-import org.dazeend.harmonium.music.AlbumReadable;
 import org.dazeend.harmonium.music.Disc;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
@@ -58,7 +57,10 @@ public class TrackScreen extends HAlbumInfoListScreen {
 	}
 	
 	public TrackScreen(Harmonium app, final Playable thisTrack, final PlaylistEligible trackParent) {
-		super( app, (AlbumReadable) thisTrack, thisTrack.toString() );
+		super( app, thisTrack, thisTrack.toString() );
+		
+		artistNameLabelText.setValue("Artist");
+		artistNameText.setValue(thisTrack.getArtistName());
 		
 		Vector<String> listCommands = new Vector<String>(5);
 		

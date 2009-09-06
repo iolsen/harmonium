@@ -50,13 +50,13 @@ public class BrowseDiscScreen extends HAlbumInfoListScreen {
 		List<Playable> tracks = new ArrayList<Playable>();
 		tracks.addAll( thisDisc.getTrackList() );
 		Collections.sort(tracks, this.app.getPreferences().getDiscTrackComparator());
-		
-		list.add( tracks.toArray() );
+		for (Playable track : tracks)
+			addToList(track);
 		
 		// Add a note to the bottom of the screen
 		BText enterNote = new BText(	this.getNormal(),
 										this.safeTitleH,
-										this.list.getY() + (5 * this.rowHeight) + (this.screenHeight / 100),
+										getListY() + (5 * this.rowHeight) + (this.screenHeight / 100),
 										this.screenWidth - (2 * this.safeTitleH),
 										this.app.hSkin.paragraphFontSize
 		);
@@ -69,7 +69,7 @@ public class BrowseDiscScreen extends HAlbumInfoListScreen {
 	
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("right") || action.equals("select")) {
-        	Playable track = (Playable)( list.get( list.getFocus() ) );
+        	Playable track = (Playable)getListSelection();
 
     		if (this.disc.getTrackList().size() > 1)
     			this.app.push(new TrackScreen(this.app, track, this.disc), TRANSITION_LEFT);
@@ -96,7 +96,7 @@ public class BrowseDiscScreen extends HAlbumInfoListScreen {
 			playlist.add( this.disc );
 			boolean shuffleMode = this.app.getPreferences().getTrackDefaultShuffleMode();
 			boolean repeatMode = this.app.getPreferences().getTrackDefaultRepeatMode();
-			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode, (Playable)this.list.get(this.list.getFocus()));
+			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode, (Playable)getListSelection());
 			return true;
 		case KEY_ENTER:
 			this.app.play("select.snd");

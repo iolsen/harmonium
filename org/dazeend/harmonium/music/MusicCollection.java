@@ -60,6 +60,7 @@ public class MusicCollection implements PlaylistEligible {
 	// Instance variables
 	private List<AlbumArtist>	albumArtistList = new ArrayList<AlbumArtist>();
 	private List<Playable>		albumlessTrackList = new ArrayList<Playable>();
+	private List<TrackArtist>	trackArtistList = new ArrayList<TrackArtist>();
 	private String				musicRoot = "";
 	private String				playlistRoot = "";
 	private Map<String, Playable>	trackMap = new HashMap<String, Playable>(512);	// used to map canonical file paths to Playable objects. Used for playlist lookup
@@ -102,7 +103,7 @@ public class MusicCollection implements PlaylistEligible {
 	 * @param newAlbumArtist	the album artist to add to the music collection
 	 * @return					<code>true</code> if the file was successfully added, otherwise <code>false</code>
 	 */
-	public synchronized boolean addAlbumArtist(AlbumArtist newAlbumArtist) {
+	private synchronized boolean addAlbumArtist(AlbumArtist newAlbumArtist) {
 		
 		// Check to ensure that the newAlbumArtist is not already a member of the music collection.
 		if(this.albumArtistList.contains(newAlbumArtist)) {
@@ -119,13 +120,32 @@ public class MusicCollection implements PlaylistEligible {
 			return false;
 		}
 	}
+	
+	private synchronized boolean addTrackArtist(TrackArtist newTrackArtist) {
+		
+		// Check to ensure that the newTrackArtist is not already a member of the music collection.
+		if(this.trackArtistList.contains(newTrackArtist)) {
+			return false;
+		}
+		
+		// If we got this far, then the newTrackArtist is not yet a member of the music collection, so add it.
+		if(this.trackArtistList.add(newTrackArtist)) {
+			// The album artist was successfully added. Return TRUE.
+			return true;
+		}
+		else {
+			// The album artist was not added, so return FALSE.
+			return false;
+		}
+	}
+	
 
 	/**
 	 * Removes a track from the MusicCollection. Deletes track and any newly-empty objects it was a member of.
 	 * 
 	 * @param Track
 	 */
-	public synchronized void removeTrack(Playable track) {
+	private synchronized void removeTrack(Playable track) {
 		// See if track belongs to an album artist.
 		String trackAlbumArtist = track.getAlbumArtistName();
 		if(! trackAlbumArtist.equals("") ) {
@@ -135,7 +155,7 @@ public class MusicCollection implements PlaylistEligible {
 			while( albumArtistIterator.hasNext() ) {
 				AlbumArtist albumArtist = albumArtistIterator.next();
 				
-				if( albumArtist.getAlbumArtistName().compareToIgnoreCase(trackAlbumArtist) == 0 ) {
+				if( albumArtist.getArtistName().compareToIgnoreCase(trackAlbumArtist) == 0 ) {
 					// The album artist is a member of this music collection, so delete track from the album artist.
 					albumArtist.removeTrack(track);
 					
@@ -152,6 +172,29 @@ public class MusicCollection implements PlaylistEligible {
 			// The track is not part of an album artist, so just delete it from the list
 			this.albumlessTrackList.remove(track);
 		}
+
+		// See if track belongs to a track artist.
+		String trackArtistName = track.getArtistName();
+		if(! trackArtistName.equals("") ) {
+			
+			// track belongs to a track artist. See if the track artist is a member of this music collection.
+			Iterator<TrackArtist> trackArtistIterator = this.trackArtistList.iterator();
+			while( trackArtistIterator.hasNext() ) {
+				TrackArtist trackArtist = trackArtistIterator.next();
+				
+				if( trackArtist.getArtistName().compareToIgnoreCase(trackArtistName) == 0 ) {
+					// The track artist is a member of this music collection, so delete track from the album artist.
+					trackArtist.removeTrack(track);
+					
+					// Check if the track artist is empty
+					if( trackArtist.getTrackList().isEmpty() ) {
+						// It's empty, so delete the album artist via its iterator
+						trackArtistIterator.remove();
+					}
+						
+				}
+			}
+		}
 	}
 	
 	/**
@@ -161,16 +204,46 @@ public class MusicCollection implements PlaylistEligible {
 	 * @param newTrack		the track to add to the music collection
 	 * @return				<code>true</code> if the file was successfully added, otherwise <code>false</code>
 	 */
-	public synchronized boolean addTrack(Playable newTrack) {
+	private synchronized boolean addTrack(Playable newTrack) {
+		
+		// See if newTrack belongs to a track artist.
+		Boolean addedToTrackArtist = false;
+		String newTrackArtistName = newTrack.getArtistName();
+		if(! newTrackArtistName.equals("") ) {
+
+			// newTrack belongs to a track artist. See if the track artist is already a member of this music collection.
+			for( BaseArtist artist : this.trackArtistList) {
+
+				if( artist.getArtistName().compareToIgnoreCase(newTrackArtistName) == 0 ) {
+					// The track artist is already a member of this music collection, so add newTrack to the album artist.
+					artist.addTrack(newTrack);
+					addedToTrackArtist = true;
+					break;
+				}
+			}
+			
+			if (!addedToTrackArtist) {
+				// The track artist is not yet a member of this music collection.
+				
+				// Create a new track artist to hold the newTrack
+				TrackArtist newTrackArtist = new TrackArtist(newTrackArtistName);
+						
+				// Add the newTrack to the newTrackArtist
+				if( newTrackArtist.addTrack(newTrack) ) {
+					// the track was added to the artist, so add the artist to this music collection
+					this.addTrackArtist(newTrackArtist);
+				}
+			}
+		}
 		
 		// See if newTrack belongs to an album artist.
 		String newTrackAlbumArtist = newTrack.getAlbumArtistName();
 		if(! newTrackAlbumArtist.equals("") ) {
 
 			// newTrack belongs to an album artist. See if the album artist is already a member of this music collection.
-			for( AlbumArtist albumArtist : this.albumArtistList) {
+			for( BaseArtist albumArtist : this.albumArtistList) {
 
-				if( albumArtist.getAlbumArtistName().compareToIgnoreCase(newTrackAlbumArtist) == 0 ) {
+				if( albumArtist.getArtistName().compareToIgnoreCase(newTrackAlbumArtist) == 0 ) {
 					// The album artist is already a member of this music collection, so add newTrack to the album artist.
 					if(albumArtist.addTrack(newTrack)) {
 						// The track was successfully added. Return TRUE.
@@ -239,8 +312,8 @@ public class MusicCollection implements PlaylistEligible {
  		
  		// Get tracks from each member albumArtist and add them to the output list
 		List<AlbumArtist> sortedAlbumArtistList = this.albumArtistList;
-		Collections.sort( sortedAlbumArtistList, new CompareAlbumArtists() );
-		for(AlbumArtist albumArtist : sortedAlbumArtistList) {
+		Collections.sort( sortedAlbumArtistList, new CompareArtists() );
+		for(BaseArtist albumArtist : sortedAlbumArtistList) {
  			outputList.addAll(albumArtist.listMemberTracks(app));
  		}
 		
@@ -714,6 +787,10 @@ public class MusicCollection implements PlaylistEligible {
 	 */
 	public List<AlbumArtist> getAlbumArtistList() {
 		return albumArtistList;
+	}
+	
+	public List<TrackArtist> getTrackArtistList() {
+		return trackArtistList;
 	}
 
 	/**
