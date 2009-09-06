@@ -30,7 +30,7 @@ import org.dazeend.harmonium.Harmonium;
  */
 public class HSkipListScreen extends HScreen {
 	
-	protected HList list;		// the list in this screen
+	protected HSkipList list;		// the list in this screen
 
 	
 	/**
