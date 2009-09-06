@@ -55,7 +55,7 @@ public final class InactivityHandler {
 				return;
 			
 			Date rightNow = new Date();
-			if (rightNow.getTime() - lastActivityDate.getTime() >= inactivityMilliseconds) {
+			if (rightNow.getTime() - lastActivityDate.getTime() >= 20000) {
 				
 				// If we've been inactive, but there's music playing and we're not on the Now Playing screen,
 				// go to the Now Playing screen.  Next time we go inactive we'll enable the screen saver.
@@ -67,7 +67,8 @@ public final class InactivityHandler {
 					return;
 				}
 				
-				setInactive();
+				if (inactivityMilliseconds != 0 && rightNow.getTime() - lastActivityDate.getTime() >= inactivityMilliseconds)
+					setInactive();
 			}
 		}
 	}
