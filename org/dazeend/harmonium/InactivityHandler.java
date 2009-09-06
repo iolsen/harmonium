@@ -13,16 +13,16 @@ import com.tivo.hme.bananas.IBananas;
 public final class InactivityHandler {
 	
 	// If no notable key is pressed for this many milliseconds, we go into the inactive state.
-	private static final int INACTIVITY_MILLISECONDS = 20000;
+	private static int inactivityMilliseconds;
 	
 	private Harmonium app;
 	private Timer idleTimer = new Timer();
 	private Date lastActivityDate;
 	private boolean inactive = false;
-	private ScreenSaverScreen screenSaverScreen;
 	
 	public InactivityHandler(Harmonium app) {
 		this.app = app;
+		updateScreenSaverDelay();
 		lastActivityDate = new Date();
 		idleTimer.schedule(new InactiveCheckTimerTask(this), 10000, 10000);
 	}
@@ -55,7 +55,7 @@ public final class InactivityHandler {
 				return;
 			
 			Date rightNow = new Date();
-			if (rightNow.getTime() - lastActivityDate.getTime() >= INACTIVITY_MILLISECONDS) {
+			if (rightNow.getTime() - lastActivityDate.getTime() >= inactivityMilliseconds) {
 				
 				// If we've been inactive, but there's music playing and we're not on the Now Playing screen,
 				// go to the Now Playing screen.  Next time we go inactive we'll enable the screen saver.
@@ -86,15 +86,12 @@ public final class InactivityHandler {
 				System.out.flush();
 			}
 			
-			// Start the screen saver if it's enabled.
-			if ( app.getPreferences().useScreenSaver() ) {
-				BScreen currentScreen = app.getCurrentScreen();
-				if (currentScreen != screenSaverScreen) {
-					if (screenSaverScreen == null)
-						screenSaverScreen = new ScreenSaverScreen(this.app);
-					app.push(screenSaverScreen, IBananas.TRANSITION_FADE);
-					app.flush();
-				}
+			// Start the screen saver.
+			BScreen currentScreen = app.getCurrentScreen();
+			ScreenSaverScreen sss = ScreenSaverScreen.getInstance(app);
+			if (currentScreen != sss) {
+				app.push(sss, IBananas.TRANSITION_FADE);
+				app.flush();
 			}
 		}
 	}
@@ -111,5 +108,10 @@ public final class InactivityHandler {
 		public void run() {
 			handler.checkIfInactive();
 		}
+	}
+
+	public void updateScreenSaverDelay()
+	{
+		inactivityMilliseconds = app.getPreferences().screenSaverDelay();
 	}
 }

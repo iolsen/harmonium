@@ -36,11 +36,12 @@ public class EditDefaultApplicationOptions extends HScreen {
 
 	private BButton screenSaverButton;
 	private BButton OKButton;
+	private ScreenSaverSetting sss;
 
-	private Resource trueButtonLabel;
-	private Resource falseButtonLabel;
-	
 	private static final String OK_LABEL = "Set Options";
+	private static final String SS_DECREASE_ACTION = "screenSaverDecrease";
+	private static final String SS_INCREASE_ACTION = "screenSaverIncrease";
+	
 	
 	/**
 	 * @param app
@@ -50,9 +51,6 @@ public class EditDefaultApplicationOptions extends HScreen {
 		super(app, "Application Options");	
 		
 		this.app = app;
-									
-		this.trueButtonLabel = createText(this.app.hSkin.barFont, HSkin.NTSC_WHITE, "On");
-		this.falseButtonLabel = createText(this.app.hSkin.barFont, HSkin.NTSC_WHITE, "Off");
 		
 		// Create screensaver label
 		BText screenSaverText = new BText(	this, 
@@ -78,14 +76,8 @@ public class EditDefaultApplicationOptions extends HScreen {
 											this.rowHeight
 		);
 		
-		if(this.app.getPreferences().useScreenSaver()) {
-			this.screenSaverButton.setResource(this.trueButtonLabel);
-			this.screenSaverButton.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, "screenSaverToFalse", null, null, H_DOWN, true);
-		}
-		else {
-			this.screenSaverButton.setResource(this.falseButtonLabel);
-			this.screenSaverButton.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, null, "screenSaverToTrue", null, H_DOWN, true);
-		}
+		sss = new ScreenSaverSetting(app, screenSaverButton, app.getPreferences().screenSaverDelay());
+		
 		this.screenSaverButton.setFocusable(true);
 		this.setFocusDefault(this.screenSaverButton);
 		
@@ -110,20 +102,9 @@ public class EditDefaultApplicationOptions extends HScreen {
 		this.app.checkKeyPressToResetInactivityTimer(code);
 		
 		if(this.getFocus() != null && this.getFocus().equals(this.OKButton) && code == KEY_SELECT) {
-			// The OKButton has been selected. save the selected options.
-			boolean screenSaverMode;
-			
-			// Find the selected repeat mode
-			if(this.screenSaverButton.getResource().equals(this.trueButtonLabel)) {
-				screenSaverMode = true;
-			}
-			else {
-				screenSaverMode = false;
-			}
-			
-			// set Preferences
-			this.app.getPreferences().setUseScreenSaver(screenSaverMode);
-			
+			// set screen saver delay preference
+			this.app.getPreferences().setScreenSaverDelay(sss.getCurrentValue());
+			this.app.updateScreenSaverDelay();
 			this.app.pop();
 			
 			return true;
@@ -140,18 +121,80 @@ public class EditDefaultApplicationOptions extends HScreen {
 	 */
 	@Override
 	public boolean handleAction(BView view, Object action) {
-		if(action.equals("screenSaverToFalse")) {
+		if(action.equals(SS_DECREASE_ACTION)) {
 			this.app.play("updown.snd");
-			this.screenSaverButton.setResource(this.falseButtonLabel);
-			this.screenSaverButton.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, null, "screenSaverToTrue", null, H_DOWN, true);
-			this.screenSaverButton.getHighlights().refresh();
+			sss.decrease();
 		}
-		else if(action.equals("screenSaverToTrue")) {
+		else if(action.equals(SS_INCREASE_ACTION)) {
 			this.app.play("updown.snd");
-			this.screenSaverButton.setResource(this.trueButtonLabel);
-			this.screenSaverButton.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, "screenSaverToFalse", null, null, H_DOWN, true);
-			this.screenSaverButton.getHighlights().refresh();
+			sss.increase();
 		}
 		return super.handleAction(view, action);
+	}
+
+	private class ScreenSaverSetting {
+		
+		private int _currentIndex;
+		private BButton _button;		
+		private Resource[] _labels = new Resource[6];
+		private int[] _values = new int[6];
+		
+		public ScreenSaverSetting(Harmonium app, BButton button, int value) {
+			
+			_button = button;
+
+			_labels[0] = createText(app.hSkin.barFont, HSkin.NTSC_WHITE, "Off");
+			_values[0] = 0;
+			_labels[1] = createText(app.hSkin.barFont, HSkin.NTSC_WHITE, "20 seconds");
+			_values[1] = 20000;
+			_labels[2] = createText(app.hSkin.barFont, HSkin.NTSC_WHITE, "1 minute");
+			_values[2] = 60000;
+			_labels[3] = createText(app.hSkin.barFont, HSkin.NTSC_WHITE, "5 minutes");
+			_values[3] = 300000;
+			_labels[4] = createText(app.hSkin.barFont, HSkin.NTSC_WHITE, "10 minutes");
+			_values[4] = 600000;
+			_labels[5] = createText(app.hSkin.barFont, HSkin.NTSC_WHITE, "20 minutes");
+			_values[5] = 1200000;
+			
+			_currentIndex = -1;
+			for (int i = 0; i < _values.length; i++)
+			{
+				if (_values[i] == value) {
+					_currentIndex = i;
+					break;
+				}
+			}
+			if (_currentIndex == -1)
+				_currentIndex = 3;
+			
+			updateButton();
+		}
+		
+		private void updateButton() {
+			_button.setResource(_labels[_currentIndex]);
+			
+			if (_currentIndex == 0)
+				_button.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, null, SS_INCREASE_ACTION, null, H_DOWN, true);
+			else if (_currentIndex == 5)
+				_button.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, SS_DECREASE_ACTION, null, null, H_DOWN, true);
+			else
+				_button.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, SS_DECREASE_ACTION, SS_INCREASE_ACTION, null, H_DOWN, true);
+
+			_button.getHighlights().refresh();
+		}
+		
+		public synchronized void increase() {
+			_currentIndex++;
+			updateButton();
+		}
+		
+		public synchronized void decrease() {
+			_currentIndex--;
+			updateButton();
+		}
+		
+		public int getCurrentValue() {
+			return _values[_currentIndex];
+		}
 	}
 }

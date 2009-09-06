@@ -68,6 +68,8 @@ public class ApplicationPreferences {
 	public static final String SORT_TRACKS_BY_NAME = "byName";
 	public static final String SORT_TRACKS_BY_NUMBER = "byNumber";
 	
+	private static final int DEFAULT_SCREENSAVER_DELAY_MS = 300000; // 5 minutes
+	
 	// Music collection options
 	private boolean 		musicCollectionDefaultShuffleMode;
 	private boolean 		musicCollectionDefaultRepeatMode;	
@@ -105,7 +107,7 @@ public class ApplicationPreferences {
 	private boolean			playlistFileDefaultRepeatMode;
 	
 	// application options
-	private boolean			useScreenSaver = true;
+	private int			screenSaverDelay;
 	
 	
 	public ApplicationPreferences(IContext context) {
@@ -267,14 +269,21 @@ public class ApplicationPreferences {
 		
 		// The default screensaver mode is ON (unlike other boolean values)
 		value = context.getPersistentData(SCREENSAVER);
-		if(value != null && value.equals(BOOLEAN_FALSE)) {
-			this.useScreenSaver = false;
-		}
+		if (value == null)
+			this.screenSaverDelay = DEFAULT_SCREENSAVER_DELAY_MS;
+		else if (value.equals(BOOLEAN_FALSE))
+			this.screenSaverDelay = 0;
+		else if (value.equals(BOOLEAN_TRUE))
+			this.screenSaverDelay = DEFAULT_SCREENSAVER_DELAY_MS;
 		else {
-			this.useScreenSaver = true;
+			try
+			{
+				this.screenSaverDelay = Integer.parseInt(value);
+			} catch (NumberFormatException e)
+			{
+				this.screenSaverDelay = DEFAULT_SCREENSAVER_DELAY_MS;
+			}
 		}
-		
-		
 	}
 
 	/**
@@ -674,25 +683,15 @@ public class ApplicationPreferences {
 	/**
 	 * @return the useScreenSaver
 	 */
-	public boolean useScreenSaver() {
-		return useScreenSaver;
+	public int screenSaverDelay() {
+		return screenSaverDelay;
 	}
 
 	/**
 	 * @param useScreenSaver the useScreenSaver to set
 	 */
-	public void setUseScreenSaver(boolean value) {
-		this.useScreenSaver = value;
-		if(value) {
-			this.context.setPersistentData(SCREENSAVER, BOOLEAN_TRUE);
-		}
-		else {
-			this.context.setPersistentData(SCREENSAVER, BOOLEAN_FALSE);
-		}
-		
-	}
-	
-	
-	
-	
+	public void setScreenSaverDelay(int value) {
+		this.screenSaverDelay = value;
+		this.context.setPersistentData(SCREENSAVER, String.valueOf(value));
+	}	
 }
