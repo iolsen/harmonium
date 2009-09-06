@@ -27,8 +27,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.dazeend.harmonium.Harmonium;
 
 
@@ -41,7 +39,7 @@ import org.dazeend.harmonium.Harmonium;
  * @author Charles Perry (harmonium@DazeEnd.org)
  *
  */
-public class Album implements PlaylistEligible, AlbumArtListItem {
+public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem {
 
 	private List<Disc>		discList = Collections.synchronizedList( new ArrayList<Disc>() );
 	private List<Playable>	trackList = Collections.synchronizedList( new ArrayList<Playable>() );
@@ -51,7 +49,6 @@ public class Album implements PlaylistEligible, AlbumArtListItem {
 	private String			albumNameTitleSortForm = ""; 
 	private int				releaseYear;
 	private	AlbumReadable	artSource;				// the object to pull album art from
-	
 	
 	/**
 	 * Creates album and sets key fields.
@@ -65,7 +62,6 @@ public class Album implements PlaylistEligible, AlbumArtListItem {
 		this.albumName = albumName;
 		
 		// Reformat the album artist name into sort form
-		Pattern titlePattern = Pattern.compile("(?i)^(the|a|an)\\s");
 		Matcher stringMatcher = titlePattern.matcher(albumArtistName);
 		if(stringMatcher.lookingAt()) {
 			// Found a leading article. Move it to the end of the string.

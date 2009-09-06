@@ -23,11 +23,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.dazeend.harmonium.Harmonium;
 
-public abstract class BaseArtist implements PlaylistEligible {
+public abstract class BaseArtist extends HMusic implements PlaylistEligible {
 
 	protected List<Playable>	_trackList = Collections.synchronizedList( new ArrayList<Playable>() );
 	protected String			_artistName = "";	// Set only through constructor. Setting later could break data structure.
@@ -39,7 +37,6 @@ public abstract class BaseArtist implements PlaylistEligible {
 
 		// Put artist name in title sort form
 		// Compile pattern for matching leading articles
-		Pattern titlePattern = Pattern.compile("(?i)^(the|a|an)\\s");
 		Matcher stringMatcher = titlePattern.matcher(this._artistName);
 		if(stringMatcher.lookingAt()) {
 			// Found a leading article. Move it to the end of the string.

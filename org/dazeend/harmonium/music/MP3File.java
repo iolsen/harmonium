@@ -51,7 +51,7 @@ import com.tivo.hme.sdk.util.Mp3Helper;
  * @author Charles Perry (harmonium@DazeEnd.org)
  *
  */
-public class MP3File implements Playable {
+public class MP3File extends HMusic implements Playable {
 
 	private String 			albumArtistName = "";	
 	private String			albumName = "";			
@@ -252,13 +252,19 @@ public class MP3File implements Playable {
 	}
 	
 	private static final Pattern discPattern = Pattern.compile("(?i)(.*)(\\s+[\\(\\[\\{]?Disc\\s[0-9]+[\\)\\]\\}]?)\\z");
+	private static final Pattern cdPattern = Pattern.compile("(?i)(.*)(\\s+[\\(\\[\\{]?CD\\s[0-9]+[\\)\\]\\}]?)\\z");
 	private static String removeDiscLabel(String originalName)
 	{
 		Matcher m = discPattern.matcher(originalName);
 		if (m.lookingAt())
 			return m.group(1);
-		else
-			return originalName;
+		else {
+			m = cdPattern.matcher(originalName);
+			if (m.lookingAt())
+				return m.group(1);
+			else
+				return originalName;
+		}
 	}
 	
 	/**
@@ -294,7 +300,6 @@ public class MP3File implements Playable {
 		if(! this.trackName.equals("")) {
 			// The track has a name, so re-format it
 			// Compile pattern for matching leading articles
-			Pattern titlePattern = Pattern.compile("(?i)^(the|a|an)\\s");
 			Matcher stringMatcher = titlePattern.matcher(this.trackName);
 			if(stringMatcher.lookingAt()) {
 				// Found a leading article. Move it to the end of the string.
