@@ -36,11 +36,19 @@ public class ScreenSaverScreen extends BScreen {
 
 	Harmonium app;
 	Resource oldBackground = null;
+
+	private static ScreenSaverScreen instance = null;
 	
+	public static ScreenSaverScreen getInstance(Harmonium app) {
+		if(instance == null) {
+			instance = new ScreenSaverScreen(app);
+		}
+		return instance;
+	}
 	/**
 	 * @param arg0
 	 */
-	public ScreenSaverScreen(Harmonium app) {
+	protected ScreenSaverScreen(Harmonium app) {
 		super(app);
 		this.app = app;
 		this.getAbove().setResource(Color.black);

@@ -212,6 +212,11 @@ public class Harmonium extends HDApplication {
 		inactivityHandler.resetInactivityTimer();
 	}
 	
+	public void updateScreenSaverDelay()
+	{
+		inactivityHandler.updateScreenSaverDelay();
+	}
+	
 	/* (non-Javadoc)
 	 * Handles key presses from TiVo remote control.
 	 */
@@ -843,6 +848,6 @@ public class Harmonium extends HDApplication {
 		{
 			return this.nowPlayingScreen;
 		}
-
+		
 	}
 }
