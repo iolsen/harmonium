@@ -39,6 +39,8 @@ import org.dazeend.harmonium.screens.ExitScreen;
 import org.dazeend.harmonium.screens.HManagedResourceScreen;
 import org.dazeend.harmonium.screens.MainMenuScreen;
 import org.dazeend.harmonium.screens.NowPlayingScreen;
+import org.dazeend.harmonium.screens.ScreenSaverScreen;
+
 import com.almilli.tivo.bananas.hd.HDApplication;
 import com.tivo.hme.bananas.BScreen;
 import com.tivo.hme.interfaces.IArgumentList;
@@ -82,6 +84,8 @@ public class Harmonium extends HDApplication {
 		this.context = context;
 		this.app = this;
 		super.init(context);
+		HManagedResourceScreen.resetCache(this);
+		ScreenSaverScreen.reset(this);
 	}
 	
 	

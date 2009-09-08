@@ -39,6 +39,10 @@ public class ScreenSaverScreen extends BScreen {
 
 	private static ScreenSaverScreen instance = null;
 	
+	public static void reset(Harmonium app) {
+		instance = null;
+	}
+	
 	public static ScreenSaverScreen getInstance(Harmonium app) {
 		if(instance == null) {
 			instance = new ScreenSaverScreen(app);

@@ -121,6 +121,10 @@ public abstract class HManagedResourceScreen extends BScreen {
 		}
 	}
 	
+	public static void resetCache(Harmonium app) {
+		AlbumArtCache.reset(app);
+	}
+	
 	// Singleton cache for album art.
 	private static class AlbumArtCache {
 		
@@ -151,6 +155,11 @@ public abstract class HManagedResourceScreen extends BScreen {
 				instance = new AlbumArtCache(app);
 			}
 			return instance;
+		}
+		
+		public static synchronized void reset(Harmonium app) {
+			if (instance == null || instance._managedImageList.size() != 0)
+				instance = new AlbumArtCache(app);
 		}
 	   
 		// Disallow instantation by another class.
