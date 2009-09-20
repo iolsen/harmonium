@@ -30,8 +30,11 @@ import java.net.URLEncoder;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.dazeend.harmonium.music.AlbumReadable;
 import org.dazeend.harmonium.music.MusicCollection;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
@@ -47,6 +50,8 @@ import com.tivo.hme.interfaces.IArgumentList;
 import com.tivo.hme.interfaces.IContext;
 import com.tivo.hme.sdk.Factory;
 import com.tivo.hme.sdk.HmeEvent;
+import com.tivo.hme.sdk.ImageResource;
+import com.tivo.hme.sdk.Resource;
 
 
 
@@ -65,10 +70,15 @@ public class Harmonium extends HDApplication {
 	// Application preferences
 	private ApplicationPreferences preferences;
 	
-	// This applications DiscJockey
+	// This application's DiscJockey
 	private DiscJockey discJockey = DiscJockey.getDiscJockey(this);
 	
+	// Tracks user inactivity for displaying the Now Playing screen and the screensaver.
 	private InactivityHandler inactivityHandler;
+	
+	private AlbumArtCache albumArtCache = AlbumArtCache.getAlbumArtCache(this);
+	
+	private ScreenSaverScreen screenSaverScreen;
 	
 	// Are we in the simulator?
 	private boolean inSimulator = false;
@@ -84,8 +94,6 @@ public class Harmonium extends HDApplication {
 		this.context = context;
 		this.app = this;
 		super.init(context);
-		HManagedResourceScreen.resetCache(this);
-		ScreenSaverScreen.reset(this);
 	}
 	
 	
@@ -219,6 +227,14 @@ public class Harmonium extends HDApplication {
 	public void updateScreenSaverDelay()
 	{
 		inactivityHandler.updateScreenSaverDelay();
+	}
+
+	public AlbumArtCache getAlbumArtCache() {
+		return albumArtCache;
+	}
+	
+	public ScreenSaverScreen getScreenSaverScreen() {
+		return screenSaverScreen;
 	}
 	
 	/* (non-Javadoc)
@@ -852,6 +868,94 @@ public class Harmonium extends HDApplication {
 		{
 			return this.nowPlayingScreen;
 		}
-		
 	}
+
+	public static class AlbumArtCache {
+		
+		private static final int CACHE_SIZE = 15;
+		
+		private class ArtCacheItem {
+			private int _hash;
+			private ImageResource _resource;
+			
+			public ArtCacheItem(int hash, ImageResource resource) {
+				_hash = hash;
+				_resource = resource;
+			}
+			
+			public int getHash() { return _hash; }
+			public ImageResource getResource() { return _resource; }
+		}
+		
+		private Harmonium _app;
+		private LinkedList<ArtCacheItem> _managedImageList;
+		private Hashtable<Integer, ArtCacheItem> _managedImageHashtable;
+		private Hashtable<Resource, Boolean> _managedResourceHashtable;
+				
+		// Disallow instantation by another class.
+		private AlbumArtCache(Harmonium app) {
+			_app = app;
+			_managedImageList = new LinkedList<ArtCacheItem>();
+			_managedImageHashtable = new Hashtable<Integer, ArtCacheItem>(CACHE_SIZE);
+			_managedResourceHashtable = new Hashtable<Resource, Boolean>(CACHE_SIZE);
+		}
+		
+		public synchronized static AlbumArtCache getAlbumArtCache(Harmonium app) {
+			AlbumArtCache cache = app.getAlbumArtCache(); 
+			if (app.getAlbumArtCache() == null)
+				cache = new AlbumArtCache(app);
+			return cache;
+		}
+		
+		public synchronized ImageResource Add(BScreen screen, AlbumReadable album, int width, int height) {
+			
+			int hash = 0;
+			if (album.hasAlbumArt())
+				hash = (album.getAlbumArtistName() + album.getAlbumName() + album.getReleaseYear() + width + height).hashCode();
+					
+			ArtCacheItem aci = _managedImageHashtable.get(hash);
+			if (aci == null) {
+				if (_app.isInSimulator()) {
+					System.out.println("album art cache miss: " + hash);
+
+					try {
+						Thread.sleep(500); // better simulate performance of real Tivo.
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+
+				if (hash != 0)
+					aci = new ArtCacheItem(hash, screen.createImage(album.getScaledAlbumArt(width, height)));
+				else
+					aci = new ArtCacheItem(hash, screen.createImage("default_album_art.gif"));
+				
+				if (_managedImageList.size() == CACHE_SIZE) {
+					ArtCacheItem removeItem = _managedImageList.removeLast();
+					Resource removeResource = removeItem.getResource();
+					_managedImageHashtable.remove(removeItem.getHash());
+					_managedResourceHashtable.remove(removeResource);
+					removeResource.remove();
+				}
+					
+				_managedImageList.addFirst(aci);
+				_managedImageHashtable.put(hash, aci);
+				_managedResourceHashtable.put(aci.getResource(), false);
+			}
+			else {
+				if (_app.isInSimulator())
+					System.out.println("album art cache hit: " + hash);
+				
+				// move it to the front
+				_managedImageList.remove(aci);
+				_managedImageList.addFirst(aci);
+			}
+			return aci.getResource();
+		}
+		
+		public Boolean Contains(Resource r) {
+			return _managedResourceHashtable.containsKey(r);
+		}
+	}
+
 }

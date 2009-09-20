@@ -19,6 +19,7 @@ public final class InactivityHandler {
 	private Timer idleTimer = new Timer();
 	private Date lastActivityDate;
 	private boolean inactive = false;
+	private ScreenSaverScreen screenSaverScreen;
 	
 	public InactivityHandler(Harmonium app) {
 		this.app = app;
@@ -87,11 +88,12 @@ public final class InactivityHandler {
 				System.out.flush();
 			}
 			
-			// Start the screen saver.
+			// Start the screen saver if it's enabled.
 			BScreen currentScreen = app.getCurrentScreen();
-			ScreenSaverScreen sss = ScreenSaverScreen.getInstance(app);
-			if (currentScreen != sss) {
-				app.push(sss, IBananas.TRANSITION_FADE);
+			if (currentScreen != screenSaverScreen) {
+				if (screenSaverScreen == null)
+					screenSaverScreen = new ScreenSaverScreen(this.app);
+				app.push(screenSaverScreen, IBananas.TRANSITION_FADE);
 				app.flush();
 			}
 		}
