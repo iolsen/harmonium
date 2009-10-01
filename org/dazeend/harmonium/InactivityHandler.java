@@ -77,25 +77,23 @@ public final class InactivityHandler {
 	/**
 	 * Called when the inactivity timer elapses and via Harmonium class for HME's idle event.
 	 */
-	public void setInactive()	{
-		synchronized (this) {
-			if (inactive)
-				return;
-			inactive = true;
+	public synchronized void setInactive()	{
+		if (inactive)
+			return;
+		inactive = true;
 
-			if (this.app.isInSimulator()){
-				System.out.println("Setting inactivity state: INACTIVE.");
-				System.out.flush();
-			}
-			
-			// Start the screen saver if it's enabled.
-			BScreen currentScreen = app.getCurrentScreen();
-			if (currentScreen != screenSaverScreen) {
-				if (screenSaverScreen == null)
-					screenSaverScreen = new ScreenSaverScreen(this.app);
-				app.push(screenSaverScreen, IBananas.TRANSITION_FADE);
-				app.flush();
-			}
+		if (this.app.isInSimulator()){
+			System.out.println("Setting inactivity state: INACTIVE.");
+			System.out.flush();
+		}
+		
+		// Start the screen saver if it's enabled.
+		BScreen currentScreen = app.getCurrentScreen();
+		if (currentScreen != screenSaverScreen) {
+			if (screenSaverScreen == null)
+				screenSaverScreen = new ScreenSaverScreen(this.app);
+			app.push(screenSaverScreen, IBananas.TRANSITION_FADE);
+			app.flush();
 		}
 	}
 	

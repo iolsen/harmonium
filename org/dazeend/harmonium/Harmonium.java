@@ -341,6 +341,9 @@ public class Harmonium extends HDApplication {
 	{
 		BScreen currentScreen = getCurrentScreen();
 		super.pop();
+		
+		// Now that the screen has been popped, it's safe to clean up its resources.
+		// If it's a screen that knows how to clean up after itself, ask it to do so.
 		if (currentScreen instanceof HManagedResourceScreen)
 			((HManagedResourceScreen)currentScreen).cleanup();
 	}
@@ -909,6 +912,14 @@ public class Harmonium extends HDApplication {
 		
 		public synchronized ImageResource Add(BScreen screen, AlbumReadable album, int width, int height) {
 			
+			// Hash a bunch of album attributes together to uniquely identify the album.
+			//
+			// The first version of this actually hashed the bytes that make up the image, but that was really
+			// slow, and it didn't save the image scaling step because images of different sizes all need to be 
+			// separately cached.  In hindsight, this was a major waste of time I should have predicted.  :)  
+			// Anyway this hash is imperfect, but dead simple and therefore pretty doggone fast.  If you
+			// have different cover art images embedded in files of the same album, we'll always display
+			// the first one we cache.  But I think that's probably unusual.  And I like how fast this is.
 			int hash = 0;
 			if (album.hasAlbumArt())
 				hash = (album.getAlbumArtistName() + album.getAlbumName() + album.getReleaseYear() + width + height).hashCode();
@@ -931,13 +942,19 @@ public class Harmonium extends HDApplication {
 					aci = new ArtCacheItem(hash, screen.createImage("default_album_art.gif"));
 				
 				if (_managedImageList.size() == CACHE_SIZE) {
+
+					// We're going to add this image resource to the cache, but the cache is at its maximum size.
+					// So we remove the item at the end of the list, which it the "stalest" item: that one accessed  
+					// the longest ago.
+
 					ArtCacheItem removeItem = _managedImageList.removeLast();
 					Resource removeResource = removeItem.getResource();
 					_managedImageHashtable.remove(removeItem.getHash());
 					_managedResourceHashtable.remove(removeResource);
 					removeResource.remove();
 				}
-					
+				
+				// Add this image resource to the front of the list, signifying that it's the most recently accessed.
 				_managedImageList.addFirst(aci);
 				_managedImageHashtable.put(hash, aci);
 				_managedResourceHashtable.put(aci.getResource(), false);
@@ -946,7 +963,7 @@ public class Harmonium extends HDApplication {
 				if (_app.isInSimulator())
 					System.out.println("album art cache hit: " + hash);
 				
-				// move it to the front
+				// Found the item in the cache.  Move it to the front of the list to indicate it's the most recently accessed.
 				_managedImageList.remove(aci);
 				_managedImageList.addFirst(aci);
 			}
