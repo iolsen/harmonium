@@ -8,6 +8,7 @@ import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
 import org.dazeend.harmonium.music.PlaylistFile;
 
+import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 
 public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
@@ -21,21 +22,20 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 		this.artistNameLabelText.setValue("Artist");
 		
 		// Set up list for contents of musicItem
-		this.list = new HAlbumArtList(	this.getNormal(), 								// Put list on "normal" level
-										this.safeTitleH , 									// x coord. of list
-										this.screenHeight - this.safeTitleV - (this.rowHeight * 5), 	// y coord. of list
-										(this.screenWidth - (2 * this.safeTitleH)), 				// width of list (full screen)
-										this.rowHeight * 5,									// height of list (5/8  of body). Defined in terms of row height to ensure that height is an even multiple or rowheight.
-										this.rowHeight,										// row height
-										this.albumArtView,
-										this.albumArtBGView,
-										this.albumNameText,
-										this.albumNameBGText,
-										this.artistNameText,
-										this.albumArtistBGText,
-										this.yearText,
-										this.yearBGText
-										);
+		this.list = new HPlaylistBrowseList(this.getNormal(),				 							// Put list on "normal" level
+											this.safeTitleH , 											// x coord. of list
+											this.screenHeight - this.safeTitleV - (this.rowHeight * 5), // y coord. of list
+											(this.screenWidth - (2 * this.safeTitleH)), 				// width of list (full screen)
+											this.rowHeight * 5,											// height of list (5/8  of body). Defined in terms of row height to ensure that height is an even multiple or rowheight.
+											this.rowHeight,												// row height
+											this.albumArtView,
+											this.albumArtBGView,
+											this.albumNameText,
+											this.albumNameBGText,
+											this.artistNameText,
+											this.albumArtistBGText,
+											this.yearText,
+											this.yearBGText);
 		setFocusDefault(this.list);
 	}
 		
@@ -139,5 +139,21 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 	@Override
 	public boolean handleExit() {
 		return super.handleExit();
+	}
+	
+	protected class HPlaylistBrowseList extends HAlbumArtList {
+
+		HPlaylistBrowseList(BView parent, int x, int y, int width, int height, int rowHeight, BView foreground,
+				BView background, BText albumNameText, BText albumNameBGText, BText albumArtistText,
+				BText albumArtistBGText, BText yearText, BText yearBGText)
+		{
+			super(parent, x, y, width, height, rowHeight, foreground, background, albumNameText, albumNameBGText, albumArtistText,
+					albumArtistBGText, yearText, yearBGText);
+		}
+
+		protected String getRowText(int index) {
+			Playable p = (Playable)this.get(index);
+			return p.getTrackName() + " - " + p.getArtistName();
+		}
 	}
 }

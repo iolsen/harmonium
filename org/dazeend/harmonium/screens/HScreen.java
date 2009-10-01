@@ -145,7 +145,7 @@ public class HScreen extends HManagedResourceScreen {
 		        text.setFlags(RSRC_HALIGN_LEFT);
 		        text.setFont( ( (Harmonium)this.getBApp() ).hSkin.barFont );
 		        text.setColor(HSkin.BAR_TEXT_COLOR);
-		        text.setValue( this.get(index).toString() );
+		        text.setValue( getRowText(index) );
 		        
 		        View p = parent;
 		        while (p instanceof HManagedResourceScreen == false && p != null)
@@ -153,6 +153,10 @@ public class HScreen extends HManagedResourceScreen {
 		        if (p != null)
 		        	((HManagedResourceScreen)p).setManagedView(text);
 			}
+		}
+		
+		protected String getRowText(int index) {
+			return this.get(index).toString();
 		}
 
 		
