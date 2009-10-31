@@ -111,10 +111,10 @@ public class BrowseAlbumScreen extends HAlbumInfoListScreen {
 		case KEY_PLAY:
 			
 			List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
-			playlist.add( this.album );
 			boolean shuffleMode;
 			boolean repeatMode;
 			PlaylistEligible selected = getListSelection();
+			playlist.add( selected );
 			Playable startPlaying = null;
 			
 			// Ian TODO: Something's not right here.  Should we be using album shuffle
