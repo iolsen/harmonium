@@ -114,7 +114,6 @@ public class BrowseAlbumScreen extends HAlbumInfoListScreen {
 			boolean shuffleMode;
 			boolean repeatMode;
 			PlaylistEligible selected = getListSelection();
-			playlist.add( selected );
 			Playable startPlaying = null;
 			
 			// Ian TODO: Something's not right here.  Should we be using album shuffle
@@ -128,11 +127,13 @@ public class BrowseAlbumScreen extends HAlbumInfoListScreen {
 			//			 whole block should be pushed down into DiscJockey or something.
 			if(  selected instanceof Disc ) {
 				// Playing an entire disc
+				playlist.add( selected );
 				shuffleMode = this.app.getPreferences().getDiscDefaultShuffleMode();
 				repeatMode = this.app.getPreferences().getDiscDefaultRepeatMode();
 			}
 			else {
 				// Playing an individual track
+				playlist.add( this.album );
 				shuffleMode = this.app.getPreferences().getTrackDefaultShuffleMode();
 				repeatMode = this.app.getPreferences().getTrackDefaultRepeatMode();
 				startPlaying = (Playable)selected;
