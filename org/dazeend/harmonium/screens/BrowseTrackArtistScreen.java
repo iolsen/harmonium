@@ -25,18 +25,14 @@ import java.util.Collections;
 import java.util.List;
 
 import org.dazeend.harmonium.Harmonium;
-import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.music.CompareTracksByName;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
 import org.dazeend.harmonium.music.TrackArtist;
-import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 
 public class BrowseTrackArtistScreen extends HAlbumInfoListScreen
 {
-	private HAlbumArtList list;
-	private TrackArtist trackArtist;
 	private List<Playable> trackList;
 	
 	public BrowseTrackArtistScreen(Harmonium app, TrackArtist thisTrackArtist) {
@@ -45,8 +41,6 @@ public class BrowseTrackArtistScreen extends HAlbumInfoListScreen
 		
 		this.artistNameLabelText.setValue("Artist");
 		this.artistNameText.setValue(thisTrackArtist.getArtistName());
-		
-		this.trackArtist = thisTrackArtist;
 		
 		// Set up list for contents of musicItem
 		this.list = new HAlbumArtList(	this.getNormal(), 								// Put list on "normal" level
@@ -71,19 +65,6 @@ public class BrowseTrackArtistScreen extends HAlbumInfoListScreen
 		trackList.addAll( thisTrackArtist.getTrackList() );
 		Collections.sort(trackList, new CompareTracksByName());
 		this.list.add( trackList.toArray() );
-		
-		// Add a note to the bottom of the screen
-		BText enterNote = new BText(	this.getNormal(),
-										this.safeTitleH,
-										this.list.getY() + (5 * this.rowHeight) + (this.screenHeight / 100),
-										this.screenWidth - (2 * this.safeTitleH),
-										this.app.hSkin.paragraphFontSize
-		);
-		enterNote.setFont(app.hSkin.paragraphFont);
-		enterNote.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
-		enterNote.setFlags(RSRC_HALIGN_CENTER + RSRC_VALIGN_BOTTOM);
-		enterNote.setValue("press ENTER to add this artist to a playlist");
-		setManagedView(enterNote);
 	}
 		
 	public boolean handleAction(BView view, Object action) {
@@ -117,11 +98,6 @@ public class BrowseTrackArtistScreen extends HAlbumInfoListScreen
 
 			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode);
 			return true;
-
-		case KEY_ENTER:
-			this.app.play("select.snd");
-			this.app.push(new AddToPlaylistScreen(this.app, this.trackArtist), TRANSITION_LEFT);
-    		return true;
 		}
 		
 		return super.handleKeyPress(key, rawcode);

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.Album;
 import org.dazeend.harmonium.music.CompareDiscs;
@@ -32,7 +31,6 @@ import org.dazeend.harmonium.music.Disc;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
 
-import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 
 
@@ -65,19 +63,6 @@ public class BrowseAlbumScreen extends HAlbumInfoListScreen {
 		Collections.sort(tracks, this.app.getPreferences().getAlbumTrackComparator());
 		for (Playable track : tracks)
 			addToList(track);
-
-		// Add a note to the bottom of the screen
-		BText enterNote = new BText(	this.getNormal(),
-										this.safeTitleH,
-										getListY() + (5 * this.rowHeight) + (this.screenHeight / 100),
-										this.screenWidth - (2 * this.safeTitleH),
-										this.app.hSkin.paragraphFontSize
-		);
-		enterNote.setFont(app.hSkin.paragraphFont);
-		enterNote.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
-		enterNote.setFlags(RSRC_HALIGN_CENTER + RSRC_VALIGN_BOTTOM);
-		enterNote.setValue("press ENTER to add this album to a playlist");
-		setManagedView(enterNote);
 	}
 	
 	public boolean handleAction(BView view, Object action) {
@@ -139,10 +124,6 @@ public class BrowseAlbumScreen extends HAlbumInfoListScreen {
 				startPlaying = (Playable)selected;
 			}
 			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode, startPlaying);
-			return true;
-		case KEY_ENTER:
-			this.app.play("select.snd");
-			this.app.push(new AddToPlaylistScreen(this.app, this.album), TRANSITION_LEFT);
 			return true;
 		}
 		

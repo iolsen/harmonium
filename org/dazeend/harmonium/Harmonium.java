@@ -944,7 +944,7 @@ public class Harmonium extends HDApplication {
 				if (_managedImageList.size() == CACHE_SIZE) {
 
 					// We're going to add this image resource to the cache, but the cache is at its maximum size.
-					// So we remove the item at the end of the list, which it the "stalest" item: that one accessed  
+					// So we remove the item at the end of the list, which is the "stalest" item: the one accessed  
 					// the longest ago.
 
 					ArtCacheItem removeItem = _managedImageList.removeLast();

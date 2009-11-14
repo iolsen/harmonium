@@ -24,13 +24,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.Disc;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
 
-import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 
 
@@ -52,19 +50,6 @@ public class BrowseDiscScreen extends HAlbumInfoListScreen {
 		Collections.sort(tracks, this.app.getPreferences().getDiscTrackComparator());
 		for (Playable track : tracks)
 			addToList(track);
-		
-		// Add a note to the bottom of the screen
-		BText enterNote = new BText(	this.getNormal(),
-										this.safeTitleH,
-										getListY() + (5 * this.rowHeight) + (this.screenHeight / 100),
-										this.screenWidth - (2 * this.safeTitleH),
-										this.app.hSkin.paragraphFontSize
-		);
-		enterNote.setFont(app.hSkin.paragraphFont);
-		enterNote.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
-		enterNote.setFlags(RSRC_HALIGN_CENTER + RSRC_VALIGN_BOTTOM);
-		enterNote.setValue("press ENTER for playlist and other options");
-		setManagedView(enterNote);
 	}
 	
 	public boolean handleAction(BView view, Object action) {
@@ -97,10 +82,6 @@ public class BrowseDiscScreen extends HAlbumInfoListScreen {
 			boolean shuffleMode = this.app.getPreferences().getTrackDefaultShuffleMode();
 			boolean repeatMode = this.app.getPreferences().getTrackDefaultRepeatMode();
 			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode, (Playable)getListSelection());
-			return true;
-		case KEY_ENTER:
-			this.app.play("select.snd");
-			this.app.push(new AddToPlaylistScreen(this.app, this.disc), TRANSITION_LEFT);
 			return true;
 		}
 		

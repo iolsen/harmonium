@@ -57,7 +57,7 @@ public class TrackScreen extends HAlbumInfoListScreen {
 	}
 	
 	public TrackScreen(Harmonium app, final Playable thisTrack, final PlaylistEligible trackParent) {
-		super( app, thisTrack, thisTrack.toString() );
+		super( app, thisTrack, thisTrack.toString(), false );
 		
 		artistNameLabelText.setValue("Artist");
 		artistNameText.setValue(thisTrack.getArtistName());
@@ -136,10 +136,6 @@ public class TrackScreen extends HAlbumInfoListScreen {
 		switch(key) {
 		case KEY_PLAY:
 			play();
-			return true;
-		case KEY_ENTER:
-			this.app.play("select.snd");
-			this.app.push(new AddToPlaylistScreen(this.app, this.playableTrack), TRANSITION_LEFT);
 			return true;
 		}
 		

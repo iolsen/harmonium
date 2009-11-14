@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.CompareArtists;
 import org.dazeend.harmonium.music.MusicCollection;
@@ -32,10 +31,9 @@ import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
 import org.dazeend.harmonium.music.TrackArtist;
 
-import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 
-public class BrowseMusicByTrackArtistScreen extends HSkipListScreen
+public class BrowseMusicByTrackArtistScreen extends HPlaylistAddCapableListScreen
 {
 	public BrowseMusicByTrackArtistScreen(Harmonium app, MusicCollection thisMusicCollection) {
 		super(app, "All Track Artists");
@@ -49,19 +47,6 @@ public class BrowseMusicByTrackArtistScreen extends HSkipListScreen
 		this.list.add( trackArtists.toArray() );
 		
 		// Ian TODO: add tracks with no track artist
-		
-		// Add a note to the bottom of the screen
-		BText enterNote = new BText(	this.getNormal(),
-										this.safeTitleH,
-										this.list.getY() + (8 * this.rowHeight) + (this.screenHeight / 100),
-										this.screenWidth - (2 * this.safeTitleH),
-										this.app.hSkin.paragraphFontSize
-		);
-		enterNote.setFont(app.hSkin.paragraphFont);
-		enterNote.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
-		enterNote.setFlags(RSRC_HALIGN_CENTER + RSRC_VALIGN_BOTTOM);
-		enterNote.setValue("press ENTER to add the entire music collection to a playlist");
-		setManagedView(enterNote);
 	}
 
 	public boolean handleAction(BView view, Object action) {
@@ -108,10 +93,6 @@ public class BrowseMusicByTrackArtistScreen extends HSkipListScreen
 			}
 			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode);
 			return true;
-		case KEY_ENTER:
-			this.app.play("select.snd");
-			this.app.push(new AddToPlaylistScreen(this.app, MusicCollection.getMusicCollection(this.app.getHFactory())), TRANSITION_LEFT);
-    		return true;
 		}
 		
 		return super.handleKeyPress(key, rawcode);

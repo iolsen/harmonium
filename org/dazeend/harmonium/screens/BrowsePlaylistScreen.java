@@ -17,7 +17,7 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 	private PlaylistFile playlistFile;
 
 	private BrowsePlaylistScreen(Harmonium app, String title) {
-		super(app, title);
+		super(app, title, false);
 
 		this.artistNameLabelText.setValue("Artist");
 		

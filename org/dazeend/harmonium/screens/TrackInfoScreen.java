@@ -36,7 +36,7 @@ public class TrackInfoScreen extends HAlbumInfoListScreen {
 	private HList list;
 	
 	public TrackInfoScreen(Harmonium app, final Playable thisTrack) {
-		super( app, thisTrack, thisTrack.toString() );
+		super( app, thisTrack, thisTrack.toString(), false );
 		
 		this.screenTitle = thisTrack.toString();
 		

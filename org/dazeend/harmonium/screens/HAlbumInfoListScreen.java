@@ -39,9 +39,8 @@ import com.tivo.hme.sdk.Resource;
  * @author Charles Perry (harmonium@DazeEnd.org)
  *
  */
-public class HAlbumInfoListScreen extends HSkipListScreen {
+public class HAlbumInfoListScreen extends HPlaylistAddCapableListScreen {
 
-	private HSkipList list;				// the list in this screen
 	protected int	rowHeight;				// the height of each row in the list
 	protected BView albumArtView;			// the view that contains the album art
 	protected BText albumNameText;			// the text that displays the album name
@@ -53,23 +52,8 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 	protected BText yearBGText;
 	protected BText artistNameLabelText;
 	
-	public HAlbumInfoListScreen(Harmonium app, AlbumReadable musicItem, String title) {
-		this(app, title);
-		
-		if(app.getHFactory().getPreferences().inDebugMode()) {
-			System.out.println("DEBUG: Initializing album info");
-			System.out.flush();
-		}
-		
-		this.initAlbumInfo(musicItem);
-	}
-
-	
-	/**
-	 * @param app
-	 */
-	public HAlbumInfoListScreen(Harmonium app, String title) {
-		super( app, title );
+	protected HAlbumInfoListScreen(Harmonium app, String title, boolean enableAddToPlaylist) {
+		super( app, title, enableAddToPlaylist );
 		
 		this.app = app;
 		
@@ -228,6 +212,29 @@ public class HAlbumInfoListScreen extends HSkipListScreen {
 							rowHeight										// row height
 		);
 		setFocusDefault(list);
+	}
+	
+	public HAlbumInfoListScreen(Harmonium app, AlbumReadable musicItem, String title, boolean enableAddToPlaylist) {
+		this(app, title, enableAddToPlaylist);
+		
+		if(app.getHFactory().getPreferences().inDebugMode()) {
+			System.out.println("DEBUG: Initializing album info");
+			System.out.flush();
+		}
+		
+		this.initAlbumInfo(musicItem);
+	}
+	
+	public HAlbumInfoListScreen(Harmonium app, AlbumReadable musicItem, String title) {
+		this(app, musicItem, title, true);
+	}
+
+	
+	/**
+	 * @param app
+	 */
+	public HAlbumInfoListScreen(Harmonium app, String title) {
+		this(app, title, true);
 	}
 	
 	protected void addToList(AlbumArtListItem item) {

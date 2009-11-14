@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.AlbumArtist;
 import org.dazeend.harmonium.music.CompareTracksByName;
@@ -32,10 +31,9 @@ import org.dazeend.harmonium.music.MusicCollection;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
 
-import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 
-public class BrowseMusicByTrackScreen extends HSkipListScreen
+public class BrowseMusicByTrackScreen extends HPlaylistAddCapableListScreen
 {
 	public BrowseMusicByTrackScreen(Harmonium app, MusicCollection thisMusicCollection) {
 		super(app, "All Tracks");
@@ -48,19 +46,6 @@ public class BrowseMusicByTrackScreen extends HSkipListScreen
 		Collections.sort(tracks, new CompareTracksByName());
 
 		this.list.add(tracks.toArray());
-		
-		// Add a note to the bottom of the screen
-		BText enterNote = new BText(	this.getNormal(),
-										this.safeTitleH,
-										this.list.getY() + (8 * this.rowHeight) + (this.screenHeight / 100),
-										this.screenWidth - (2 * this.safeTitleH),
-										this.app.hSkin.paragraphFontSize
-		);
-		enterNote.setFont(app.hSkin.paragraphFont);
-		enterNote.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
-		enterNote.setFlags(RSRC_HALIGN_CENTER + RSRC_VALIGN_BOTTOM);
-		enterNote.setValue("press ENTER to add the entire music collection to a playlist");
-		setManagedView(enterNote);
 	}
 	
 	public boolean handleAction(BView view, Object action) {
@@ -101,10 +86,6 @@ public class BrowseMusicByTrackScreen extends HSkipListScreen
 			}
 			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode);
 			return true;
-		case KEY_ENTER:
-			this.app.play("select.snd");
-			this.app.push(new AddToPlaylistScreen(this.app, MusicCollection.getMusicCollection(this.app.getHFactory())), TRANSITION_LEFT);
-    		return true;
 		}
 		
 		return super.handleKeyPress(key, rawcode);
