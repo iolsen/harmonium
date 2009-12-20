@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Class-Path: lib/bananas.jar lib/commons-logging-1.1.1.jar lib/hme.jar lib/hme-hd-0.4.1.jar lib/hme-host-sample.jar lib/opencsv-1.8.jar
-Main-Class: com.tivo.hme.host.sample.Main
-

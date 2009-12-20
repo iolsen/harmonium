@@ -357,7 +357,7 @@ public class Harmonium extends HDApplication {
 	public static class HarmoniumFactory extends Factory {
 		
 		private FactoryPreferences preferences;
-		private final static String VERSION = "Forked 0.6 BETA";
+		private final static String VERSION = "0.7";
 
 		/**
 		 *  Create the factory. Reads preferences and initialized data structures.

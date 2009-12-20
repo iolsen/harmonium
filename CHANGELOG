@@ -1,3 +1,68 @@
+Version 0.7 (20 Dec 2009)
+-------------------------
+* Use jmdns 1.0 rather than the jmdns code in hme.jar, which resolves an
+  issue where Harmonium would periodically disappear from the Tivo.
+* Pressing <ENTER> now adds the selected item to a playlist, not the
+  selected item's parent.
+* Added most of the source from hme.jar, allowing me to fix the
+  HeadlessException thrown when running on a Linux machine that's not
+  logged in (or lacking X entirely).
+* Added artist name to browse playlist screen.
+* Pressing <PLAY> on a disc now plays just that disc.
+* Updated README with current information.
+* Updated to the latest version of Java Service Wrapper.
+* Default wrapper.conf changes:
+    * Passing java.net.preferIPv4Stack=true to java commandline to work 
+      on OSes with ipv6 enabled.
+    * Removed -debug from java commandline
+    * Changed min/max java heap to 32/256.
+    * Minor log size/splitting changes.
+
+Version 0.6 (6 Sep 2009)
+------------------------
+* Implemented Tivo resource management.  The out of memory errors should no 
+  longer occur.  Harmonium should also no longer slow down the longer you run 
+  it.
+* Browse music by album artist, track artist, or track name.
+* Re-arranged items on the main screen a bit.  "Now Playing" only appears when
+  music is playing.
+* On long lists, you can use the number keys to jump by 10% increments in the 
+  list.  Pressing 5 takes you to the midpoint in the list.  Pressing 7 takes 
+  you 70% of the way to the bottom.  0 toggles between the top and bottom of 
+  the list.
+* There's a configurable screen blanker.  It defaults to 5 minutes.
+* You can play a list of music starting with the current track.  Like an iPod,
+  when you press play on the 5th song of an album, you start playing the whole
+  album, starting with the 5th song.
+* You can browse playlists.  You can start playback at a particular track.
+* Info button from anywhere takes you to now playing, if music is playing.
+* After 20 seconds of inactivity, if music is playing, the Now Playing screen
+  is displayed.
+* "Now Playing" playlist:
+    * When there's music playing, there's a "Now Playing" playlist.
+    * Like any other playlist, you can browse it and jump to any track.
+    * Browse it via the "Browse Playlists" screen while music is playing.
+    * Browse it by pressing "Info" while on Now Playing.  (So pressing "Info"
+      twice from anywhere will get you there.)
+    * You can add tracks to play next or add them at the end without stopping
+      playback.  Cool for parties.
+* "Back" (channel down button) while playing a track goes to the beginning of
+  the track if more than 2 seconds have elapsed in the song (like an iPod or 
+  CD player).
+* Time in current song updates on now playing screen.
+* Play button from lots of screens does what you'd expect.
+* Lists are no longer case sensitive.
+* If an album has "Disc XX" or "CD XX" at the end of it, it gets removed. 
+  (Only for display.  The mp3 file isn't altered.)  You have to delete
+  Harmonium's cache file and restart to see this.
+* Some modest performance improvements when building music cache.
+* Modest performance improvements fetching album art.
+* Fixed current playlist consistency when toggling shuffle on/off.
+* Added button sound effects where they were missing.
+* Fixed/suppressed a bunch of compiler warnings in the blinkenlights library 
+  and included that with source.
+
+
 Version 0.5.1 BETA (10 Sep 2008)
 --------------------------------
 * Reverted to version 1.4 of HME SDK because of several bugs encountered

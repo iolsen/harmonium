@@ -1,20 +1,37 @@
 Harmonium is a free music player for the TiVo DVR. It is distributed under the
-terms of the GNU Affero General Public License. See the COPYING file for the
+terms of the GNU General Public License v3. See the COPYING file for the
 specifics of that license. The newest version of Harmonium can always be found
-on the Harmonium project Web page at <http://harmonium.dazeend.org>.
+on Harmonium's Google Code project page: <http://code.google.com/p/harmonium/>.
 
-You can contact Charles Perry, the developer, through the Harmonium project
-Web page, or by email at harmonium@dazeend.org.
+The original Harmonium developer is Charles Perry.  You can contact him through 
+the original Harmonium project Web page, <http://software.dazeend.org/harmonium/>, 
+or by email at harmonium@dazeend.org.
+
+The current Harmonium maintainer is Ian Olsen.  You can contact him through
+Harmonium's project page at Google Code, <http://code.google.com/p/harmonium/>,
+or by email at ian.olsen@gmail.com.
 
 In order to compile the Harmonium source code, you will need a number of
 additional open source libraries, all of which are available from the Harmonium
-project Web page.
+Google Code project Web page.
 
 Library                    Description              Version  License  Project Web Page
 -------                    -----------              -------  -------  ----------------
 hme.jar                    TiVo HME SDK             1.4      CPL      http://tivohme.sourceforge.net/
-hme-home-sample.jar        TiVo HME SDK             1.4      CPL      http://tivohme.sourceforge.net/
+hme-host-sample.jar        TiVo HME SDK             1.4      CPL      http://tivohme.sourceforge.net/
 bananas.jar                TiVo Bananas UI Toolkit  1.3      CPL      http://tivohme.sourceforge.net/
 hme-hd-0.4.1.jar           TiVo HME HD Library      0.4.1    LGPL     http://hmehd.sourceforge.net/
+opencsv-1.8.jar            CSV parser               1.8      Apache   http://opencsv.sourceforge.net/
 commons-logging-1.1.1.jar  Apache Commons Logging   1.1.1    Apache   http://commons.apache.org/logging/
+jmdns-1.0.jar              Mulit-cast DNS, Zeroconf 1.0      LGPL     http://jmdns.sourceforge.net/
+
+Additionally, the Harmonium source includes modified versions of code taken from 
+the following projects. (You don't need to download these to build Harmonium, they're 
+simply listed here to give due credit.)
+
+Library                    Description              Version  License  Project Web Page
+-------                    -----------              -------  -------  ----------------
 JID3.jar                   Java ID3 Class Library   0.46     LGPL     http://jid3.blinkenlights.org/
+
+The user archives for Linux and Windows use the Java Service Wrapper Standard 
+Edition (http://wrapper.tanukisoftware.org/doc/english/download.jsp).

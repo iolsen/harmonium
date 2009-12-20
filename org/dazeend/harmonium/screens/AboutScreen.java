@@ -48,8 +48,7 @@ public class AboutScreen extends HScreen {
 		super(app, "About Harmonium");	
 		
 		this.app = app;
-		this.message = "Harmonium Music Player\nVersion: " + HarmoniumFactory.getVersion() + "\n\nHarmonium is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.\n\nYou should have received a copy of the GNU Affero General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\nIf you would like the source code for Harmonium, you can download it from <http://harmonium.dazeend.org>.";
-		
+		this.message = "Harmonium Tivo Music Player\nVersion: " + HarmoniumFactory.getVersion() + "\nCopyright (C) 2008-2009  Charles Perry, Ian Olsen\n\nHarmonium is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.";
 		// Create text message view
 		this.scrollPane = new HScrollPane(	this.getNormal(),
 											this.safeTitleH,
