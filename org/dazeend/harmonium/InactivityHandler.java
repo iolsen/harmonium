@@ -35,8 +35,8 @@ public final class InactivityHandler {
 		
 		lastActivityDate = new Date();
 		
-		if (this.app.isInSimulator())
-			System.out.println("Resetting inactivity timer: " + lastActivityDate);
+//		if (this.app.isInSimulator())
+//			System.out.println("Resetting inactivity timer: " + lastActivityDate);
 
 		if (inactive) {
 			if (this.app.isInSimulator()) {

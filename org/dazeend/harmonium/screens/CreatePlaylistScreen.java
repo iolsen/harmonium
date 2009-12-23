@@ -53,7 +53,8 @@ public class CreatePlaylistScreen extends HScreen {
 		
 		// Set up keyboard
 		if(this.app.getHeight() >= 720) {
-			this.keyboard = new HDKeyboard(	this.getNormal(),							// Parent view
+			this.keyboard = new HHDKeyboard(this.app,
+											this.getNormal(),							// Parent view
 											this.safeTitleH,							// x
 											this.screenHeight / 4,						// y
 											this.screenWidth - (2 * this.safeTitleH),	// width
@@ -63,7 +64,8 @@ public class CreatePlaylistScreen extends HScreen {
 			);
 		}
 		else {
-			this.keyboard = new BKeyboard(	this.getNormal(),							// Parent view
+			this.keyboard = new HSDKeyboard(this.app,
+											this.getNormal(),							// Parent view
 											this.safeTitleH,							// x
 											this.screenHeight / 4,						// y
 											this.screenWidth - (2 * this.safeTitleH),	// width
