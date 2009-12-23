@@ -106,12 +106,6 @@ public class HScreen extends HManagedResourceScreen {
 		return super.handleAction(arg0, arg1);
 	}
 	
-	@Override
-	public boolean handleExit() {
-		this.app.resetInactivityTimer();
-		return super.handleExit();
-	}
-	
 	/**
 	 * Creates a list that catches the KEY_SELECT button press.
 	 * 
