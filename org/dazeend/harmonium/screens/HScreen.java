@@ -106,6 +106,14 @@ public class HScreen extends HManagedResourceScreen {
 		return super.handleAction(arg0, arg1);
 	}
 	
+	@Override
+	public boolean handleEnter(Object arg, boolean isReturn)
+	{
+		if (app != null)
+			app.resetInactivityTimer();
+		return super.handleEnter(arg, isReturn);
+	}
+
 	/**
 	 * Creates a list that catches the KEY_SELECT button press.
 	 * 
@@ -169,6 +177,8 @@ public class HScreen extends HManagedResourceScreen {
         	return super.handleKeyPress(code, rawcode);
         }
 	}
+	
+	
 	
 	/**
 	 * Creates a list that has additional navigation options:

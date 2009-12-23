@@ -32,11 +32,12 @@ public final class InactivityHandler {
 	 * Call this any time a notable key (e.g. not volume) is pressed to reset the inactivity timer. 
 	 */
 	public synchronized void resetInactivityTimer(){
-		//		if (this.app.isInSimulator())
-		//		System.out.println("Resetting inactivity timer.");
 		
 		lastActivityDate = new Date();
 		
+		if (this.app.isInSimulator())
+			System.out.println("Resetting inactivity timer: " + lastActivityDate);
+
 		if (inactive) {
 			if (this.app.isInSimulator()) {
 				System.out.println("Setting inactivity state: ACTIVE.");

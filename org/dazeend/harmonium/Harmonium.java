@@ -221,7 +221,8 @@ public class Harmonium extends HDApplication {
 	
 	public void resetInactivityTimer()
 	{
-		inactivityHandler.resetInactivityTimer();
+		if (inactivityHandler != null)
+			inactivityHandler.resetInactivityTimer();
 	}
 	
 	public void updateScreenSaverDelay()
