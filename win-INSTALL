@@ -1,0 +1,126 @@
+Windows Service Installation
+----------------------------
+This distribution of Harmonium installs Harmonium as a service on a computer
+running Microsoft Windows. Installing Harmonium as a service will cause the 
+computer to start Harmonium automatically each time it is booted.
+TiVo Requirements
+
+    * A network enabled Series 2, Series 3, or HD TiVo.
+
+      Note
+          Configuring your TiVo to connect to your network is beyond the scope
+          of these instructions. For help see the TiVo website: 
+          http://www.tivo.com/mytivo/howto/getconnected/howto_connect_dvr_internet.html
+
+    * The TiVo must be enabled for Home Network Applications. To do this, 
+      perform the following:
+         1. From TiVo Central, go to Music, Photos, & More.
+         2. Select Enable Home Network Applications...
+         3. Press THUMBS UP three times, then press ENTER to enable local HME 
+            applications.
+         4. Return to TiVo Central, then Music, Photos, & More. The option 
+            should now appear as Disable Home Network Applications...
+
+Server Requirements
+-------------------
+    * Processor: x86 CPU (Intel Pentium, Celeron, Xeon, etc.; 
+      AMD Athlon, etc.)
+      
+    * Operating System: Microsoft Windows XP, Windows Vista,
+      or Windows 7.
+
+      Tested
+          Windows XP SP3 32-bit
+          Windows 7 Ultimate 32-bit
+          Windows 7 Ultimate 64-bit
+
+    * Java runtime evironment version 6 or later.
+
+      Tested
+          Sun Microsystems Java(TM) SE Runtime Environment (build 1.6.0_17-b04)
+
+    * Connected to same network as TiVo.
+
+      Note
+          The server's networking subsystem must be initialized before starting
+          Harmonium. In particular, the server's network interface must have an
+          IP address assigned before Harmonium is started. This might be an issue
+          if your computer is connected to a wireless network and doesn't
+          receive an IP address until late in the boot process, or after a user
+          has logged in. 
+
+Installation Instructions
+-------------------------
+
+      Pre-Installation
+      ----------------
+   1. Identify the path to the music root directory. All music files must be in
+      the music root or one of its subdirectories.
+
+      Note
+          In our example below, we assume that the music root is: C:\music 
+
+   2. Identify the path to the playlist root directory. All playlist files must
+      be in the playlist root or one of its subdirectories.
+
+      Note
+          In our example below, we assume that the playlist root is:
+          C:\playlists
+
+      Installation
+      ------------
+   3. Uncompress the installation archive to your chosen installation
+      directory.
+
+   4. In the conf directory under the Harmonium installation directory, find
+      and open the file wrapper.conf using Notepad.
+
+   5. Find the line in wrapper.conf that reads:
+      wrapper.app.parameter.4="C:\Documents and Settings\Owner\My Documents\My Music"
+      Modify the line so that the path to your music root appears inside the 
+      quotation marks.
+
+      Example
+          wrapper.app.parameter.4="C:\music"
+
+   6. Find the line in wrapper.conf that reads: 
+      wrapper.app.parameter.6="C:\Documents and Settings\Owner\My Documents\My Playlists"
+      Modify the line so that the path to your playlist root appears inside the
+      quotation marks.
+
+      Example
+          wrapper.app.parameter.6="C:\playlists"
+
+   7. Save the file wrapper.conf, and exit Notepad.
+
+   8. In Windows Explorer, go to the bin directory under the Harmonium
+      installation directory. Find the file called Harmonium.bat.
+
+   9. In Windows Explorer, go to the bin directory under the Harmonium
+      installation directory. Test Harmonium by double-clicking Harmonium.bat
+      in that directory. 
+      
+      On Windows Vista or Windows 7, you may be prompted to allow Java access
+      to your network.  Click "Allow."
+      
+      Check that Harmonium appears on your TiVo under "Music, Programs, 
+      and More." If there seems to be a problem, check the log file in the 
+      logs directory. After testing, close Harmonium by using the keystroke 
+      Ctrl-C.
+
+      Note
+          When Harmonium first starts, it reads and catalogs the music files
+          that it finds under your music root. This process may take several
+          minutes. (A sample collection of 3500 music files takes 20 minutes to
+          complete.) Until this process has completed, Harmonium will not
+          appear on your TiVo. 
+
+  10. If everything seems to be working, install Harmonium as a service by
+      double-clicking on the file called InstallHarmonium.bat, which is in
+      the same directory as Harmonium.bat.
+      
+      NOTE: On Windows Vista or Windows 7, you'll need to right-click
+            InstallHarmonium.bat and select "Run as adminstrator."
+
+  11. Reboot the computer. After the reboot, Harmonium should start automatically.
+

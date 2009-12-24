@@ -17,8 +17,6 @@ Google Code project Web page.
 
 Library                    Description              Version  License  Project Web Page
 -------                    -----------              -------  -------  ----------------
-hme.jar                    TiVo HME SDK             1.4      CPL      http://tivohme.sourceforge.net/
-hme-host-sample.jar        TiVo HME SDK             1.4      CPL      http://tivohme.sourceforge.net/
 bananas.jar                TiVo Bananas UI Toolkit  1.3      CPL      http://tivohme.sourceforge.net/
 hme-hd-0.4.1.jar           TiVo HME HD Library      0.4.1    LGPL     http://hmehd.sourceforge.net/
 opencsv-1.8.jar            CSV parser               1.8      Apache   http://opencsv.sourceforge.net/
@@ -31,6 +29,8 @@ simply listed here to give due credit.)
 
 Library                    Description              Version  License  Project Web Page
 -------                    -----------              -------  -------  ----------------
+hme.jar                    TiVo HME SDK             1.4      CPL      http://tivohme.sourceforge.net/
+hme-host-sample.jar        TiVo HME SDK             1.4      CPL      http://tivohme.sourceforge.net/
 JID3.jar                   Java ID3 Class Library   0.46     LGPL     http://jid3.blinkenlights.org/
 
 The user archives for Linux and Windows use the Java Service Wrapper Standard 

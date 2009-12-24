@@ -1,0 +1,38 @@
+TiVo remote control key commands:
+
+Now Playing Screen
+------------------
+Channel Up:     Next track
+Channel Down:   Restart track/Previous track
+Play:           Play/Resume music
+Pause:          Pause/Unpause music
+Forward:        Fast Forward (up to 3 times)
+Reverse:        Rewind (up to 3 times)
+Instant Replay: Toggle Repeat mode
+Jump:           Toggle Shuffle mode
+Clear:          Blank screen
+Info:           Jump to "Now Playing" playlist browser
+
+
+While Browsing Music
+--------------------
+Play:           Play music item
+Select:         Browse under the music item
+Right:          Browse under the music item
+Enter:          Add item being browsed to a playlist
+Pause:          Pause/Unpause music
+Info:           Jump to Now Playing Screen
+Advance:        Alphabetic skip forward in list
+Replay:         Alphabetic skip backwards in list
+1-9:            Jump to ten percent increments in list
+0:..............Toggle between top and bottom of list
+
+
+While Browsing/Editing Playlists
+--------------------------------
+Clear:          Delete playlist or playlist item
+Play:           Play playlist
+Pause:          Pause/Unpause music
+Info:           Jump to Now Playing Screen
+Advance:........Alphabetic skip forward in list
+Replay:.........Alphabetic skip backwards in list

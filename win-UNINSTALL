@@ -1,0 +1,23 @@
+Windows Service Un-Installation
+-------------------------------
+These instructions guide a user in uninstalling Harmonium as a service on a
+computer running Microsoft Windows.
+
+Un-Installation Instructions
+----------------------------
+
+1.  Stop the Harmonium Music Player service.
+
+    Example
+        1.  Open the Services applet: click Start, click Control Panel, 
+            double-click Administrative Tools, and then double-click Services. 
+
+        2.  Click on the service called Harmonium Music Player.
+
+        3.  Stop the service by clicking on "Stop".
+
+2.  Unstall Harmonium as a service by double-clicking on the file called 
+    UninstallHarmonium.bat, which is in the bin directory under the
+    Harmonium installation directory.
+
+3. Delete the Harmonium installation directory and all files in it.
