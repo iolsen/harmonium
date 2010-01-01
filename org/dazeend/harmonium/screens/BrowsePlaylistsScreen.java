@@ -49,9 +49,6 @@ public class BrowsePlaylistsScreen extends HSkipListScreen
 
 		this.app = app;
 
-		if (app.getDiscJockey().hasCurrentPlaylist())
-			this.list.add(NOW_PLAYING_PLAYLIST);
-
 		List<PlaylistFile> sortedPlaylists = new ArrayList<PlaylistFile>();
 		sortedPlaylists.addAll(MusicCollection.getMusicCollection(this.app.getHFactory()).getPlaylists());
 		Collections.sort(sortedPlaylists);
@@ -124,9 +121,6 @@ public class BrowsePlaylistsScreen extends HSkipListScreen
 	@Override
 	public boolean handleEnter(Object screenArgument, boolean isReturning)
 	{
-		if (list.contains(NOW_PLAYING_PLAYLIST) == false && app.getDiscJockey().hasCurrentPlaylist())
-			this.list.add(0, NOW_PLAYING_PLAYLIST);
-
 		if (isReturning)
 		{
 			// this is needed so that the list will remain sorted and consistant
@@ -135,6 +129,10 @@ public class BrowsePlaylistsScreen extends HSkipListScreen
 			if (focusedItem instanceof PlaylistFile) {
 				PlaylistFile focusedPlaylist = (PlaylistFile)focusedItem;
 				this.list.clear();
+
+				if (app.getDiscJockey().hasCurrentPlaylist())
+					this.list.add(0, NOW_PLAYING_PLAYLIST);
+
 				List<PlaylistFile> sortedPlaylists = new ArrayList<PlaylistFile>();
 				sortedPlaylists.addAll(MusicCollection.getMusicCollection(this.app.getHFactory()).getPlaylists());
 				Collections.sort(sortedPlaylists);
@@ -149,6 +147,12 @@ public class BrowsePlaylistsScreen extends HSkipListScreen
 				}
 			}
 		}
+		else
+		{
+			if (app.getDiscJockey().hasCurrentPlaylist())
+				this.list.add(0, NOW_PLAYING_PLAYLIST);
+		}
+
 		return super.handleEnter(screenArgument, isReturning);
 	}
 

@@ -47,7 +47,7 @@ public class AddToPlaylistScreen extends HListScreen {
 		this.musicItem = musicItem;
 		
 		// if there's music playing, put "Now Playing" at the top
-		if (this.app.getDiscJockey().isPlaying()) {
+		if (this.app.getDiscJockey().hasCurrentPlaylist()) {
 			this.list.add(NP_PLAYLIST_LABEL);
 		}
 		
