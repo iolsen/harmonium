@@ -533,16 +533,22 @@ public class Harmonium extends HDApplication {
 			this.app.push(this.nowPlayingScreen, TRANSITION_NONE);
 		}
 		
-		public void enqueueNext(Playable playable) {
+		public void enqueueNext(PlaylistEligible ple) {
+
 			int nextIndex = this.musicIndex + 1;
-			this.shuffledMusicQueue.add(nextIndex, playable);
-			this.musicQueue.add(nextIndex, playable);
+			List<Playable> list = ple.listMemberTracks(this.app);
+			this.shuffledMusicQueue.addAll(nextIndex, list);
+			this.musicQueue.addAll(nextIndex, list);
+
 			pushNowPlayingScreen();
 		}
 		
-		public void enqueueAtEnd(Playable playable) {
-			this.musicQueue.add(playable);
-			this.shuffledMusicQueue.add(playable);
+		public void enqueueAtEnd(PlaylistEligible ple) {
+
+			List<Playable> list = ple.listMemberTracks(this.app);
+			this.shuffledMusicQueue.addAll(list);
+			this.musicQueue.addAll(list);
+
 			pushNowPlayingScreen();
 		}
 		

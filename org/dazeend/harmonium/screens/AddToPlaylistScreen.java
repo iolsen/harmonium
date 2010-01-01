@@ -38,12 +38,18 @@ public class AddToPlaylistScreen extends HListScreen {
 
 	private PlaylistEligible musicItem;
 	private static final String NEW_PLAYLIST_LABEL = "Add to New Playlist";
+	private static final String NP_PLAYLIST_LABEL = "Add to \"Now Playing\" Playlist";
 	
 	public AddToPlaylistScreen(Harmonium app, PlaylistEligible musicItem) {
 		super(app, "Add " + musicItem.toString() + " to Playlist");
 		
 		this.app = app;
 		this.musicItem = musicItem;
+		
+		// if there's music playing, put "Now Playing" at the top
+		if (this.app.getDiscJockey().isPlaying()) {
+			this.list.add(NP_PLAYLIST_LABEL);
+		}
 		
 		// sort existing HPL playlists by date last modified, add them to the list
 		List<HPLFile> sortedHPLPlaylists = MusicCollection.getMusicCollection(this.app.getHFactory()).getHPLPlaylists();
@@ -77,8 +83,12 @@ public class AddToPlaylistScreen extends HListScreen {
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("right") || action.equals("select")) {
         	if( list.get( list.getFocus() ).equals(NEW_PLAYLIST_LABEL) ) {
-        		// Create a new playlist and add this track to it
+        		// Create a new playlist and add this music item to it
         		this.app.push(new CreatePlaylistScreen(this.app, this.musicItem), TRANSITION_LEFT);
+        	}
+        	else if (  list.get( list.getFocus() ).equals(NP_PLAYLIST_LABEL)  ) {
+        		// Add music item to now playing playlist
+        		this.app.getDiscJockey().enqueueAtEnd(this.musicItem);
         	}
         	else {
         		HPLFile hplFile = (HPLFile)list.get( list.getFocus() );
