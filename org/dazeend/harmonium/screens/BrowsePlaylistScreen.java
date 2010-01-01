@@ -50,14 +50,12 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 		this.list.add( tracks.toArray() );
 	}
 
-	public BrowsePlaylistScreen(Harmonium app, List<Playable> playlist)
+	public BrowsePlaylistScreen(Harmonium app, PlaylistEligible playlist)
 	{
 		this(app, "\"Now Playing\" Playlist");
 		
 		// Add playlist tracks to the list.
-		List<Playable> tracks = new ArrayList<Playable>();
-		tracks.addAll( playlist );
-		this.list.add( tracks.toArray() );
+		this.list.add( playlist.listMemberTracks(this.app).toArray() );
 	}
 	
 	public boolean isNowPlayingPlaylist() {

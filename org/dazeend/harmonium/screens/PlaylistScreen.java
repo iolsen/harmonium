@@ -20,12 +20,10 @@
  
 package org.dazeend.harmonium.screens;
 
-import java.util.List;
-
 import org.dazeend.harmonium.Harmonium;
+import org.dazeend.harmonium.Harmonium.DiscJockey.CurrentPlaylist;
 import org.dazeend.harmonium.music.HPLFile;
 import org.dazeend.harmonium.music.MusicCollection;
-import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistFile;
 
 import com.tivo.hme.bananas.BView;
@@ -37,7 +35,7 @@ import com.tivo.hme.bananas.BView;
 public class PlaylistScreen extends HListScreen {
 
 	private PlaylistFile playlistFile;
-	private List<Playable> playlist;
+	private CurrentPlaylist playlist;
 	
 	private static final String PLAY_LABEL = "Play";
 	private static final String BROWSE_LABEL = "Browse";
@@ -45,6 +43,7 @@ public class PlaylistScreen extends HListScreen {
 	private static final String EDIT_DESCRIPTION_LABEL = "Edit Description";
 	private static final String EDIT_OPTIONS_LABEL = "Edit Playlist Options";
 	private static final String DELETE_LABEL = "Delete";
+	private static final String SAVE_LABEL = "Save to Playlist";
 	
 	/**
 	 * @param app
@@ -71,12 +70,13 @@ public class PlaylistScreen extends HListScreen {
 		list.add(DELETE_LABEL);
 	}
 	
-	public PlaylistScreen(Harmonium app, List<Playable> playlist) {
+	public PlaylistScreen(Harmonium app, CurrentPlaylist playlist) {
 		this (app, "\"Now Playing\" Playlist");
 		
 		this.playlist = playlist;
 
 		list.add(BROWSE_LABEL);
+		list.add(SAVE_LABEL);
 		
 		// Ian TODO: Implement editing the "Now Playing" Playlist
 		//list.add(EDIT_PLAYLIST_LABEL);
@@ -114,6 +114,9 @@ public class PlaylistScreen extends HListScreen {
         	}
         	else if(menuOption.equals(EDIT_OPTIONS_LABEL)) {
         		this.app.push(new EditPlaylistOptionsScreen(this.app, (HPLFile)this.playlistFile), TRANSITION_LEFT);
+        	}
+        	else if(menuOption.equals(SAVE_LABEL)) {
+        		this.app.push(new AddToPlaylistScreen(this.app, this.app.getDiscJockey().getCurrentPlaylist()), TRANSITION_LEFT);
         	}
         	
         	return true;

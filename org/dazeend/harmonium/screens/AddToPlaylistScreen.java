@@ -46,8 +46,8 @@ public class AddToPlaylistScreen extends HListScreen {
 		this.app = app;
 		this.musicItem = musicItem;
 		
-		// if there's music playing, put "Now Playing" at the top
-		if (this.app.getDiscJockey().hasCurrentPlaylist()) {
+		// if there's music playing, and we're not saving the current playlist, put "Now Playing" at the top.
+		if ( this.app.getDiscJockey().hasCurrentPlaylist() && !(musicItem instanceof Harmonium.DiscJockey.CurrentPlaylist)) {
 			this.list.add(NP_PLAYLIST_LABEL);
 		}
 		

@@ -775,8 +775,8 @@ public class Harmonium extends HDApplication {
 			return this.nowPlaying;
 		}
 		
-		public List<Playable> getCurrentPlaylist() {
-			return this.musicQueue;
+		public CurrentPlaylist getCurrentPlaylist() {
+			return new CurrentPlaylist(this.musicQueue);
 		}
 		
 		public boolean hasCurrentPlaylist() {
@@ -877,6 +877,29 @@ public class Harmonium extends HDApplication {
 		public NowPlayingScreen getNowPlayingScreen()
 		{
 			return this.nowPlayingScreen;
+		}
+		
+		public class CurrentPlaylist implements PlaylistEligible {
+
+			private List<Playable> _tracks;
+			
+			private CurrentPlaylist(List<Playable> tracks) {
+				_tracks = tracks;
+			}
+			
+			public List<Playable> listMemberTracks(Harmonium app)
+			{
+				return _tracks;
+			}
+
+			public String toStringTitleSortForm()
+			{
+				return toString();
+			}
+			
+			public String toString() {
+				return "\"Now Playing\" Playlist";
+			}
 		}
 	}
 

@@ -126,25 +126,22 @@ public class BrowsePlaylistsScreen extends HSkipListScreen
 			// this is needed so that the list will remain sorted and consistant
 			// after returning from child screens
 			Object focusedItem = list.get(list.getFocus());
-			if (focusedItem instanceof PlaylistFile) {
-				PlaylistFile focusedPlaylist = (PlaylistFile)focusedItem;
-				this.list.clear();
+			this.list.clear();
 
-				if (app.getDiscJockey().hasCurrentPlaylist())
-					this.list.add(0, NOW_PLAYING_PLAYLIST);
+			if (app.getDiscJockey().hasCurrentPlaylist())
+				this.list.add(0, NOW_PLAYING_PLAYLIST);
 
-				List<PlaylistFile> sortedPlaylists = new ArrayList<PlaylistFile>();
-				sortedPlaylists.addAll(MusicCollection.getMusicCollection(this.app.getHFactory()).getPlaylists());
-				Collections.sort(sortedPlaylists);
-				this.list.add(sortedPlaylists.toArray());
+			List<PlaylistFile> sortedPlaylists = new ArrayList<PlaylistFile>();
+			sortedPlaylists.addAll(MusicCollection.getMusicCollection(this.app.getHFactory()).getPlaylists());
+			Collections.sort(sortedPlaylists);
+			this.list.add(sortedPlaylists.toArray());
 
-				if (this.list.contains(focusedPlaylist))
-				{
-					this.list.setFocus(this.list.indexOf(focusedPlaylist), false);
-				} else
-				{
-					this.list.setFocus(0, false);
-				}
+			if (this.list.contains(focusedItem))
+			{
+				this.list.setFocus(this.list.indexOf(focusedItem), false);
+			} else
+			{
+				this.list.setFocus(0, false);
 			}
 		}
 		else
