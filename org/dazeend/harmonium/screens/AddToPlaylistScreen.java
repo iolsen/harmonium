@@ -45,13 +45,15 @@ public class AddToPlaylistScreen extends HListScreen {
 		this.app = app;
 		this.musicItem = musicItem;
 		
-		this.list.add(NEW_PLAYLIST_LABEL);
-		
-		// sort existing HPL playlists and add them to the list
+		// sort existing HPL playlists by date last modified, add them to the list
 		List<HPLFile> sortedHPLPlaylists = MusicCollection.getMusicCollection(this.app.getHFactory()).getHPLPlaylists();
-		Collections.sort(sortedHPLPlaylists);
+		HPLFile.DateDescendingComparator c = new HPLFile.DateDescendingComparator();
+		Collections.sort(sortedHPLPlaylists, c);
 		this.list.add( sortedHPLPlaylists.toArray() );
-	}
+
+		// Put "Add to new playlist" at the bottom of the list. 
+		this.list.add(NEW_PLAYLIST_LABEL);
+}
 	
 	
 	
