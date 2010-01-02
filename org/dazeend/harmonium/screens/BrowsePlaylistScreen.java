@@ -100,8 +100,8 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 				List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
 				playlist.addAll( this.playlistFile.listMemberTracks(this.app) );
 
-				boolean shuffleMode = this.app.getPreferences().getPlaylistFileDefaultShuffleMode();
-				boolean repeatMode = this.app.getPreferences().getPlaylistFileDefaultRepeatMode();
+				boolean shuffleMode = this.playlistFile.getShuffleMode(this.app);
+				boolean repeatMode = this.playlistFile.getRepeatMode(this.app);
 
 				this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode, startPlaying);
 			}

@@ -29,6 +29,8 @@ import org.dazeend.harmonium.music.Album;
 import org.dazeend.harmonium.music.Disc;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlaylistFile;
+
 import com.tivo.hme.bananas.BView;
 
 /**
@@ -154,17 +156,33 @@ public class TrackScreen extends HAlbumInfoListScreen {
     	}        
     	else if (menuOption.equals(playParentAlbumString) || menuOption.equals(playParentPlaylistString) || menuOption.equals(this.playParentDiscString)) {
     		
-    		// Ian TODO: Consider moving this logic down into DiscJockey.  It's also
-    		//			 used in BrowseAlbumScreen.
 			List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
 			playlist.add( this.trackParent );
+
 			boolean shuffleMode;
 			boolean repeatMode;
-			
-			// Ian TODO: Should this be disc/album shuffle mode?  See also comment
-			//			 in BrowseAlbumScreen.
-			shuffleMode = this.app.getPreferences().getTrackDefaultShuffleMode();
-			repeatMode = this.app.getPreferences().getTrackDefaultRepeatMode();
+			if (menuOption.equals(playParentAlbumString)) {
+				shuffleMode = this.app.getPreferences().getAlbumDefaultShuffleMode();
+				repeatMode = this.app.getPreferences().getAlbumDefaultRepeatMode();
+			}
+			else if (menuOption.equals(playParentPlaylistString)) {
+				if (this.trackParent instanceof PlaylistFile) {
+					shuffleMode = ((PlaylistFile) this.trackParent).getShuffleMode(this.app);
+					repeatMode = ((PlaylistFile) this.trackParent).getRepeatMode(this.app);
+				}
+				else {
+					shuffleMode = this.app.getPreferences().getPlaylistFileDefaultShuffleMode();
+					repeatMode = this.app.getPreferences().getPlaylistFileDefaultRepeatMode();
+				}
+			}
+			else if (menuOption.equals(playParentDiscString)) {
+				shuffleMode = this.app.getPreferences().getDiscDefaultShuffleMode();
+				repeatMode = this.app.getPreferences().getDiscDefaultRepeatMode();
+			}
+			else {
+				shuffleMode = this.app.getPreferences().getTrackDefaultShuffleMode();
+				repeatMode = this.app.getPreferences().getTrackDefaultRepeatMode();
+			}
 
 			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode, playableTrack);
     	}

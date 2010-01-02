@@ -969,7 +969,7 @@ public class Harmonium extends HDApplication {
 				if (hash != 0)
 					aci = new ArtCacheItem(hash, screen.createImage(album.getScaledAlbumArt(width, height)));
 				else
-					aci = new ArtCacheItem(hash, screen.createImage("default_album_art.gif"));
+					aci = new ArtCacheItem(hash, screen.createImage("default_album_art2.png"));
 				
 				if (_managedImageList.size() == CACHE_SIZE) {
 

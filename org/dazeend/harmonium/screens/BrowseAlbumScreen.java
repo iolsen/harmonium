@@ -101,15 +101,6 @@ public class BrowseAlbumScreen extends HAlbumInfoListScreen {
 			PlaylistEligible selected = getListSelection();
 			Playable startPlaying = null;
 			
-			// Ian TODO: Something's not right here.  Should we be using album shuffle
-			// 			 mode somewhere?  Why is there even a track shuffle mode?
-			//			 What does it mean to shuffle when you're playing a single
-			//			 track (even though you're not really playing a single track
-			//           *here*, the existence of the setting doesn't make sense to
-			//			 me at the moment.
-			//
-			//			 Also, this logic is also used in TrackScreen.  Maybe this
-			//			 whole block should be pushed down into DiscJockey or something.
 			if(  selected instanceof Disc ) {
 				// Playing an entire disc
 				playlist.add( selected );
