@@ -348,7 +348,14 @@ public class HAlbumInfoListScreen extends HPlaylistAddCapableListScreen {
 			    	
 		            oldMusicItem = newMusicItem;
 		            
-					updateInfo(newMusicItem, getFocus());
+					new Thread()
+					{
+						public void run()
+						{
+							if (updateInfo(newMusicItem, getFocus()));
+		        				flush();
+						}
+					}.start();
 	        	}
 	        }
 	     }
@@ -359,8 +366,11 @@ public class HAlbumInfoListScreen extends HPlaylistAddCapableListScreen {
 	        return super.handleFocus(isGained, gained, lost);
 	    }
 	    
-	    private void updateInfo(final AlbumArtListItem newMusicItem, final int focusItem)
+	    private synchronized boolean updateInfo(final AlbumArtListItem newMusicItem, final int focusItem)
 	    {
+	    	if (focusItem != getFocus())
+	    		return false;
+	    	
             // turn off painting while we update the images
         	app.getRoot().setPainting(false);
         	
@@ -371,27 +381,17 @@ public class HAlbumInfoListScreen extends HPlaylistAddCapableListScreen {
         		// Move the current art to the background
 	        	setManagedResource(this.albumArtBGView, this.albumArtView.getResource(), RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
        
-        		// Put the new image in the foreground on another thread
-				new Thread()
+        		// Put the new image in the foreground.
+    			try
 				{
-					public void run()
-					{
-						// The image isn't yet in the cache, so fetch it ourselves in another thread.  This looks like it has the potential 
-						// to screw up the animation below, and it sometimes does, but it seems to give the best performance perception: you 
-						// can move through this list with decent speed even if the cache is still loading and music is playing.
-	        			try
-						{
-							setManagedResource(albumArtView, getAlbumImage((AlbumReadable)get(focusItem)), RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
-						} catch (IOException e)
-						{
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-	        			flush();
-					}
-				}.start();
+					setManagedResource(albumArtView, getAlbumImage((AlbumReadable)get(focusItem)), RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
+				} catch (IOException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
         		
-	    		// Perform the crossfade between images using an animation to match highlight movement
+		    	// Perform the crossfade between images using an animation to match highlight movement
 	    		this.albumArtView.setTransparency(1.0f);		// start transparent, then fade IN
 	            this.albumArtView.setTransparency(0.0f, anim);
 	            this.albumArtBGView.setTransparency(0.0f);		// start opaque, then fade OUT
@@ -431,6 +431,8 @@ public class HAlbumInfoListScreen extends HPlaylistAddCapableListScreen {
         	finally {
                 app.getRoot().setPainting(true);
             }
+        	
+        	return true;
 	    }
 	    
 		private ImageResource getAlbumImage(AlbumReadable musicItem) throws IOException {
