@@ -1,6 +1,15 @@
 #!/bin/bash
+
+if [ -f Harmonium.jar ]
+then
 rm Harmonium.jar
+fi
+
+if [ -e bin ]
+then
 rm -rf bin
+fi
+
 mkdir bin
 find . -iname *.java > srclist
 javac @srclist -target 1.5 -d bin @classpathlist

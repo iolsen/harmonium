@@ -42,7 +42,7 @@ cp conf/linux-wrapper.conf Harmonium/conf/wrapper.conf
 mkdir Harmonium/lib
 cp libs/* Harmonium/lib/
 cp wrapper/libwrapper.so Harmonium/lib/
-cp wrapper/wrapper.jar Harmonium/lib/
+cp wrapper/linux-wrapper.jar Harmonium/lib/wrapper.jar
 
 mkdir Harmonium/logs
 
@@ -52,4 +52,44 @@ then
 rm ${LINUXFILE}
 fi
 tar czf ${LINUXFILE} Harmonium
+
+rm -rf Harmonium
+
+
+#####################
+# build windows zip
+#####################
+mkdir Harmonium
+cp CHANGELOG Harmonium/
+cp COPYING Harmonium/
+cp win-INSTALL Harmonium/INSTALL
+cp win-UNINSTALL Harmonium/UNINSTALL
+cp win-UPGRADE Harmonium/UPGRADE
+cp README Harmonium/
+cp USAGE Harmonium/
+cd Harmonium
+flip -m CHANGELOG COPYING INSTALL UNINSTALL UPGRADE README USAGE
+cd ..
+cp Harmonium.jar Harmonium/
+
+mkdir Harmonium/bin
+cp wrapper/*.bat Harmonium/bin/
+cp wrapper/wrapper.exe Harmonium/bin/
+
+mkdir Harmonium/conf
+cp conf/win-wrapper.conf Harmonium/conf/wrapper.conf
+
+mkdir Harmonium/lib
+cp libs/* Harmonium/lib/
+cp wrapper/wrapper.dll Harmonium/lib/
+cp wrapper/win-wrapper.jar Harmonium/lib/wrapper.jar
+
+mkdir Harmonium/logs
+
+export WINFILE=harmonium-windows-${VERSION}.zip
+if [ -f ${WINFILE} ]
+then
+rm ${WINFILE}
+fi
+zip -qr ${WINFILE} Harmonium
 rm -rf Harmonium
