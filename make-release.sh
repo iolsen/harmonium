@@ -3,12 +3,12 @@
 #######################
 # get latest and build
 #######################
-#hg pull
-#hg update --clean
+hg pull
+hg update --clean
 export VERSION=`grep "VERSION\s*=\s*" org/dazeend/harmonium/Harmonium.java | grep -o "[0-9]*\.[0-9]*\.[0-9]*"`
 echo Building release archives for version ${VERSION}...
-#./rev-update.sh org/dazeend/harmonium/Harmonium.java
-#./build.sh
+./rev-update.sh org/dazeend/harmonium/Harmonium.java
+./build.sh
 
 
 if [ -e Harmonium ]
