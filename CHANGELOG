@@ -1,3 +1,22 @@
+Version 0.7.1 (Jan 2010)
+------------------------
+* You can now add artists/albums/etc. to the "Now Playing" playlist.
+  (issue 11)
+* You can now save the "Now Playing" playlist to a permanent playlist.
+  (issue 12)
+* Fixed cross-fading of album art and info on HAlbumInfoScreen.
+  (issue 5)
+* On the Add to Playlist screen, playlists are now sorted by last 
+  modification date.  So the playlist you've most recently modified
+  appears on top.
+  (issue 17)
+* Fixed an issue where "Now Playing" didn't always appear on the
+  Browse Playlists screen, even when music was playing.
+  (issue 14)
+* Fixed a couple places where the default shuffle/repeat mode was used
+  for HPL playlists, rather than the mode stored with the playlist itself.
+* Changed the default album art graphic.
+
 Version 0.7 (20 Dec 2009)
 -------------------------
 * Use jmdns 1.0 rather than the jmdns code in hme.jar, which resolves an

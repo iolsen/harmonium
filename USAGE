@@ -16,16 +16,16 @@ Info:           Jump to "Now Playing" playlist browser
 
 While Browsing Music
 --------------------
-Play:           Play music item
-Select:         Browse under the music item
-Right:          Browse under the music item
-Enter:          Add item being browsed to a playlist
+Play:           Play the selected item
+Select:         Browse the selected item
+Right:          Browse the selected item
+Enter:          Add selected item to a playlist
 Pause:          Pause/Unpause music
 Info:           Jump to Now Playing Screen
 Advance:        Alphabetic skip forward in list
 Replay:         Alphabetic skip backwards in list
 1-9:            Jump to ten percent increments in list
-0:..............Toggle between top and bottom of list
+0:              Toggle between top and bottom of list
 
 
 While Browsing/Editing Playlists
@@ -34,5 +34,5 @@ Clear:          Delete playlist or playlist item
 Play:           Play playlist
 Pause:          Pause/Unpause music
 Info:           Jump to Now Playing Screen
-Advance:........Alphabetic skip forward in list
-Replay:.........Alphabetic skip backwards in list
+Advance:        Alphabetic skip forward in list
+Replay:         Alphabetic skip backwards in list
