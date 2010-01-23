@@ -431,6 +431,59 @@ public class EditPlaylistScreen extends HScreen {
 			case KEY_SELECT:
 				this.app.push(new TrackInfoScreen( this.app, (Playable)this.list.get( this.list.getFocus() ) ), TRANSITION_LEFT);
 				return true;
+			case KEY_NUM1:
+				// Jump to 10% through the list
+				this.getApp().play("select.snd");
+				this.list.setFocus(this.list.size() / 10, true);
+				return true;
+			case KEY_NUM2:
+				// Jump to 20% through the list
+				this.getApp().play("select.snd");
+				this.list.setFocus(this.list.size() / 5, true);
+				return true;
+			case KEY_NUM3:
+				// Jump to 30% through the list
+				this.getApp().play("select.snd");
+				this.list.setFocus(this.list.size() / 10 * 3, true);
+				return true;
+			case KEY_NUM4:
+				// Jump to 40% through the list
+				this.getApp().play("select.snd");
+				this.list.setFocus(this.list.size() / 10 * 4, true);
+				return true;
+			case KEY_NUM5:
+				// Jump to 50% through the list
+				this.getApp().play("select.snd");
+				this.list.setFocus(this.list.size() / 2, true);
+				return true;
+			case KEY_NUM6:
+				// Jump to 60% through the list
+				this.getApp().play("select.snd");
+				this.list.setFocus(this.list.size() / 10 * 6, true);
+				return true;
+			case KEY_NUM7:
+				// Jump to 70% through the list
+				this.getApp().play("select.snd");
+				this.list.setFocus(this.list.size() / 10 * 7, true);
+				return true;
+			case KEY_NUM8:
+				// Jump to 80% through the list
+				this.getApp().play("select.snd");
+				this.list.setFocus(this.list.size() / 10 * 8, true);
+				return true;
+			case KEY_NUM9:
+				// Jump to 90% through the list
+				this.getApp().play("select.snd");
+				this.list.setFocus(this.list.size() / 10 * 9, true);
+				return true;
+			case KEY_NUM0:
+				// Go to the end of the list, unless we're already there, in which case we jump to the top.
+				this.getApp().play("select.snd");
+				if (this.list.getFocus() == this.list.size() - 1)
+					this.list.setFocus(0, true);
+				else
+					this.list.setFocus(this.list.size() - 1, true);
+				return true;
 			}
 		}
 	

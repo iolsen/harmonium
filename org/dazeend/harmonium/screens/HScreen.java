@@ -272,7 +272,7 @@ public class HScreen extends HManagedResourceScreen {
 			case KEY_NUM4:
 				// Jump to 40% through the list
 				this.getApp().play("select.snd");
-				this.setFocus(this.size() / 10 *4, true);
+				this.setFocus(this.size() / 10 * 4, true);
 				return true;
 
 			case KEY_NUM5:
