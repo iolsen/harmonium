@@ -159,6 +159,10 @@ public class Harmonium extends HDApplication {
 	public boolean isInSimulator() {
 		return inSimulator;
 	}
+	
+	public boolean isInDebugMode() {
+		return getHFactory().getPreferences().inDebugMode();
+	}
 
 
 	/**
@@ -329,7 +333,14 @@ public class Harmonium extends HDApplication {
 	public boolean handleIdle(boolean isIdle) {
 		
 		if(isIdle) {
-			inactivityHandler.setInactive();
+
+			if (this.app.isInDebugMode()){
+				System.out.println("INACTIVITY DEBUG: Tivo sent idle event.");
+				System.out.flush();
+			}
+			
+			inactivityHandler.checkIfInactive();
+
 			// tell the receiver that we handled the idle event
 			this.acknowledgeIdle(true);
 		}

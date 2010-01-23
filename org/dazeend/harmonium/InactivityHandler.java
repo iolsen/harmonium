@@ -35,37 +35,62 @@ public final class InactivityHandler {
 		
 		lastActivityDate = new Date();
 		
-//		if (this.app.isInSimulator())
-//			System.out.println("Resetting inactivity timer: " + lastActivityDate);
+		if (this.app.isInDebugMode())
+			System.out.println("INACTIVITY DEBUG: Resetting inactivity timer: " + lastActivityDate);
 
 		if (inactive) {
-			if (this.app.isInSimulator()) {
-				System.out.println("Setting inactivity state: ACTIVE.");
+			if (this.app.isInDebugMode()) {
+				System.out.println("INACTIVITY DEBUG: Setting inactivity state: ACTIVE.");
 				System.out.flush();
 			}
 			inactive = false;
 		}
 	}
 
-	private synchronized void checkIfInactive() {
+	public synchronized void checkIfInactive() {
 		if (inactive)
 			return;
 		
+		if (this.app.isInDebugMode())
+			System.out.println("INACTIVITY DEBUG: Checking if inactive.");
+
 		Date rightNow = new Date();
-		if (rightNow.getTime() - lastActivityDate.getTime() >= 20000) {
+		long timeInactive = rightNow.getTime() - lastActivityDate.getTime(); 
+		if (this.app.isInDebugMode())
+			System.out.println("INACTIVITY DEBUG: No user activity for " + timeInactive + " ms.");
+
+		if ( timeInactive >= 20000) {
 			
 			// If we've been inactive, but there's music playing and we're not on the Now Playing screen,
 			// go to the Now Playing screen.  Next time we go inactive we'll enable the screen saver.
 			if (this.app.getDiscJockey().isPlaying() && (this.app.getCurrentScreen().getClass() != NowPlayingScreen.class) 
 					&& this.app.getDiscJockey().getNowPlayingScreen() != null) {
 				
+				if (this.app.isInDebugMode())
+					System.out.println("INACTIVITY DEBUG: Resetting and pushing now playing screen.");
+
 				resetInactivityTimer();
 				this.app.push(this.app.getDiscJockey().getNowPlayingScreen(), IBananas.TRANSITION_LEFT);
 				return;
 			}
 			
-			if (inactivityMilliseconds != 0 && rightNow.getTime() - lastActivityDate.getTime() >= inactivityMilliseconds)
+			if (inactivityMilliseconds != 0 && timeInactive >= inactivityMilliseconds) {
+
+				if (this.app.isInDebugMode())
+					System.out.println("INACTIVITY DEBUG: Inactive for long enough.");
+
 				setInactive();
+			}
+			else
+			{
+				if (this.app.isInDebugMode())
+					System.out.println("INACTIVITY DEBUG: Not inactive for long enough.");
+			}
+		}
+		else
+		{
+			if (this.app.isInDebugMode())
+				System.out.println("INACTIVITY DEBUG: Inactive for less than 20 seconds.  Nothing to do.");
 		}
 	}
 
@@ -77,12 +102,12 @@ public final class InactivityHandler {
 			return;
 		inactive = true;
 
-		if (this.app.isInSimulator()){
-			System.out.println("Setting inactivity state: INACTIVE.");
+		if (this.app.isInDebugMode()){
+			System.out.println("INACTIVITY DEBUG: Setting inactivity state: INACTIVE.");
 			System.out.flush();
 		}
 		
-		// Start the screen saver if it's enabled.
+		// Start the screen saver.
 		BScreen currentScreen = app.getCurrentScreen();
 		if (currentScreen != screenSaverScreen) {
 			if (screenSaverScreen == null)
@@ -109,5 +134,9 @@ public final class InactivityHandler {
 	public void updateScreenSaverDelay()
 	{
 		inactivityMilliseconds = app.getPreferences().screenSaverDelay();
+		if (this.app.isInDebugMode()){
+			System.out.println("INACTIVITY DEBUG: Updating screen saver delay: " + inactivityMilliseconds);
+			System.out.flush();
+		}
 	}
 }
