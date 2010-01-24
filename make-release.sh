@@ -1,15 +1,25 @@
 #!/bin/bash
 
 #######################
-# get latest and build
+# update from repo
 #######################
-hg pull
+hg pull $1
 hg update --clean
-export VERSION=`grep "VERSION\s*=\s*" org/dazeend/harmonium/Harmonium.java | grep -o "[0-9]*\.[0-9]*\.[0-9]*"`
-echo Building release archives for version ${VERSION}...
-./rev-update.sh org/dazeend/harmonium/Harmonium.java
-./build.sh
 
+#######################
+# get version info
+#######################
+export VERSION=`grep "VERSION\s*=\s*" org/dazeend/harmonium/Harmonium.java | grep -o "[0-9]*\.[0-9]*\.[0-9]*"`
+export rev=`hg log -l1|grep changeset|grep -o  ":\([[:alnum:]]\+\)"|grep -o "\([[:alnum:]]\+\)"`
+
+echo "Building release archives for version ${VERSION} (${rev})..."
+
+perl -pi -e 's/{REV}/'$rev'/g' org/dazeend/harmonium/Harmonium.java
+
+#######################
+# compile
+#######################
+./build.sh
 
 if [ -e Harmonium ]
 then
@@ -46,7 +56,7 @@ cp wrapper/linux-wrapper.jar Harmonium/lib/wrapper.jar
 
 mkdir Harmonium/logs
 
-export LINUXFILE=harmonium-linux-${VERSION}.tar.gz
+export LINUXFILE=harmonium-linux-${VERSION}-${rev}.tar.gz
 if [ -f ${LINUXFILE} ]
 then
 rm ${LINUXFILE}
@@ -86,7 +96,7 @@ cp wrapper/win-wrapper.jar Harmonium/lib/wrapper.jar
 
 mkdir Harmonium/logs
 
-export WINFILE=harmonium-windows-${VERSION}.zip
+export WINFILE=harmonium-windows-${VERSION}-${rev}.zip
 if [ -f ${WINFILE} ]
 then
 rm ${WINFILE}
