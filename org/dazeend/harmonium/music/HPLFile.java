@@ -392,4 +392,30 @@ public class HPLFile extends EditablePlaylist implements PlaylistFile {
 		return this.toString().compareToIgnoreCase(that.toString());
 	}
 	
+	@Override
+	public int hashCode()
+	{
+		final int PRIME = 31;
+		int result = 1;
+		result = PRIME * result + ((file == null) ? 0 : file.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final PlaylistFile other = (PlaylistFile) obj;
+		if (file == null) {
+			if (other.getFile() != null)
+				return false;
+		} else if (!file.equals(other.getFile()))
+			return false;
+		return true;
+	}
 }
