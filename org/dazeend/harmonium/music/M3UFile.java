@@ -31,11 +31,12 @@ import java.util.List;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.Harmonium.HarmoniumFactory;
 
-public class M3UFile extends PlaylistFile {
+public class M3UFile implements PlaylistFile {
 	
 	// Instance variables
 	private HarmoniumFactory	hFactory;
 	private List<Playable> members = new ArrayList<Playable>();
+	protected File file;
 	
 	/**
 	 * 
@@ -120,7 +121,6 @@ public class M3UFile extends PlaylistFile {
 	/* (non-Javadoc)
 	 * @see org.dazeend.harmonium.music.PlaylistFile#getMembers()
 	 */
-	@Override
 	public List<PlaylistEligible> getMembers() {
 		List<PlaylistEligible> list = new ArrayList<PlaylistEligible>();
 		list.addAll(this.members);
@@ -130,7 +130,6 @@ public class M3UFile extends PlaylistFile {
 	/* (non-Javadoc)
 	 * @see org.dazeend.harmonium.music.PlaylistFile#getDescription()
 	 */
-	@Override
 	public String getDescription() {
 		
 		return this.file.getName();
@@ -139,7 +138,6 @@ public class M3UFile extends PlaylistFile {
 	/* (non-Javadoc)
 	 * @see org.dazeend.harmonium.music.PlaylistFile#getRepeatMode()
 	 */
-	@Override
 	public boolean getRepeatMode(Harmonium app) {
 		return app.getPreferences().getPlaylistFileDefaultRepeatMode();
 	}
@@ -148,7 +146,6 @@ public class M3UFile extends PlaylistFile {
 	/* (non-Javadoc)
 	 * @see org.dazeend.harmonium.music.PlaylistFile#getShuffleMode()
 	 */
-	@Override
 	public boolean getShuffleMode(Harmonium app) {
 		
 		return  app.getPreferences().getPlaylistFileDefaultShuffleMode();
@@ -176,6 +173,55 @@ public class M3UFile extends PlaylistFile {
 
 	public String toStringTitleSortForm() {
 		return this.file.getName();
+	}
+
+
+
+	/**
+	 * Gets the File object that represents this PlaylistFile on disk.
+	 * 
+	 * @return
+	 */
+	public File getFile()
+	{
+		return this.file;
+	}
+
+	public int compareTo(PlaylistFile that)
+	{
+		// NullPointerException if we are trying to compare to a null object
+		if(that == null){
+			throw new NullPointerException();
+		}
+		
+		return this.toString().compareToIgnoreCase(that.toString());
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int PRIME = 31;
+		int result = 1;
+		result = PRIME * result + ((file == null) ? 0 : file.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final PlaylistFile other = (PlaylistFile) obj;
+		if (file == null) {
+			if (other.getFile() != null)
+				return false;
+		} else if (!file.equals(other.getFile()))
+			return false;
+		return true;
 	}
 	
 	

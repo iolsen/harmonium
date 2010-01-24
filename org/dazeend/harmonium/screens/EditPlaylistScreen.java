@@ -24,7 +24,9 @@ import java.io.IOException;
 
 import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
-import org.dazeend.harmonium.music.HPLFile;
+import org.dazeend.harmonium.Harmonium.DiscJockey;
+import org.dazeend.harmonium.Harmonium.DiscJockey.CurrentPlaylist;
+import org.dazeend.harmonium.music.EditablePlaylist;
 import org.dazeend.harmonium.music.Playable;
 
 import com.tivo.hme.bananas.BButton;
@@ -40,10 +42,11 @@ import com.tivo.hme.sdk.View;
  */
 public class EditPlaylistScreen extends HScreen {
 
-	private HPLFile playlist;
+	private EditablePlaylist editablePlaylist;
 	private BButton moveButton;
 	private ButtonList list;
 	private int rows;
+	private boolean shuffled;
 	
 	
 	static class ButtonList extends BList 
@@ -145,15 +148,18 @@ public class EditPlaylistScreen extends HScreen {
 	 * @param app
 	 * @param title
 	 */
-	public EditPlaylistScreen(Harmonium app, HPLFile playlist) {
+	public EditPlaylistScreen(Harmonium app, EditablePlaylist playlist) {
 		super(app, playlist.toString());
 		
 		this.app = app;
-		this.playlist = playlist;
+		this.editablePlaylist = playlist;
 		this.rows = 8;
 		
+		if (this.editablePlaylist instanceof CurrentPlaylist)
+			this.shuffled = app.getDiscJockey().isShuffling();
+		
 		// create list and button only if the playlist has members
-		if(this.playlist.getMembers().size() > 0) {
+		if(this.editablePlaylist.listMemberTracks(app).size() > 0) {
 			int buttonWidth =  ( this.screenWidth - (2 * this.safeTitleH) ) / this.rows;
 	        
 			
@@ -189,7 +195,7 @@ public class EditPlaylistScreen extends HScreen {
 					            		this.rowHeight											// row height
 			);
 			
-			this.list.add(this.playlist.getMembers().toArray());
+			buildList(false, 0);
 		}
 	}
 	
@@ -205,7 +211,7 @@ public class EditPlaylistScreen extends HScreen {
 			
 			// Make the change in the playlist
 			try {
-				this.playlist.move(this.list.getFocus(), this.list.getFocus() - 1);
+				this.editablePlaylist.move(this.list.getFocus(), this.list.getFocus() - 1);
 			}
 			catch(IllegalArgumentException e) {
 				return false;
@@ -232,7 +238,7 @@ public class EditPlaylistScreen extends HScreen {
 			
 			// Make the change in the playlist
 			try {
-				this.playlist.move(this.list.getFocus(), this.list.getFocus() + 1);
+				this.editablePlaylist.move(this.list.getFocus(), this.list.getFocus() + 1);
 			}
 			catch(IllegalArgumentException e) {
 				return false;
@@ -272,7 +278,7 @@ public class EditPlaylistScreen extends HScreen {
 			
 			// Make the change in the playlist
 			try {
-				this.playlist.move(this.list.getFocus(), to);
+				this.editablePlaylist.move(this.list.getFocus(), to);
 			}
 			catch(IllegalArgumentException e) {
 				e.printStackTrace();
@@ -317,7 +323,7 @@ public class EditPlaylistScreen extends HScreen {
 			
 			// Make the change in the playlist
 			try {
-				this.playlist.move(this.list.getFocus(), to);
+				this.editablePlaylist.move(this.list.getFocus(), to);
 			}
 			catch(IllegalArgumentException e) {
 				e.printStackTrace();
@@ -340,50 +346,44 @@ public class EditPlaylistScreen extends HScreen {
 			
 			return true;
 		}
-		else if(action.equals("pop")) {
-			// write the newly edited playlist to disc
-			try {
-				this.playlist.syncToDisk();
-			}
-			catch(IOException e) {
-				this.app.play("bonk.snd");
-				this.app.push(new ErrorScreen(this.app, "IOException: Cannot write playlist to disk."), TRANSITION_LEFT);
-			}
-			
-			this.app.pop();
-			return true;
-		}
+//		else if(action.equals("pop")) {
+//			// write the newly edited playlist to disc
+//			try {
+//				this.editablePlaylist.save();
+//			}
+//			catch(IOException e) {
+//				this.app.play("bonk.snd");
+//				this.app.push(new ErrorScreen(this.app, "IOException: Cannot save playlist."), TRANSITION_LEFT);
+//			}
+//			
+//			this.app.pop();
+//			return true;
+//		}
 		else if(action.equals("deleteItem")) {
-			
-			// play sound
-			this.app.play("select.snd");
 			
 			// the the index to remove
 			int index = this.list.getFocus();
 			// remove the item from the playlist
 			try {
-				this.playlist.remove(index);
+				Playable removed = this.editablePlaylist.remove(index);
+				if (removed == null)
+				{
+					// Tried to remvoe the currently playing song from the Now Playing playlist.
+					this.app.play("bonk.snd");
+					return true;
+				}
+				else
+					this.app.play("select.snd");
 			}
 			catch(IllegalArgumentException e) {
 				e.printStackTrace();
 				return false;
 			}
 			
-			
 			// re-populate the BList
-			this.list.clear();
-			this.list.add(this.playlist.getMembers().toArray());
+			buildList(true, index);
 		
-			// re-set the focus
-			if(index < this.list.size()) {
-				this.list.setFocus(index, false);
-			}
-			else {
-				this.list.setFocus(this.list.size() - 1, false);
-			}
-			this.list.refresh();
-			
-			if(this.playlist.getMembers().isEmpty()) {
+			if(this.editablePlaylist.listMemberTracks(app).isEmpty()) {
 				// this was the last member of the playlist, so pop the screen
 				postEvent(new BEvent.Action(this, "pop"));
 			}
@@ -392,7 +392,64 @@ public class EditPlaylistScreen extends HScreen {
 		
 		return super.handleAction(view, action);
 	}
+	
+	private void buildList(boolean rebuild, int focusIndex)
+	{
+		if (rebuild)
+		{
+			if (focusIndex < 0)
+				focusIndex = this.list.getFocus();
+			this.list.clear();
+		}
 
+		this.list.add(this.editablePlaylist.listMemberTracks(app).toArray());
+		
+		// set the focus
+		if(focusIndex < this.list.size()) {
+			this.list.setFocus(focusIndex, false);
+		}
+		else {
+			this.list.setFocus(this.list.size() - 1, false);
+		}
+
+		if (rebuild)
+			this.list.refresh();
+	}
+
+	@Override
+	public boolean handleEnter(Object arg0, boolean arg1) {
+
+		// If we're editing the now playling playlist and the shuffle mode has 
+		// changed while the screen was still on the stack, we need to rebuild
+		// to reflect the shuffled/unshuffled playlist.
+		if (this.editablePlaylist instanceof CurrentPlaylist && this.shuffled != this.app.getDiscJockey().isShuffling() )
+		{
+			DiscJockey dj = this.app.getDiscJockey(); 
+			this.shuffled = dj.isShuffling();
+			this.editablePlaylist = dj.getCurrentPlaylist();
+			buildList(true, -1);
+		}
+		
+		return super.handleEnter(arg0, arg1);
+	}
+	
+	@Override
+	public boolean handleExit()
+	{
+		if (this.editablePlaylist instanceof CurrentPlaylist)
+		{
+			try
+			{
+				this.editablePlaylist.save();
+			} catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		return super.handleExit();
+	}
+	
 	@Override
     public boolean handleKeyPress(int code, long rawcode) 
     {

@@ -21,7 +21,7 @@
 package org.dazeend.harmonium.screens;
 
 import org.dazeend.harmonium.Harmonium;
-import org.dazeend.harmonium.Harmonium.DiscJockey.CurrentPlaylist;
+import org.dazeend.harmonium.music.EditablePlaylist;
 import org.dazeend.harmonium.music.HPLFile;
 import org.dazeend.harmonium.music.MusicCollection;
 import org.dazeend.harmonium.music.PlaylistFile;
@@ -69,14 +69,12 @@ public class PlaylistScreen extends HListScreen {
 		list.add(DELETE_LABEL);
 	}
 	
-	public PlaylistScreen(Harmonium app, CurrentPlaylist playlist) {
+	public PlaylistScreen(Harmonium app, EditablePlaylist playlist) {
 		this (app, "\"Now Playing\" Playlist");
 		
 		list.add(BROWSE_LABEL);
+		list.add(EDIT_PLAYLIST_LABEL);
 		list.add(SAVE_LABEL);
-		
-		// Ian TODO: Implement editing the "Now Playing" Playlist
-		//list.add(EDIT_PLAYLIST_LABEL);
 	}
 	
 	private PlaylistScreen(Harmonium app, String title) {
@@ -107,7 +105,10 @@ public class PlaylistScreen extends HListScreen {
         		this.app.push(new DeletePlaylistScreen(this.app, this.playlistFile), TRANSITION_LEFT);
         	}
         	else if(menuOption.equals(EDIT_PLAYLIST_LABEL)) {
-        		this.app.push(new EditPlaylistScreen(this.app, (HPLFile)this.playlistFile), TRANSITION_LEFT);
+        		if (this.playlistFile != null )
+        			this.app.push(new EditPlaylistScreen(this.app, (HPLFile)this.playlistFile), TRANSITION_LEFT);
+        		else
+        			this.app.push(new EditPlaylistScreen(this.app, this.app.getDiscJockey().getCurrentPlaylist()), TRANSITION_LEFT);
         	}
         	else if(menuOption.equals(EDIT_OPTIONS_LABEL)) {
         		this.app.push(new EditPlaylistOptionsScreen(this.app, (HPLFile)this.playlistFile), TRANSITION_LEFT);

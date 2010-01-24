@@ -35,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.dazeend.harmonium.music.AlbumReadable;
+import org.dazeend.harmonium.music.EditablePlaylist;
 import org.dazeend.harmonium.music.MusicCollection;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlaylistEligible;
@@ -786,11 +787,11 @@ public class Harmonium extends HDApplication {
 			return this.nowPlaying;
 		}
 		
-		public CurrentPlaylist getCurrentPlaylist() {
+		public EditablePlaylist getCurrentPlaylist() {
 			if (this.shuffleMode)
-				return new CurrentPlaylist(this.shuffledMusicQueue);
+				return new CurrentPlaylist(this, shuffledMusicQueue, musicQueue);
 			else
-				return new CurrentPlaylist(this.musicQueue);
+				return new CurrentPlaylist(this, musicQueue, shuffledMusicQueue);
 		}
 		
 		public boolean hasCurrentPlaylist() {
@@ -896,12 +897,15 @@ public class Harmonium extends HDApplication {
 			return this.nowPlayingScreen;
 		}
 		
-		public class CurrentPlaylist implements PlaylistEligible {
+		public class CurrentPlaylist extends EditablePlaylist {
 
-			private List<Playable> _tracks;
+			private DiscJockey _dj;
+			private List<Playable> _otherTracks;
 			
-			private CurrentPlaylist(List<Playable> tracks) {
-				_tracks = tracks;
+			private CurrentPlaylist(DiscJockey dj, List<Playable> currentTracks, List<Playable> otherTracks) {
+				_dj = dj;
+				_tracks = currentTracks;
+				_otherTracks = otherTracks;
 			}
 			
 			public List<Playable> listMemberTracks(Harmonium app)
@@ -916,6 +920,46 @@ public class Harmonium extends HDApplication {
 			
 			public String toString() {
 				return "\"Now Playing\" Playlist";
+			}
+
+			@Override
+			public Playable remove(int i) throws IllegalArgumentException
+			{
+				// You can't remove the song that's currently playing.
+				if (_dj.musicIndex == i)
+				{
+					return null;
+				}
+				
+				// Also remove the track from the shuffled/non-shuffled queue;
+				// whichever's not currently playing.
+				Playable removedTrack = super.remove(i);
+				int j = _otherTracks.indexOf(removedTrack);
+				_otherTracks.remove(j);
+				
+				return removedTrack;
+			}
+			
+			@Override
+			public void save() throws IOException
+			{
+				Playable nowPlaying = _dj.getNowPlaying();
+				int newIndex = _tracks.indexOf(nowPlaying);
+				_dj.musicIndex = newIndex;
+				_dj.nowPlaying = _tracks.get(newIndex);
+
+				if (_dj.isShuffling())
+				{
+					_dj.shuffledMusicQueue = _tracks;
+					_dj.musicQueue = _otherTracks;
+				}
+				else
+				{
+					_dj.musicQueue = _tracks;
+					_dj.shuffledMusicQueue = _otherTracks;
+				}
+				
+				_dj.nowPlayingScreen.update(_dj.nowPlaying);
 			}
 		}
 	}

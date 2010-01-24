@@ -34,7 +34,7 @@ import java.util.List;
 import org.dazeend.harmonium.Harmonium;
 
 
-public class HPLFile extends PlaylistFile {
+public class HPLFile extends EditablePlaylist implements PlaylistFile {
 	
 	public static final String	DESCRIPTION_KEYWORD = "#HarmoniumDescription:";
 	public static final String	SHUFFLE_KEYWORD = "#HarmoniumShuffle:";
@@ -45,7 +45,7 @@ public class HPLFile extends PlaylistFile {
 	private boolean					shuffleMode;
 	private boolean					repeatMode;
 	private String					description = "";
-	private List<Playable>	members = new ArrayList<Playable>();
+	private File file;
 	
 	/**
 	 * Creates a new HPLFile and adds a single new member.
@@ -65,7 +65,8 @@ public class HPLFile extends PlaylistFile {
 					PlaylistEligible	member
 	) throws IOException {
 		
-		this.members.addAll(member.listMemberTracks(app));
+		_tracks = new ArrayList<Playable>();
+		this._tracks.addAll(member.listMemberTracks(app));
 		this.common(app, file, shuffleMode, repeatMode, description);
 	}
 	
@@ -88,8 +89,9 @@ public class HPLFile extends PlaylistFile {
 					List<PlaylistEligible>	members
 	) throws IOException {
 		
+		_tracks = new ArrayList<Playable>();
 		for(PlaylistEligible musicItem : members) {
-			this.members.addAll(musicItem.listMemberTracks(app));
+			this._tracks.addAll(musicItem.listMemberTracks(app));
 		}
 		this.common(app, file, shuffleMode, repeatMode, description);
 	}
@@ -102,6 +104,7 @@ public class HPLFile extends PlaylistFile {
 	 */
 	public HPLFile(MusicCollection musicCollection, File file) throws IOException, FileNotFoundException {
 		
+		_tracks = new ArrayList<Playable>();
 		this.file = file;
 		
 		// open file for reading
@@ -146,7 +149,7 @@ public class HPLFile extends PlaylistFile {
 					
 					if( track != null ) {
 						// The track has been found. Add it to the list of members.
-						this.members.add(track);
+						this._tracks.add(track);
 					}
 				}
 			}
@@ -192,8 +195,6 @@ public class HPLFile extends PlaylistFile {
 		this.syncToDisk();
 	}
 	
-	
-	@Override
 	public String getDescription() {
 		if(this.description != null) {
 			return this.description;
@@ -203,13 +204,18 @@ public class HPLFile extends PlaylistFile {
 		}
 	}
 	
-	@Override
 	public List<PlaylistEligible> getMembers() {
     	List<PlaylistEligible> list = new ArrayList<PlaylistEligible>();
-    	list.addAll(this.members);
+    	list.addAll(this._tracks);
     	return list;
 	}
 	
+	public List<Playable> listMemberTracks(Harmonium app) {
+		List<Playable> list = new ArrayList<Playable>();
+		list.addAll(this._tracks);
+		return list;
+	}
+
 
 	/**
 	 * Adds a music track to this playlist
@@ -218,29 +224,14 @@ public class HPLFile extends PlaylistFile {
 	 * @param musicItem
 	 */
 	public void add(Harmonium app, PlaylistEligible musicItem) throws IOException {
-		this.members.addAll(musicItem.listMemberTracks(app));
+		this._tracks.addAll(musicItem.listMemberTracks(app));
 		this.syncToDisk();
 	}
 	
-	/**
-	 * Removes a given member from this playlist. Does NOT sync to disk.
-	 * 
-	 * @param i the index of the member to remove
-	 * @throws IllegalArgumentException
-	 */
-	public void remove(int i) throws IllegalArgumentException{
-		if( i < 0 || i >= this.members.size() ) {
-			throw new IllegalArgumentException();
-		}
-		this.members.remove(i);
-	}
-
-	@Override
 	public boolean getRepeatMode(Harmonium app) {
 		return this.repeatMode;
 	}
 
-	@Override
 	public boolean getShuffleMode(Harmonium app) {
 		return this.shuffleMode;
 	}
@@ -312,7 +303,11 @@ public class HPLFile extends PlaylistFile {
 	 * @param musicItem
 	 */
 	public synchronized void setMember(int index, Playable musicItem) {
-		this.members.set(index, musicItem);
+		this._tracks.set(index, musicItem);
+	}
+	
+	public void save() throws IOException {
+		syncToDisk();
 	}
 	
 	public synchronized void syncToDisk() throws IOException {
@@ -344,8 +339,8 @@ public class HPLFile extends PlaylistFile {
 			bout.newLine();
 			
 			// Write the member tracks to file if any exist
-			if(! this.members.isEmpty()) {
-				for(Playable track : this.members) {
+			if(! this._tracks.isEmpty()) {
+				for(Playable track : this._tracks) {
 					bout.write( track.getPath() );
 					bout.newLine();
 				}			
@@ -359,54 +354,6 @@ public class HPLFile extends PlaylistFile {
 			bout.close();
 			fout.close();
 		}
-	}
-	
-	/**
-	 * Moves a playlist member to another location in the list. Does NOT sync to disk.
-	 * 
-	 * @param from	the index of the item that will move
-	 * @param to	the index the item will move to
-	 */
-	public void move(int from, int to) throws IllegalArgumentException {
-		
-		// validate item to move
-		if( from < 0 || from > (this.members.size() - 1) ) {
-			throw new IllegalArgumentException();
-		}
-		
-		// validate location moving to
-		if( to < 0 || to > (this.members.size() - 1) ) {
-			throw new IllegalArgumentException();
-		}
-		
-		if(to < from) {
-			// Moving item closer to beginning of list
-			Playable temp = this.members.get(from);
-			
-			int i;
-			for(i = from; i > to; --i) {
-				this.members.set(i, this.members.get(i-1));
-			}
-			
-			this.members.set(i, temp);
-		}
-		else if(to > from) {
-			// Moving item closer to end of list
-			Playable temp = this.members.get(from);
-			
-			int i;
-			for(i = from; i < to; ++i) {
-				this.members.set(i, this.members.get(i+1));
-			}
-			this.members.set(i, temp);
-		}
-
-	}
-
-	public List<Playable> listMemberTracks(Harmonium app) {
-		List<Playable> list = new ArrayList<Playable>();
-		list.addAll(this.members);
-		return list;
 	}
 
 	public String toStringTitleSortForm() {
@@ -429,6 +376,20 @@ public class HPLFile extends PlaylistFile {
 			else return 0;
 		}
 		
+	}
+
+	public File getFile() {
+		return file;
+	}
+
+	public int compareTo(PlaylistFile that)
+	{
+		// NullPointerException if we are trying to compare to a null object
+		if(that == null){
+			throw new NullPointerException();
+		}
+		
+		return this.toString().compareToIgnoreCase(that.toString());
 	}
 	
 }

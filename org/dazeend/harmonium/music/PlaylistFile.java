@@ -25,32 +25,23 @@ import java.util.List;
 
 import org.dazeend.harmonium.Harmonium;
 
-public abstract class PlaylistFile implements PlaylistEligible, Comparable<PlaylistFile> {
+public interface PlaylistFile extends PlaylistEligible, Comparable<PlaylistFile> {
 
-	protected File file;
-	
-	/**
-	 * Gets the File object that represents this PlaylistFile on disk.
-	 * 
-	 * @return
-	 */
-	public File getFile() {
-		return this.file;
-	}
+	File getFile();
 	
 	/**
 	 * returns the default shuffle mode for this playlist
 	 * 
 	 * @return
 	 */
-	public abstract boolean getShuffleMode(Harmonium app);
+	boolean getShuffleMode(Harmonium app);
 	
 	/**
 	 * returns the default repeat mode for this PlaylistFile
 	 * 
 	 * @return
 	 */
-	public abstract boolean getRepeatMode(Harmonium app);
+	boolean getRepeatMode(Harmonium app);
 	
 	/**
 	 * returns the list of PlaylistEligible objects that are contained
@@ -58,67 +49,11 @@ public abstract class PlaylistFile implements PlaylistEligible, Comparable<Playl
 	 * 
 	 * @return
 	 */
-	public abstract List<PlaylistEligible> getMembers();
+	List<PlaylistEligible> getMembers();
 	
 	/**
 	 * Returns the description for this Playlist.
 	 * @return
 	 */
-	public abstract String getDescription();
-	
-	
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public abstract String toString();
-
-	/* (non-Javadoc)
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
-	public int compareTo(PlaylistFile that) {
-		
-		// NullPointerException if we are trying to compare to a null object
-		if(that == null){
-			throw new NullPointerException();
-		}
-		
-		return this.toString().compareToIgnoreCase(that.toString());
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int PRIME = 31;
-		int result = 1;
-		result = PRIME * result + ((file == null) ? 0 : file.hashCode());
-		return result;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		final PlaylistFile other = (PlaylistFile) obj;
-		if (file == null) {
-			if (other.file != null)
-				return false;
-		} else if (!file.equals(other.file))
-			return false;
-		return true;
-	}
-
-
-	
-	
+	String getDescription();
 }
