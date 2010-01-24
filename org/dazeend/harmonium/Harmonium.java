@@ -1028,7 +1028,17 @@ public class Harmonium extends HDApplication {
 				}
 
 				if (hash != 0)
-					aci = new ArtCacheItem(hash, screen.createImage(album.getScaledAlbumArt(width, height)));
+				{
+					try{
+						aci = new ArtCacheItem(hash, screen.createImage(album.getScaledAlbumArt(width, height)));
+					}
+					catch (Exception e) 
+					{
+						// If we have any failure to load album art, log it and load default instead.
+						e.printStackTrace();
+						aci = new ArtCacheItem(hash, screen.createImage("default_album_art2.png"));
+					}
+				}
 				else
 					aci = new ArtCacheItem(hash, screen.createImage("default_album_art2.png"));
 				
