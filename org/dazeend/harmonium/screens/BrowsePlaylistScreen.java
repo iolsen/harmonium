@@ -15,6 +15,9 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 
 	private HAlbumArtList list;
 	private PlaylistFile playlistFile;
+	private boolean shuffled; // When showing the now playing playlist, is it the shuffled list or not?
+							  // We need to rebuild the list if shuffle mode changes when the screen is
+							  // still on the stack.
 
 	private BrowsePlaylistScreen(Harmonium app, String title) {
 		super(app, title, false);
@@ -50,12 +53,13 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 		this.list.add( tracks.toArray() );
 	}
 
-	public BrowsePlaylistScreen(Harmonium app, PlaylistEligible playlist)
+	public BrowsePlaylistScreen(Harmonium app)
 	{
 		this(app, "\"Now Playing\" Playlist");
 		
-		// Add playlist tracks to the list.
-		this.list.add( playlist.listMemberTracks(this.app).toArray() );
+		// Add currently playing playlist tracks to the list.
+		this.shuffled = app.getDiscJockey().isShuffling();
+		this.list.add( app.getDiscJockey().getCurrentPlaylist().listMemberTracks(app).toArray() );
 	}
 	
 	public boolean isNowPlayingPlaylist() {
@@ -131,6 +135,17 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 	
 	@Override
 	public boolean handleEnter(Object arg0, boolean arg1) {
+
+		// If we're showing the now playling playlist and the shuffle mode has 
+		// changed while the screen was still on the stack, we need to rebuild
+		// to reflect the shuffled/unshuffled playlist.
+		if (this.playlistFile == null && this.shuffled != this.app.getDiscJockey().isShuffling() )
+		{
+			this.list.clear();
+			this.list.add( app.getDiscJockey().getCurrentPlaylist().listMemberTracks(app).toArray() );
+			shuffled = this.app.getDiscJockey().isShuffling();
+		}
+		
 		return super.handleEnter(arg0, arg1);
 	}
 	

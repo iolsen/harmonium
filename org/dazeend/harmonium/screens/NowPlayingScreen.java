@@ -546,7 +546,7 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 					return true;
 				}
 			}
-			bps = new BrowsePlaylistScreen(app, this.app.getDiscJockey().getCurrentPlaylist());
+			bps = new BrowsePlaylistScreen(app);
 			app.push(bps, TRANSITION_LEFT);
 			bps.focusNowPlaying();
 			return true;

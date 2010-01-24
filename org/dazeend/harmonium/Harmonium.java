@@ -787,7 +787,10 @@ public class Harmonium extends HDApplication {
 		}
 		
 		public CurrentPlaylist getCurrentPlaylist() {
-			return new CurrentPlaylist(this.musicQueue);
+			if (this.shuffleMode)
+				return new CurrentPlaylist(this.shuffledMusicQueue);
+			else
+				return new CurrentPlaylist(this.musicQueue);
 		}
 		
 		public boolean hasCurrentPlaylist() {
@@ -842,7 +845,10 @@ public class Harmonium extends HDApplication {
 		
 		// Returns the index of the currently playing song in the non-shuffle queue.
 		public int getNowPlayingIndex() {
-			return this.musicQueue.indexOf(this.nowPlaying);
+			if (this.shuffleMode)
+				return this.shuffledMusicQueue.indexOf(this.nowPlaying);
+			else
+				return this.musicQueue.indexOf(this.nowPlaying);
 		}
 		
 		/**

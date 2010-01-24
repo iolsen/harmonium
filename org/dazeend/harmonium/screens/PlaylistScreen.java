@@ -35,7 +35,6 @@ import com.tivo.hme.bananas.BView;
 public class PlaylistScreen extends HListScreen {
 
 	private PlaylistFile playlistFile;
-	private CurrentPlaylist playlist;
 	
 	private static final String PLAY_LABEL = "Play";
 	private static final String BROWSE_LABEL = "Browse";
@@ -73,8 +72,6 @@ public class PlaylistScreen extends HListScreen {
 	public PlaylistScreen(Harmonium app, CurrentPlaylist playlist) {
 		this (app, "\"Now Playing\" Playlist");
 		
-		this.playlist = playlist;
-
 		list.add(BROWSE_LABEL);
 		list.add(SAVE_LABEL);
 		
@@ -98,7 +95,7 @@ public class PlaylistScreen extends HListScreen {
         		if (this.playlistFile != null )
         			this.app.push(new BrowsePlaylistScreen(this.app, this.playlistFile), TRANSITION_LEFT);
         		else
-        			this.app.push(new BrowsePlaylistScreen(this.app, this.playlist), TRANSITION_LEFT);
+        			this.app.push(new BrowsePlaylistScreen(this.app), TRANSITION_LEFT);
         	}
         	else if( menuOption.equals(PLAY_LABEL) ) {
         		this.app.getDiscJockey().play(this.playlistFile.getMembers(), this.playlistFile.getShuffleMode(this.app), this.playlistFile.getRepeatMode(this.app));
