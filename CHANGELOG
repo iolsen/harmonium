@@ -1,3 +1,22 @@
+Version 0.7.2 (Feb 2010)
+------------------------
+* Fix for screen saver alwyas coming on after roughly 5 minutes even
+  if it was turned off, or set for a longer delay. 
+  (issue 2)
+* Added logging related to the screen saver not honoring the setting
+  to troubleshoot other problems, if they persist.
+  (issue 2)
+* Added support for navigating the Edit Playlist screen with the
+  number keys.
+  (issue 29)
+* The "Now Playing" playlist browser now shows the shuffled playlist
+  when shuffle is turned on.
+  (issue 37)
+* You can now edit the "Now Playing" playlist.
+  (issue 4)
+* Fixed a crash related to album art. 
+  (issue 39)
+
 Version 0.7.1 (Jan 2010)
 ------------------------
 * You can now add artists/albums/etc. to the "Now Playing" playlist.
