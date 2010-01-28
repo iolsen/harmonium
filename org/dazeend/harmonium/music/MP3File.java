@@ -386,9 +386,14 @@ public class MP3File extends HMusic implements Playable {
 							for(TivoImageFormat format : TivoImageFormat.values()) {
 								if(format.getMimeType().equals(tempMimeType)) {
 									img = new ImageIcon(frame.getPictureData()).getImage();
-									break;
+									if (img.getWidth(null) < 1 || img.getHeight(null) < 1)
+										img = null;
+									else
+										break;
 								}
 							}
+							if (img != null)
+								break;
 						}
 					}
 				}

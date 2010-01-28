@@ -26,8 +26,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
@@ -1032,10 +1032,12 @@ public class Harmonium extends HDApplication {
 					try{
 						aci = new ArtCacheItem(hash, screen.createImage(album.getScaledAlbumArt(width, height)));
 					}
-					catch (Exception e) 
+					catch (Throwable t) 
 					{
-						// If we have any failure to load album art, log it and load default instead.
-						e.printStackTrace();
+						// If we have a failure to load album art, log it and load default instead.
+						System.out.println("Caught exception loading album art:");
+						t.printStackTrace();
+						System.out.println("Loading default album art instead...");
 						aci = new ArtCacheItem(hash, screen.createImage("default_album_art2.png"));
 					}
 				}
