@@ -118,7 +118,7 @@ public class Harmonium extends HDApplication {
 			public void run() {
 				MusicCollection.getMusicCollection(getHFactory()).refresh(app);
 			}
-		}.start();	
+		}.start();
 		
 		// Load the main menu and background
 		MainMenuScreen mainMenuScreen = new MainMenuScreen( this, MusicCollection.getMusicCollection(this.getHFactory()) );
@@ -153,6 +153,9 @@ public class Harmonium extends HDApplication {
 		return this.preferences;
 	}
 
+	public FactoryPreferences getFactoryPreferences() {
+		return ((HarmoniumFactory)(this.getFactory())).getPreferences();
+	}
 	
 	/**
 	 * @return the inSimulator
@@ -165,7 +168,21 @@ public class Harmonium extends HDApplication {
 		return getHFactory().getPreferences().inDebugMode();
 	}
 
+	public final boolean ignoreEmbeddedArt()
+	{
+		return getHFactory().getPreferences().ignoreEmbeddedArt();
+	}
 
+	public final boolean ignoreJpgFileArt()
+	{
+		return getHFactory().getPreferences().ignoreJpgFileArt();
+	}
+
+	public final boolean preferJpgFileArt()
+	{
+		return getHFactory().getPreferences().preferJpgFileArt();
+	}
+	
 	/**
 	 * Sets the background image based on the current resolution.
 	 *
@@ -1012,7 +1029,7 @@ public class Harmonium extends HDApplication {
 			// have different cover art images embedded in files of the same album, we'll always display
 			// the first one we cache.  But I think that's probably unusual.  And I like how fast this is.
 			int hash = 0;
-			if (album.hasAlbumArt())
+			if (album.hasAlbumArt(_app.getFactoryPreferences()))
 				hash = (album.getAlbumArtistName() + album.getAlbumName() + album.getReleaseYear() + width + height).hashCode();
 					
 			ArtCacheItem aci = _managedImageHashtable.get(hash);
@@ -1030,7 +1047,7 @@ public class Harmonium extends HDApplication {
 				if (hash != 0)
 				{
 					try{
-						aci = new ArtCacheItem(hash, screen.createImage(album.getScaledAlbumArt(width, height)));
+						aci = new ArtCacheItem(hash, screen.createImage(album.getScaledAlbumArt(_app.getFactoryPreferences(), width, height)));
 					}
 					catch (Throwable t) 
 					{

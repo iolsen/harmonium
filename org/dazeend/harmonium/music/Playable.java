@@ -24,6 +24,7 @@ import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
 
+import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.screens.NowPlayingScreen;
 
 
@@ -120,14 +121,14 @@ public interface Playable extends PlaylistEligible, AlbumArtListItem {
 	 * 
 	 * @return
 	 */
-	public boolean hasAlbumArt();
+	public boolean hasAlbumArt(FactoryPreferences prefs);
 	
 	/**
 	 * Gets an <code>Image</code> containing album art for this track.
 	 * 
 	 * @return	album art for this track
 	 */
-	public Image getAlbumArt();
+	public Image getAlbumArt(FactoryPreferences prefs);
 	
 	/**
 	 * Gets an Image containing scaled album art for this track.
@@ -137,7 +138,7 @@ public interface Playable extends PlaylistEligible, AlbumArtListItem {
 	 * @return
 	 * @throws IOException 
 	 */
-	public Image getScaledAlbumArt(int width, int height);
+	public Image getScaledAlbumArt(FactoryPreferences prefs, int width, int height);
 	
 	/**
 	 * Gets the track number of this track.

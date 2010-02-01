@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.Harmonium.HarmoniumFactory;
 
@@ -204,7 +205,7 @@ public class MusicCollection implements PlaylistEligible {
 	 * @param newTrack		the track to add to the music collection
 	 * @return				<code>true</code> if the file was successfully added, otherwise <code>false</code>
 	 */
-	private synchronized boolean addTrack(Playable newTrack) {
+	private synchronized boolean addTrack(FactoryPreferences prefs, Playable newTrack) {
 		
 		// See if newTrack belongs to a track artist.
 		Boolean addedToTrackArtist = false;
@@ -216,7 +217,7 @@ public class MusicCollection implements PlaylistEligible {
 
 				if( artist.getArtistName().compareToIgnoreCase(newTrackArtistName) == 0 ) {
 					// The track artist is already a member of this music collection, so add newTrack to the album artist.
-					artist.addTrack(newTrack);
+					artist.addTrack(prefs, newTrack);
 					addedToTrackArtist = true;
 					break;
 				}
@@ -229,7 +230,7 @@ public class MusicCollection implements PlaylistEligible {
 				TrackArtist newTrackArtist = new TrackArtist(newTrackArtistName);
 						
 				// Add the newTrack to the newTrackArtist
-				if( newTrackArtist.addTrack(newTrack) ) {
+				if( newTrackArtist.addTrack(prefs, newTrack) ) {
 					// the track was added to the artist, so add the artist to this music collection
 					this.addTrackArtist(newTrackArtist);
 				}
@@ -245,7 +246,7 @@ public class MusicCollection implements PlaylistEligible {
 
 				if( albumArtist.getArtistName().compareToIgnoreCase(newTrackAlbumArtist) == 0 ) {
 					// The album artist is already a member of this music collection, so add newTrack to the album artist.
-					if(albumArtist.addTrack(newTrack)) {
+					if(albumArtist.addTrack(prefs, newTrack)) {
 						// The track was successfully added. Return TRUE.
 						return true;
 					}
@@ -264,7 +265,7 @@ public class MusicCollection implements PlaylistEligible {
 			AlbumArtist newAlbumArtist = new AlbumArtist( newTrack.getAlbumArtistName() );
 					
 			// Add the newTrack to the newAlbumArtist
-			if( newAlbumArtist.addTrack(newTrack) ) {
+			if( newAlbumArtist.addTrack(prefs, newTrack) ) {
 				// the track was added to the album, so add the album artist to this music collection
 				if( this.addAlbumArtist(newAlbumArtist) ) {
 					
@@ -469,7 +470,7 @@ public class MusicCollection implements PlaylistEligible {
 								this.trackMap.put(mapKey, mp3);
 								
 								// Add the MP3File to this music collection
-								this.addTrack(mp3);
+								this.addTrack(this.hFactory.getPreferences(), mp3);
 								
 							}
 							catch(NumberFormatException e) {
@@ -706,7 +707,7 @@ public class MusicCollection implements PlaylistEligible {
 	        	if(addTrack) {
 	        		// There were no problems in getting file info. 
 	        		// Add the music track to the music collection
-	        		this.addTrack(newTrack);
+	        		this.addTrack(this.hFactory.getPreferences(), newTrack);
 	        	}
         	}
         }

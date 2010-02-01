@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.Harmonium;
 
 
@@ -77,7 +78,7 @@ public class Disc implements PlaylistEligible, AlbumArtListItem {
 	 * @param newTrack		the track to add to the disc
 	 * @return				<code>true</code> if the file was successfully added, otherwise <code>false</code>
 	 */
-	public synchronized boolean addTrack(Playable newTrack) {
+	public synchronized boolean addTrack(FactoryPreferences prefs, Playable newTrack) {
 		
 		// Check to ensure that the newTrack is eligible to be a member of this disc.
 		if(discNumber != newTrack.getDiscNumber() || (albumName.compareToIgnoreCase(newTrack.getAlbumName()) != 0) || (albumArtistName.compareToIgnoreCase(newTrack.getAlbumArtistName()) != 0) ) {
@@ -92,7 +93,7 @@ public class Disc implements PlaylistEligible, AlbumArtListItem {
 		// If we got this far, then the track is not yet in the disc and it is eligible, so add it.
 		if(trackList.add(newTrack)) {
 			// The track was successfully added. Copy metadata (if needed) and return TRUE.
-			if(this.artSource == null && newTrack.hasAlbumArt()) {
+			if(this.artSource == null && newTrack.hasAlbumArt(prefs)) {
 				artSource = newTrack;
 			}
 
@@ -140,8 +141,8 @@ public class Disc implements PlaylistEligible, AlbumArtListItem {
 	/**
 	 * Checks existance of album art for this object.
 	 */
-	public boolean hasAlbumArt() {
-		if(this.artSource != null && this.artSource.hasAlbumArt()) {
+	public boolean hasAlbumArt(FactoryPreferences prefs) {
+		if(this.artSource != null && this.artSource.hasAlbumArt(prefs)) {
 			return true;
 		}
 		else{
@@ -154,9 +155,9 @@ public class Disc implements PlaylistEligible, AlbumArtListItem {
 	 * 
 	 * @return	an <code>Image</code> object that contains album art for the disc
 	 */
-	public Image getAlbumArt() {
-		if(this.hasAlbumArt()) {
-			return this.artSource.getAlbumArt();
+	public Image getAlbumArt(FactoryPreferences prefs) {
+		if(this.hasAlbumArt(prefs)) {
+			return this.artSource.getAlbumArt(prefs);
 		}
 		else {
 			return null;
@@ -170,9 +171,9 @@ public class Disc implements PlaylistEligible, AlbumArtListItem {
 	 * @param height	The maximum height of the scaled image
 	 * @return
 	 */
-	public Image getScaledAlbumArt(int width, int height) {
-		if(this.hasAlbumArt()) {
-			return this.artSource.getScaledAlbumArt(width, height);
+	public Image getScaledAlbumArt(FactoryPreferences prefs, int width, int height) {
+		if(this.hasAlbumArt(prefs)) {
+			return this.artSource.getScaledAlbumArt(prefs, width, height);
 		}
 		else {
 			return null;

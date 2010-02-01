@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
+
+import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.Harmonium;
 
 public abstract class BaseArtist extends HMusic implements PlaylistEligible {
@@ -66,7 +68,7 @@ public abstract class BaseArtist extends HMusic implements PlaylistEligible {
 	}
 
 	public abstract void removeTrack(Playable track);
-	public abstract boolean addTrack(Playable newTrack);
+	public abstract boolean addTrack(FactoryPreferences prefs, Playable newTrack);
 	public abstract List<Playable> listMemberTracks(Harmonium app);
 
 	public String toStringTitleSortForm()

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.Harmonium;
 
 public class TrackArtist extends BaseArtist
@@ -13,7 +14,7 @@ public class TrackArtist extends BaseArtist
 	}
 
 	@Override
-	public boolean addTrack(Playable newTrack)
+	public boolean addTrack(FactoryPreferences prefs, Playable newTrack)
 	{
 		// Check to ensure that the newTrack is eligible to be a member of this track artist.
 		if( _artistName.compareToIgnoreCase(newTrack.getArtistName()) != 0 ) {
@@ -59,5 +60,4 @@ public class TrackArtist extends BaseArtist
 	{
 		_trackList.remove(track);
 	}
-
 }

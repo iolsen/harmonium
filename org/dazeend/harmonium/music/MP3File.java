@@ -38,7 +38,7 @@ import org.blinkenlights.jid3.v1.ID3V1Tag;
 import org.blinkenlights.jid3.v1.ID3V1_1Tag;
 import org.blinkenlights.jid3.v2.APICID3V2Frame;
 import org.blinkenlights.jid3.v2.ID3V2_3_0Tag;
-import org.blinkenlights.jid3.v2.POPMID3V2Frame;
+import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.screens.NowPlayingScreen;
 
@@ -148,6 +148,7 @@ public class MP3File extends HMusic implements Playable {
 				this.albumArtistName = this.artistName;
 			}
 			
+/*
 			// Get any popularimeter (POPM) frames in the tag
 			POPMID3V2Frame[] POPMFrames = v23Tag.getPOPMFrames();
 			
@@ -192,6 +193,7 @@ public class MP3File extends HMusic implements Playable {
 					break;
 				}
 			}
+			*/
 		}
 	
 		// We've grabbed all the ID3v2.3 data. Now fill in any blanks with data from ID3v1.x tags.
@@ -323,85 +325,149 @@ public class MP3File extends HMusic implements Playable {
 	 * Checks existance of album art for this object.
 	 */
 	//@Override
-	public boolean hasAlbumArt() {
+	public boolean hasAlbumArt(FactoryPreferences prefs) {
 		
 		if ( albumImageFetched )
 			return hasAlbumArt;
 		
-		return (this.getAlbumArt() != null);
+		return (this.getAlbumArt(prefs) != null);
+	}
+	
+	private Image getAlbumArtFromID3Tag()
+	{
+		Image img = null;
+
+		// Create an org.blinkenlights.jid3.MP3File to read tag data from
+		org.blinkenlights.jid3.MP3File mp3File = new org.blinkenlights.jid3.MP3File(this.trackFile);
+
+		// Get any ID3v2.3 tag that exists in the mp3 file and load its data
+		ID3V2_3_0Tag v23Tag;
+		try {
+			v23Tag = (ID3V2_3_0Tag) mp3File.getID3V2Tag();
+		}
+		catch(ID3Exception e) {
+			// There was an error reading the ID3 info, so just return null
+			return null;
+		}
+		
+		if(v23Tag != null) {
+			
+			// Get any attached picture (APIC) frames in this tag.
+			APICID3V2Frame[] APICFrames = v23Tag.getAPICFrames();
+
+			if(APICFrames.length > 0) {
+				// APIC frames categorize each attached picture with a "picture type". If a picture with the type
+				// of "front cover" exists, use that picture -- it should be the album art. If there's no picture
+				// with a type of "front cover" just use the first picture in the array.
+				for(APICID3V2Frame frame : APICFrames) {
+					if( frame.getPictureType().equals(APICID3V2Frame.PictureType.FrontCover) ) {
+						// Make sure that the MIME type for this cover art can be understood by TiVo
+						String tempMimeType = frame.getMimeType();
+						for(TivoImageFormat format : TivoImageFormat.values()) {
+							if(format.getMimeType().equals(tempMimeType)) {
+								img = new ImageIcon(frame.getPictureData()).getImage();
+								break;
+							}
+						}
+						// We found the cover art, so stop looking for it.
+						break;
+					}
+				}
+				
+				// If we didn't find an attached picture that claims to be of the front cover, just grab
+				// the first valid image.
+				if(img == null) {
+					for(APICID3V2Frame frame : APICFrames) {
+						// Make sure that the MIME type for this album art can be understood by TiVo
+						String tempMimeType = frame.getMimeType();
+						for(TivoImageFormat format : TivoImageFormat.values()) {
+							if(format.getMimeType().equals(tempMimeType)) {
+								img = new ImageIcon(frame.getPictureData()).getImage();
+								if (img.getWidth(null) < 1 || img.getHeight(null) < 1)
+									img = null;
+								else
+									break;
+							}
+						}
+						if (img != null)
+							break;
+					}
+				}
+			}
+		}
+		return img;
+	}
+	
+	private Image getAlbumArtFromFile() throws IOException
+	{
+		Image img = null;
+		File parentFolder = this.trackFile.getParentFile();
+		String possibleImageFileName = null;
+		String imageFileName = null;
+
+		String[] files = parentFolder.list();
+		if (files != null)
+		{
+			for (int i = 0; i < files.length; i++)
+			{
+				if (files[i].equalsIgnoreCase("folder.jpg") || files[i].equalsIgnoreCase("cover.jpg"))
+				{
+					imageFileName = files[i];
+					break;
+				}
+				else if (possibleImageFileName == null)
+				{
+					String extension = files[i].substring(files[i].length() - 4);
+					if (extension.equalsIgnoreCase(".jpg"))
+						possibleImageFileName = files[i];
+				}
+			}
+		}
+		
+		if (imageFileName == null && possibleImageFileName != null)
+			imageFileName = possibleImageFileName;
+		
+		if (imageFileName != null)
+		{
+			String imageFilePath = parentFolder.getCanonicalPath() + File.separatorChar + imageFileName;
+			img = new ImageIcon(imageFilePath).getImage();
+		}
+		
+		return img;
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.dazeend.harmonium.Playable#getAlbumArt()
 	 */
 	//@Override
-	public synchronized Image getAlbumArt() {
+	public synchronized Image getAlbumArt(FactoryPreferences prefs) {
 		
 		Image img = null;
 		
-		try {
-			// Create an org.blinkenlights.jid3.MP3File to read tag data from
-			org.blinkenlights.jid3.MP3File mp3File = new org.blinkenlights.jid3.MP3File(this.trackFile);
-
-			// Get any ID3v2.3 tag that exists in the mp3 file and load its data
-			ID3V2_3_0Tag v23Tag;
-			try {
-				v23Tag = (ID3V2_3_0Tag) mp3File.getID3V2Tag();
-			}
-			catch(ID3Exception e) {
-				// There was an error reading the ID3 info, so just return null
-				return null;
-			}
+		try 
+		{
+			// If set to prefer file-based art, and not ignoring file-based art, look for that first.
+			if (prefs.preferJpgFileArt() &&!prefs.ignoreJpgFileArt())
+				img = getAlbumArtFromFile();
 			
-			if(v23Tag != null) {
-				
-				// Get any attached picture (APIC) frames in this tag.
-				APICID3V2Frame[] APICFrames = v23Tag.getAPICFrames();
-
-				if(APICFrames.length > 0) {
-					// APIC frames categorize each attached picture with a "picture type". If a picture with the type
-					// of "front cover" exists, use that picture -- it should be the album art. If there's no picture
-					// with a type of "front cover" just use the first picture in the array.
-					for(APICID3V2Frame frame : APICFrames) {
-						if( frame.getPictureType().equals(APICID3V2Frame.PictureType.FrontCover) ) {
-							// Make sure that the MIME type for this cover art can be understood by TiVo
-							String tempMimeType = frame.getMimeType();
-							for(TivoImageFormat format : TivoImageFormat.values()) {
-								if(format.getMimeType().equals(tempMimeType)) {
-									img = new ImageIcon(frame.getPictureData()).getImage();
-									break;
-								}
-							}
-							// We found the cover art, so stop looking for it.
-							break;
-						}
-					}
-					
-					// If we didn't find an attached picture that claims to be of the front cover, just grab
-					// the first valid image.
-					if(img == null) {
-						for(APICID3V2Frame frame : APICFrames) {
-							// Make sure that the MIME type for this album art can be understood by TiVo
-							String tempMimeType = frame.getMimeType();
-							for(TivoImageFormat format : TivoImageFormat.values()) {
-								if(format.getMimeType().equals(tempMimeType)) {
-									img = new ImageIcon(frame.getPictureData()).getImage();
-									if (img.getWidth(null) < 1 || img.getHeight(null) < 1)
-										img = null;
-									else
-										break;
-								}
-							}
-							if (img != null)
-								break;
-						}
-					}
-				}
-			}
+			// If we don't yet have an image and we're not ignoring embedded art, look there.
+			if (img == null && !prefs.ignoreEmbeddedArt())
+				img = getAlbumArtFromID3Tag();
+			
+			// If we still don't have an image, and we didn't already look at file-based art, 
+			// and we're not ignoring file-based art, look for it now.
+			if (img == null && !prefs.preferJpgFileArt() && !prefs.ignoreJpgFileArt())
+				img = getAlbumArtFromFile();
+			
 			hasAlbumArt = (img != null);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
+		} 
+		catch (Throwable t) 
+		{
+			hasAlbumArt = false;
+			t.printStackTrace();
+		} 
+		finally 
+		{
 			albumImageFetched = true;
 		}
 		
@@ -462,9 +528,12 @@ public class MP3File extends HMusic implements Playable {
 	 *
 	 */
 	//@Override
-	public Image getScaledAlbumArt(int width, int height) {
-		if(this.hasAlbumArt()) {
-	        Image img = this.getAlbumArt();
+	public Image getScaledAlbumArt(FactoryPreferences prefs, int width, int height) 
+	{
+		Image img = this.getAlbumArt(prefs);
+		
+		if (img != null) 
+		{
 	        ImageIcon icon = new ImageIcon(img);
 	        int imgW = icon.getIconWidth();
 	        int imgH = icon.getIconHeight();
@@ -493,10 +562,8 @@ public class MP3File extends HMusic implements Playable {
 //	            } catch(InterruptedException e) {
 //	            }
 	        }
-	        	        
-	        return img;
 		}
-		return null;
+        return img;
 	}
 
 	/**

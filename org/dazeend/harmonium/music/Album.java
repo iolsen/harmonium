@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
+
+import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.Harmonium;
 
 
@@ -91,7 +93,7 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 	 * @param newDisc		the disc to add to the disc
 	 * @return				<code>true</code> if the file was successfully added, otherwise <code>false</code>
 	 */
-	public synchronized boolean addDisc(Disc newDisc) {
+	public synchronized boolean addDisc(FactoryPreferences prefs, Disc newDisc) {
 		
 		// Check to ensure that the newDisc is eligible to be a member of this album.
 		if((this.albumName.compareToIgnoreCase(newDisc.getAlbumName()) != 0) || (this.albumArtistName.compareToIgnoreCase(newDisc.getAlbumArtistName()) != 0 ) ) {
@@ -109,7 +111,7 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 				this.releaseYear = newDisc.getReleaseYear();
 			}
 			
-			if(this.artSource == null && newDisc.hasAlbumArt()) {
+			if(this.artSource == null && newDisc.hasAlbumArt(prefs)) {
 				artSource = newDisc;
 			}
 			
@@ -161,7 +163,7 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 	 * @param newTrack		the track to add to the disc
 	 * @return				<code>true</code> if the file was successfully added, otherwise <code>false</code>
 	 */
-	public synchronized boolean addTrack(Playable newTrack) {
+	public synchronized boolean addTrack(FactoryPreferences prefs, Playable newTrack) {
 		// Check to ensure that the newTrack is eligible to be a member of this album.
 		if( albumName.compareToIgnoreCase(newTrack.getAlbumName()) != 0 || albumArtistName.compareToIgnoreCase(newTrack.getAlbumArtistName()) != 0 ) {
 			return false;
@@ -176,7 +178,7 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 				
 				if( disc.getDiscNumber() == newTrackDiscNumber ) {
 					// The disc is already a member of this album, so add newTrack to the disc.
-					if(disc.addTrack(newTrack)) {
+					if(disc.addTrack(prefs, newTrack)) {
 						// The track was successfully added. Return TRUE.
 						return true;
 					}
@@ -195,9 +197,9 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 			
 					
 			// Add the newTrack to the newDisc
-			if( newDisc.addTrack(newTrack) ) {
+			if( newDisc.addTrack(prefs, newTrack) ) {
 				// the track was added to the disc, so add the disc to this album
-				if( this.addDisc(newDisc) ) {
+				if( this.addDisc(prefs, newDisc) ) {
 					
 					// the disc was successfully added
 					return true;
@@ -226,7 +228,7 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 					this.releaseYear = newTrack.getReleaseYear();
 				}
 				
-				if(this.artSource == null && newTrack.hasAlbumArt()) {
+				if(this.artSource == null && newTrack.hasAlbumArt(prefs)) {
 					artSource = newTrack;
 				}
 				
@@ -269,9 +271,9 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 	 * 
 	 * @return the albumArt
 	 */
-	public Image getAlbumArt() {
-		if(this.hasAlbumArt()) {
-			return this.artSource.getAlbumArt();
+	public Image getAlbumArt(FactoryPreferences prefs) {
+		if(this.hasAlbumArt(prefs)) {
+			return this.artSource.getAlbumArt(prefs);
 		}
 		else {
 			return null;
@@ -285,9 +287,9 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 	 * @param height	The maximum height of the scaled image
 	 * @return
 	 */
-	public Image getScaledAlbumArt(int width, int height) {
-		if(this.hasAlbumArt()){
-			return this.artSource.getScaledAlbumArt(width, height);
+	public Image getScaledAlbumArt(FactoryPreferences prefs, int width, int height) {
+		if(this.hasAlbumArt(prefs)){
+			return this.artSource.getScaledAlbumArt(prefs, width, height);
 		}
 		else {
 			return null;
@@ -297,8 +299,8 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 	/**
 	 * Checks existance of album art for this object.
 	 */
-	public boolean hasAlbumArt() {
-		if(this.artSource != null && this.artSource.hasAlbumArt()) {
+	public boolean hasAlbumArt(FactoryPreferences prefs) {
+		if(this.artSource != null && this.artSource.hasAlbumArt(prefs)) {
 			return true;
 		}
 		else{

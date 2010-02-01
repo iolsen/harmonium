@@ -30,6 +30,9 @@ public class FactoryPreferences {
 	private String 			musicRoot;
 	private String			playlistRoot;
 	private boolean			debugMode = false;
+	private boolean			ignoreEmbeddedArt = false;
+	private boolean			ignoreJpgFileArt = false;
+	private boolean			preferJpgFileArt = false;
 
 	public FactoryPreferences(IArgumentList args) {
 		
@@ -37,7 +40,6 @@ public class FactoryPreferences {
 		if(args.getBoolean("-debug")) {
 			this.debugMode = true;
 		}
-		
 		
 		// Set music root
 		this.musicRoot = args.getValue("-musicRoot");
@@ -86,14 +88,11 @@ public class FactoryPreferences {
 			}
 		}
 
-		//this.musicRoot = "/home/ceperry/workspace/Harmonium/test data";
-		//this.musicRoot = "F:\\workspace\\Harmonium\\test data";
-		
-		
-		// Set playlist root. If no preference is set, default to the music root.
-		//this.playlistRoot = "/home/ceperry/workspace/Harmonium/playlists";
-		
+		this.ignoreEmbeddedArt = args.getBoolean("-ignoreEmbeddedArt");
+		this.ignoreJpgFileArt = args.getBoolean("-ignoreJpgFileArt");
+		this.preferJpgFileArt = args.getBoolean("-preferJpgFileArt");
 	}
+		
 	/**
 	 * @return the musicRoot
 	 */
@@ -113,6 +112,21 @@ public class FactoryPreferences {
 	 */
 	public boolean inDebugMode() {
 		return this.debugMode;
+	}
+
+	public final boolean ignoreEmbeddedArt()
+	{
+		return ignoreEmbeddedArt;
+	}
+
+	public final boolean ignoreJpgFileArt()
+	{
+		return ignoreJpgFileArt;
+	}
+
+	public final boolean preferJpgFileArt()
+	{
+		return preferJpgFileArt;
 	}
 	
 	

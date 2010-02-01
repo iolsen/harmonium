@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.Harmonium;
 
 public class AlbumArtist extends BaseArtist {
@@ -111,7 +112,7 @@ public class AlbumArtist extends BaseArtist {
 	 * @param newTrack		the track to add to the album artist
 	 * @return				<code>true</code> if the file was successfully added, otherwise <code>false</code>
 	 */
-	public synchronized boolean addTrack(Playable newTrack) {
+	public synchronized boolean addTrack(FactoryPreferences prefs, Playable newTrack) {
 		// Check to ensure that the newTrack is eligible to be a member of this album artist.
 		if( _artistName.compareToIgnoreCase(newTrack.getAlbumArtistName()) != 0 ) {
 			return false;
@@ -126,7 +127,7 @@ public class AlbumArtist extends BaseArtist {
 
 				if( album.getAlbumName().compareToIgnoreCase(newTrackAlbumName) == 0 ) {
 					// The album is already a member of this album artist, so add newTrack to the album.
-					if(album.addTrack(newTrack)) {
+					if(album.addTrack(prefs, newTrack)) {
 						// The track was successfully added. Return TRUE.
 						return true;
 					}
@@ -144,7 +145,7 @@ public class AlbumArtist extends BaseArtist {
 					
 					
 			// Add the newTrack to the newAlbum
-			if( newAlbum.addTrack(newTrack) ) {
+			if( newAlbum.addTrack(prefs, newTrack) ) {
 				// the track was added to the album, so add the album to this music collection
 				if( this.addAlbum(newAlbum) ) {
 

@@ -22,6 +22,8 @@ package org.dazeend.harmonium.music;
 
 import java.awt.Image;
 
+import org.dazeend.harmonium.FactoryPreferences;
+
 /**
  * Defines the interface used to read album information from items in the
  * music collection.
@@ -31,11 +33,11 @@ import java.awt.Image;
  */
 public interface AlbumReadable {
 	
-	public boolean hasAlbumArt();
+	public boolean hasAlbumArt(FactoryPreferences prefs);
 	
-	public Image getAlbumArt();
+	public Image getAlbumArt(FactoryPreferences prefs);
 	
-	public Image getScaledAlbumArt(int width, int height);
+	public Image getScaledAlbumArt(FactoryPreferences prefs, int width, int height);
 	
 	public String getAlbumArtistName();
 	
