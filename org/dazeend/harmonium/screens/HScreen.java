@@ -1,23 +1,3 @@
-/*
- * Copyright 2008 Charles Perry
- *
- * This file is part of Harmonium, the TiVo music player.
- *
- * Harmonium is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Harmonium is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public
- * License along with Harmonium.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
- 
 package org.dazeend.harmonium.screens;
 
 import org.dazeend.harmonium.HSkin;
@@ -34,9 +14,6 @@ import com.tivo.hme.sdk.View;
 /**
  * Defines a generic screen for this app. Displays screen title and catches
  * select key press.
- * 
- * @author Charles Perry (harmonium@DazeEnd.org)
- *
  */
 public class HScreen extends HManagedResourceScreen {
 	
@@ -116,9 +93,6 @@ public class HScreen extends HManagedResourceScreen {
 
 	/**
 	 * Creates a list that catches the KEY_SELECT button press.
-	 * 
-	 * @author Charles Perry (harmonium@DazeEnd.org)
-	 *
 	 */
 	protected class HList extends BList {
 		
@@ -184,10 +158,6 @@ public class HScreen extends HManagedResourceScreen {
 	 * Creates a list that has additional navigation options:
 	 *  - Skips through the alphabet using the ADVANCE/REPLAY buttons
 	 *  - Skips to 1/10th intervals with the number buttons
-	 * 
-	 * @author Charles Perry (harmonium@DazeEnd.org)
-	 *         Ian Olsen (ian.olsen@gmail.com)	
-	 *
 	 */
 	protected class HSkipList extends HList {
 		

@@ -1,7 +1,14 @@
 Version 0.7.2 (Feb 2010)
 ------------------------
-* Fix for screen saver alwyas coming on after roughly 5 minutes even
-  if it was turned off, or set for a longer delay. 
+* You can now edit the "Now Playing" playlist.
+  (issue 4)
+* Added basic support for displaying cover art in *.jpg files.
+  (issue 26)
+* The "Now Playing" playlist browser now shows the shuffled playlist
+  when shuffle is turned on.
+  (issue 37)
+* Fix for screen saver always coming on after roughly 5 minutes even
+  if it was turned off, or set for a longer delay.
   (issue 2)
 * Added logging related to the screen saver not honoring the setting
   to troubleshoot other problems, if they persist.
@@ -9,13 +16,9 @@ Version 0.7.2 (Feb 2010)
 * Added support for navigating the Edit Playlist screen with the
   number keys.
   (issue 29)
-* The "Now Playing" playlist browser now shows the shuffled playlist
-  when shuffle is turned on.
-  (issue 37)
-* You can now edit the "Now Playing" playlist.
-  (issue 4)
-* Fixed a crash related to album art. 
+* Fixed a crash related to album art.
   (issue 39)
+* Updated copyright to 2010.
 
 Version 0.7.1 (Jan 2010)
 ------------------------
@@ -25,7 +28,7 @@ Version 0.7.1 (Jan 2010)
   (issue 12)
 * Fixed cross-fading of album art and info on HAlbumInfoScreen.
   (issue 5)
-* On the Add to Playlist screen, playlists are now sorted by last 
+* On the Add to Playlist screen, playlists are now sorted by last
   modification date.  So the playlist you've most recently modified
   appears on top.
   (issue 17)
@@ -50,7 +53,7 @@ Version 0.7 (20 Dec 2009)
 * Updated README with current information.
 * Updated to the latest version of Java Service Wrapper.
 * Default wrapper.conf changes:
-    * Passing java.net.preferIPv4Stack=true to java commandline to work 
+    * Passing java.net.preferIPv4Stack=true to java commandline to work
       on OSes with ipv6 enabled.
     * Removed -debug from java commandline
     * Changed min/max java heap to 32/256.
@@ -58,15 +61,15 @@ Version 0.7 (20 Dec 2009)
 
 Version 0.6 (6 Sep 2009)
 ------------------------
-* Implemented Tivo resource management.  The out of memory errors should no 
-  longer occur.  Harmonium should also no longer slow down the longer you run 
+* Implemented Tivo resource management.  The out of memory errors should no
+  longer occur.  Harmonium should also no longer slow down the longer you run
   it.
 * Browse music by album artist, track artist, or track name.
 * Re-arranged items on the main screen a bit.  "Now Playing" only appears when
   music is playing.
-* On long lists, you can use the number keys to jump by 10% increments in the 
-  list.  Pressing 5 takes you to the midpoint in the list.  Pressing 7 takes 
-  you 70% of the way to the bottom.  0 toggles between the top and bottom of 
+* On long lists, you can use the number keys to jump by 10% increments in the
+  list.  Pressing 5 takes you to the midpoint in the list.  Pressing 7 takes
+  you 70% of the way to the bottom.  0 toggles between the top and bottom of
   the list.
 * There's a configurable screen blanker.  It defaults to 5 minutes.
 * You can play a list of music starting with the current track.  Like an iPod,
@@ -85,19 +88,19 @@ Version 0.6 (6 Sep 2009)
     * You can add tracks to play next or add them at the end without stopping
       playback.  Cool for parties.
 * "Back" (channel down button) while playing a track goes to the beginning of
-  the track if more than 2 seconds have elapsed in the song (like an iPod or 
+  the track if more than 2 seconds have elapsed in the song (like an iPod or
   CD player).
 * Time in current song updates on now playing screen.
 * Play button from lots of screens does what you'd expect.
 * Lists are no longer case sensitive.
-* If an album has "Disc XX" or "CD XX" at the end of it, it gets removed. 
+* If an album has "Disc XX" or "CD XX" at the end of it, it gets removed.
   (Only for display.  The mp3 file isn't altered.)  You have to delete
   Harmonium's cache file and restart to see this.
 * Some modest performance improvements when building music cache.
 * Modest performance improvements fetching album art.
 * Fixed current playlist consistency when toggling shuffle on/off.
 * Added button sound effects where they were missing.
-* Fixed/suppressed a bunch of compiler warnings in the blinkenlights library 
+* Fixed/suppressed a bunch of compiler warnings in the blinkenlights library
   and included that with source.
 
 
@@ -106,23 +109,23 @@ Version 0.5.1 BETA (10 Sep 2008)
 * Reverted to version 1.4 of HME SDK because of several bugs encountered
   (album art failed to load, Factory hung on server). This change required
   that the Bananas library be reverted to version 1.3, and that the use of
-  Bananas-Plus be discontinued (it depends on HME SDK 1.4.1e and Bananas 
+  Bananas-Plus be discontinued (it depends on HME SDK 1.4.1e and Bananas
   1.3.1e) in favor of HME-HD.
 
 
 Version 0.5 BETA (30 Aug 2008)
 ------------------------------
-* Upgrade components to HME 1.4.1e, and BananasPlus. This improves the visual 
+* Upgrade components to HME 1.4.1e, and BananasPlus. This improves the visual
   style of standard definition, and adds some advanced components.
 
 * Remove splash screen
 
-* Fix bug affecting simulator. Reported in: 
+* Fix bug affecting simulator. Reported in:
   http://harmonium.dazeend.org/forums/viewtopic.php?f=4&t=18
 
 * Extend album info elements on Now Playing Screen to allow for longer strings
 
-* Remove interstitial screens when browsing. Make SELECT and RIGHT do the same 
+* Remove interstitial screens when browsing. Make SELECT and RIGHT do the same
   thing, namely browse.
 
 * From browse screens, make ENTER key add to playlist. Add note below list to
@@ -146,7 +149,7 @@ Version 0.4.3 BETA (11 Aug 2008)
 --------------------------------
 * Correct class path in MANIFEST.MF, so that platform independent installation
   would start correctly.
-  
+
 * Replaced background MPEGs with versions that meet TiVo specifications. (Fixes
   flickering background problem on some televisions.)
 
@@ -156,7 +159,7 @@ Version 0.4.2 BETA (10 Aug 2008)
 * Prevent music collection from being erroneously flagged as out of date
   immediately after being built. (Re-set cache timestamp when writing
   cache.)
-  
+
 * Catch errors and exceptions in Factory init.
 
 
@@ -173,9 +176,9 @@ Version 0.4 BETA (07 Aug 2008)
 
 * Put version on splash screen.
 
-* Permitted non-standard MIME type of "image/jpg" for album art. (This is a 
+* Permitted non-standard MIME type of "image/jpg" for album art. (This is a
   workaround for broken ID3 taggers.)
-  
+
 * Cache the music collection for faster start up.
 
 
@@ -201,12 +204,12 @@ Bug Fix:     Strip whitespace from tags to avoid duplicates entries.
 Bug Fix:     Have MP3's ignore disc tags that are equal to "1/1" so that no
              disc object is created for the track.
 
-Bug Fix:     Fix album info spacing on NowPlayingScreen on 480i screens so it 
+Bug Fix:     Fix album info spacing on NowPlayingScreen on 480i screens so it
              is legible.
 
 Bug Fix:     Rename up_down_*.png to names that match backgrounds.
 
-Bug Fix:     Prevent end of playlist from doing a pop() screen if not on 
+Bug Fix:     Prevent end of playlist from doing a pop() screen if not on
              NowPlayingScreen.
 
 New Feature: Refresh music collection on app start. Newly added tracks and
@@ -237,7 +240,7 @@ New Feature: Pause button now pauses/unpauses music from all screens.
 
 New Feature: Info button now jumps to Now Playing screen from all screens if
              music is playing.
-             
+
 New Feature: Clear button now blanks screen from Now Playing Screen.
 
 
