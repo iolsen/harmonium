@@ -299,7 +299,7 @@ public class MP3File extends HMusic implements Playable {
 	}
 
 	/**
-	 * Checks existance of album art for this object.
+	 * Checks existence of album art for this object.
 	 */
 	//@Override
 	public boolean hasAlbumArt(FactoryPreferences prefs) {
@@ -310,8 +310,11 @@ public class MP3File extends HMusic implements Playable {
 		return (this.getAlbumArt(prefs) != null);
 	}
 	
-	private Image getAlbumArtFromID3Tag()
+	private Image getAlbumArtFromID3Tag(FactoryPreferences prefs)
 	{
+		if (prefs.inDebugMode())
+			System.out.println("Retrieving embedded cover art from " + this.trackFile.getAbsolutePath());
+
 		Image img = null;
 
 		// Create an org.blinkenlights.jid3.MP3File to read tag data from
@@ -375,8 +378,12 @@ public class MP3File extends HMusic implements Playable {
 		return img;
 	}
 	
-	private Image getAlbumArtFromFile() throws IOException
+	private Image getAlbumArtFromFile(FactoryPreferences prefs) throws IOException
 	{
+
+		if (prefs.inDebugMode())
+			System.out.println("Retrieving file-based cover art for " + this.trackFile.getAbsolutePath());
+		
 		Image img = null;
 		File parentFolder = this.trackFile.getParentFile();
 		String possibleImageFileName = null;
@@ -425,16 +432,16 @@ public class MP3File extends HMusic implements Playable {
 		{
 			// If set to prefer file-based art, and not ignoring file-based art, look for that first.
 			if (prefs.preferJpgFileArt() &&!prefs.ignoreJpgFileArt())
-				img = getAlbumArtFromFile();
+				img = getAlbumArtFromFile(prefs);
 			
 			// If we don't yet have an image and we're not ignoring embedded art, look there.
 			if (img == null && !prefs.ignoreEmbeddedArt())
-				img = getAlbumArtFromID3Tag();
+				img = getAlbumArtFromID3Tag(prefs);
 			
 			// If we still don't have an image, and we didn't already look at file-based art, 
 			// and we're not ignoring file-based art, look for it now.
 			if (img == null && !prefs.preferJpgFileArt() && !prefs.ignoreJpgFileArt())
-				img = getAlbumArtFromFile();
+				img = getAlbumArtFromFile(prefs);
 			
 			hasAlbumArt = (img != null);
 		} 

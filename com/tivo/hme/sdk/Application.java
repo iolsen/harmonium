@@ -1168,7 +1168,7 @@ abstract public class Application extends StreamResource implements IApplication
             out.write(imageOut.getBuffer(), 0, (int)imageOut.getCount());
             writeTerminator();
         } catch (Throwable t) {
-        	throw new HmeException(t);
+        	fatalError(t);
         }
     }
 

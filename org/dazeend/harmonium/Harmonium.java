@@ -1016,17 +1016,11 @@ public class Harmonium extends HDApplication {
 
 				if (hash != 0)
 				{
-					try{
-						aci = new ArtCacheItem(hash, screen.createImage(album.getScaledAlbumArt(_app.getFactoryPreferences(), width, height)));
-					}
-					catch (Throwable t) 
-					{
-						// If we have a failure to load album art, log it and load default instead.
-						System.out.println("Caught exception loading album art:");
-						t.printStackTrace();
-						System.out.println("Loading default album art instead...");
-						aci = new ArtCacheItem(hash, screen.createImage("default_album_art2.png"));
-					}
+					// When the receiver chokes on album art for some reason, this is where we die.  But no exception is thrown,
+					// Application closes itself.  And changing this doesn't seem to be an improvement.  The failure leaves
+					// things in a weird state such that subsequent songs fail to play, etc.  I think it's better to let it 
+					// fail in a deterministic way, so at least it's relatively easy to identify the offending music.
+					aci = new ArtCacheItem(hash, screen.createImage(album.getScaledAlbumArt(_app.getFactoryPreferences(), width, height)));
 				}
 				else
 					aci = new ArtCacheItem(hash, screen.createImage("default_album_art2.png"));
