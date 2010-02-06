@@ -1,5 +1,11 @@
 #!/bin/bash
 
+rm -rf bin
+if [ -e Harmonium.jar ]
+then
+	rm Harmonium.jar
+fi
+
 #######################
 # update from repo
 #######################
@@ -12,13 +18,26 @@ hg update --clean
 export VERSION=`grep "VERSION\s*=\s*" org/dazeend/harmonium/Harmonium.java | grep -o "[0-9]*\.[0-9]*\.[0-9]*"`
 export rev=`hg log -l1|grep changeset|grep -o  ":\([[:alnum:]]\+\)"|grep -o "\([[:alnum:]]\+\)"`
 
-echo "Building release archives for version ${VERSION} (${rev})..."
+echo "Building release archives for version ${VERSION} (${rev})."
 
+echo "Adding version number to source code..."
 perl -pi -e 's/{REV}/'$rev'/g' org/dazeend/harmonium/Harmonium.java
+
+#######################
+# build source archive
+#######################
+echo "Building source archive..."
+export SRCFILE=../harmonium-source-${VERSION}-${rev}.zip
+if [ -e ${SRCFILE} ]
+then
+	rm ${SRCFILE}
+fi
+zip -qr ${SRCFILE} .
 
 #######################
 # compile
 #######################
+echo "Compiling Harmonium..."
 ./build.sh
 
 if [ -e Harmonium ]
@@ -29,6 +48,7 @@ fi
 #####################
 # build linux tarball
 #####################
+echo "Building Linux installation archive..."
 mkdir Harmonium
 cp CHANGELOG Harmonium/
 cp COPYING Harmonium/
@@ -57,10 +77,10 @@ cp wrapper/linux-wrapper.jar Harmonium/lib/wrapper.jar
 
 mkdir Harmonium/logs
 
-export LINUXFILE=harmonium-linux-${VERSION}-${rev}.tar.gz
+export LINUXFILE=../harmonium-linux-${VERSION}-${rev}.tar.gz
 if [ -f ${LINUXFILE} ]
 then
-rm ${LINUXFILE}
+	rm ${LINUXFILE}
 fi
 tar czf ${LINUXFILE} Harmonium
 
@@ -70,6 +90,7 @@ rm -rf Harmonium
 #####################
 # build windows zip
 #####################
+echo "Building Windows installation archive..."
 mkdir Harmonium
 cp CHANGELOG Harmonium/
 cp COPYING Harmonium/
@@ -98,10 +119,15 @@ cp wrapper/win-wrapper.jar Harmonium/lib/wrapper.jar
 
 mkdir Harmonium/logs
 
-export WINFILE=harmonium-windows-${VERSION}-${rev}.zip
+export WINFILE=../harmonium-windows-${VERSION}-${rev}.zip
 if [ -f ${WINFILE} ]
 then
-rm ${WINFILE}
+	rm ${WINFILE}
 fi
 zip -qr ${WINFILE} Harmonium
-rm -rf Harmonium
+
+#echo "Cleaning up..."
+#hg revert --no-backup org/dazeend/harmonium/Harmonium.java
+#rm -rf Harmonium
+#rm -rf bin
+#rm srclist
