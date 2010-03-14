@@ -9,12 +9,12 @@ import java.util.Comparator;
  * 
  * @throws NullPointerException
  */
-public class CompareTracksByNumber implements Comparator<Playable> {
+public class CompareTracksByNumber implements Comparator<PlayableTrack> {
 
 	/* (non-Javadoc)
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
-	public int compare(Playable track1, Playable track2) {
+	public int compare(PlayableTrack track1, PlayableTrack track2) {
 		
 		// If one of the albums is null, then throw an exception
 		if(track1 == null || track2 == null) {
@@ -48,8 +48,7 @@ public class CompareTracksByNumber implements Comparator<Playable> {
 			return track1.getTrackNameTitleSortForm().compareTo(track2.getTrackNameTitleSortForm());
 		}
 		
-		// Sort thirdly by track filename
-		return track1.getFilename().compareTo( track2.getFilename() );		
+		return 0;
 	}
 
 }

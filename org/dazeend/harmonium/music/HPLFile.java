@@ -42,11 +42,11 @@ public class HPLFile extends EditablePlaylist implements PlaylistFile {
 					boolean 			shuffleMode, 
 					boolean 			repeatMode, 
 					String 				description,
-					PlaylistEligible	member
+					PlayableCollection	member
 	) throws IOException {
 		
 		_tracks = new ArrayList<Playable>();
-		this._tracks.addAll(member.listMemberTracks(app));
+		this._tracks.addAll(member.getMembers(app));
 		this.common(app, file, shuffleMode, repeatMode, description);
 	}
 	
@@ -66,12 +66,12 @@ public class HPLFile extends EditablePlaylist implements PlaylistFile {
 					boolean 				shuffleMode, 
 					boolean 				repeatMode, 
 					String 					description,
-					List<PlaylistEligible>	members
+					List<PlayableCollection>	members
 	) throws IOException {
 		
 		_tracks = new ArrayList<Playable>();
-		for(PlaylistEligible musicItem : members) {
-			this._tracks.addAll(musicItem.listMemberTracks(app));
+		for(PlayableCollection musicItem : members) {
+			this._tracks.addAll(musicItem.getMembers(app));
 		}
 		this.common(app, file, shuffleMode, repeatMode, description);
 	}
@@ -125,7 +125,7 @@ public class HPLFile extends EditablePlaylist implements PlaylistFile {
 					// This line contains the path to a music track.
 					// All paths in HPL playlists are relative to the music root.
 					File trackFile = new File(musicCollection.getMusicRoot(), line);
-					Playable track = musicCollection.lookupTrackByFile(trackFile);
+					PlayableLocalTrack track = musicCollection.lookupTrackByFile(trackFile);
 					
 					if( track != null ) {
 						// The track has been found. Add it to the list of members.
@@ -184,13 +184,13 @@ public class HPLFile extends EditablePlaylist implements PlaylistFile {
 		}
 	}
 	
-	public List<PlaylistEligible> getMembers() {
-    	List<PlaylistEligible> list = new ArrayList<PlaylistEligible>();
+	public List<PlayableCollection> getMembers() {
+    	List<PlayableCollection> list = new ArrayList<PlayableCollection>();
     	list.addAll(this._tracks);
     	return list;
 	}
 	
-	public List<Playable> listMemberTracks(Harmonium app) {
+	public List<Playable> getMembers(Harmonium app) {
 		List<Playable> list = new ArrayList<Playable>();
 		list.addAll(this._tracks);
 		return list;
@@ -203,8 +203,8 @@ public class HPLFile extends EditablePlaylist implements PlaylistFile {
 	 * @param app
 	 * @param musicItem
 	 */
-	public void add(Harmonium app, PlaylistEligible musicItem) throws IOException {
-		this._tracks.addAll(musicItem.listMemberTracks(app));
+	public void add(Harmonium app, PlayableCollection musicItem) throws IOException {
+		this._tracks.addAll(musicItem.getMembers(app));
 		this.syncToDisk();
 	}
 	
@@ -282,7 +282,7 @@ public class HPLFile extends EditablePlaylist implements PlaylistFile {
 	 * @param index
 	 * @param musicItem
 	 */
-	public synchronized void setMember(int index, Playable musicItem) {
+	public synchronized void setMember(int index, PlayableLocalTrack musicItem) {
 		this._tracks.set(index, musicItem);
 	}
 	
@@ -321,7 +321,7 @@ public class HPLFile extends EditablePlaylist implements PlaylistFile {
 			// Write the member tracks to file if any exist
 			if(! this._tracks.isEmpty()) {
 				for(Playable track : this._tracks) {
-					bout.write( track.getPath() );
+					bout.write( track.getURI() );
 					bout.newLine();
 				}			
 			}

@@ -6,14 +6,14 @@ import java.util.List;
 
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.CompareTracksByName;
-import org.dazeend.harmonium.music.Playable;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlayableLocalTrack;
+import org.dazeend.harmonium.music.PlayableCollection;
 import org.dazeend.harmonium.music.TrackArtist;
 import com.tivo.hme.bananas.BView;
 
 public class BrowseTrackArtistScreen extends HAlbumInfoListScreen
 {
-	private List<Playable> trackList;
+	private List<PlayableLocalTrack> trackList;
 	
 	public BrowseTrackArtistScreen(Harmonium app, TrackArtist thisTrackArtist) {
 		// The parent constructor needs an album to initialize album info. Sent the first one.
@@ -41,7 +41,7 @@ public class BrowseTrackArtistScreen extends HAlbumInfoListScreen
 		setFocusDefault(this.list);
 		
 		// Add tracks to the screen.
-		trackList = new ArrayList<Playable>();
+		trackList = new ArrayList<PlayableLocalTrack>();
 		trackList.addAll( thisTrackArtist.getTrackList() );
 		Collections.sort(trackList, new CompareTracksByName());
 		this.list.add( trackList.toArray() );
@@ -49,8 +49,8 @@ public class BrowseTrackArtistScreen extends HAlbumInfoListScreen
 		
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("right") || action.equals("select")) {
-        	Playable musicItem = (Playable)list.get( list.getFocus() );
-    		this.app.push(new TrackScreen(this.app, (Playable)musicItem), TRANSITION_LEFT);
+        	PlayableLocalTrack musicItem = (PlayableLocalTrack)list.get( list.getFocus() );
+    		this.app.push(new TrackScreen(this.app, (PlayableLocalTrack)musicItem), TRANSITION_LEFT);
         	
             return true;
         }  
@@ -69,8 +69,8 @@ public class BrowseTrackArtistScreen extends HAlbumInfoListScreen
 		switch(key) {
 		case KEY_PLAY:
 			
-			List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
-			playlist.add( ( PlaylistEligible)this.list.get( this.list.getFocus() ) );
+			List<PlayableCollection> playlist = new ArrayList<PlayableCollection>();
+			playlist.add( ( PlayableCollection)this.list.get( this.list.getFocus() ) );
 
 			// Playing an individual track
 			boolean shuffleMode = this.app.getPreferences().getTrackDefaultShuffleMode();

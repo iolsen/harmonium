@@ -13,9 +13,9 @@ import org.dazeend.harmonium.Harmonium;
 /**
  * Represents a sub-unit of an album.
  */
-public class Disc implements PlaylistEligible, AlbumArtListItem {
+public class Disc implements PlayableCollection, AlbumArtListItem {
 
-	private List<Playable>	trackList = Collections.synchronizedList( new ArrayList<Playable>() );
+	private List<PlayableLocalTrack>	trackList = Collections.synchronizedList( new ArrayList<PlayableLocalTrack>() );
 	private int 			discNumber;					// Set only through constructor. Setting later could break data structure.
 	private String			albumArtistName = "";		// Set only through constructor. Setting later could break data structure.
 	private String 			albumName = "";				// Set only through constructor. Setting later could break data structure.
@@ -43,7 +43,7 @@ public class Disc implements PlaylistEligible, AlbumArtListItem {
 	 * 
 	 * @param track
 	 */
-	public synchronized void removeTrack(Playable track) {
+	public synchronized void removeTrack(PlayableLocalTrack track) {
 		// Remove the track from this disc.
 		this.trackList.remove(track);
 	}
@@ -55,7 +55,7 @@ public class Disc implements PlaylistEligible, AlbumArtListItem {
 	 * @param newTrack		the track to add to the disc
 	 * @return				<code>true</code> if the file was successfully added, otherwise <code>false</code>
 	 */
-	public synchronized boolean addTrack(FactoryPreferences prefs, Playable newTrack) {
+	public synchronized boolean addTrack(FactoryPreferences prefs, PlayableLocalTrack newTrack) {
 		
 		// Check to ensure that the newTrack is eligible to be a member of this disc.
 		if(discNumber != newTrack.getDiscNumber() || (albumName.compareToIgnoreCase(newTrack.getAlbumName()) != 0) || (albumArtistName.compareToIgnoreCase(newTrack.getAlbumArtistName()) != 0) ) {
@@ -198,7 +198,7 @@ public class Disc implements PlaylistEligible, AlbumArtListItem {
 	 * 
 	 * @return the trackList
 	 */
-	public List<Playable> getTrackList() {
+	public List<PlayableLocalTrack> getTrackList() {
 		return trackList;
 	}
 
@@ -218,14 +218,13 @@ public class Disc implements PlaylistEligible, AlbumArtListItem {
 	/* (non-Javadoc)
 	 * @see org.dazeend.harmonium.PlaylistEligible#listMemberTracks()
 	 */
-	public List<Playable> listMemberTracks(Harmonium app) {
-		
-		List<Playable> sortedTrackList = new ArrayList<Playable>();
+	public List<PlayableLocalTrack> getMembers(Harmonium app) 
+	{
+		List<PlayableLocalTrack> sortedTrackList = new ArrayList<PlayableLocalTrack>(trackList.size());
 		sortedTrackList.addAll(trackList);
 		
-		if(app != null) {
+		if (app != null)
 			Collections.sort(sortedTrackList, app.getPreferences().getDiscTrackComparator());
-		}
 		
 		return sortedTrackList;
 	}
@@ -237,8 +236,8 @@ public class Disc implements PlaylistEligible, AlbumArtListItem {
 	 */
 	protected void printMusic(PrintStream outputStream) {
 		outputStream.println("=== Disc: " + this.toString());
-		for(Playable track : this.trackList) {
-			outputStream.println("==== Track: " + track.getPath());
+		for(PlayableLocalTrack track : this.trackList) {
+			outputStream.println("==== Track: " + track.getURI());
 		}
 		outputStream.flush();
 	}
@@ -260,7 +259,9 @@ public class Disc implements PlaylistEligible, AlbumArtListItem {
 	{
 		return getAlbumArtistName();
 	}
-	
-	
-	
+
+	public String getArtHashKey()
+	{
+		return artSource.getArtHashKey();
+	}
 }

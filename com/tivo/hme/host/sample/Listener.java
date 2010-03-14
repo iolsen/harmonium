@@ -295,9 +295,7 @@ public class Listener extends HttpServer implements IListener
             // ignore this - that app is closed
         } catch (Throwable t) {
             getLogger().log(ILogger.LOG_WARNING, "Unexpected error: " + t);
-            if (Listener.DEBUG) {
-                t.printStackTrace();
-            }
+            t.printStackTrace();
         }
     }
 

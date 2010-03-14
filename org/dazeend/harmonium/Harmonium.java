@@ -1,10 +1,13 @@
 package org.dazeend.harmonium;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -13,11 +16,15 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.dazeend.harmonium.music.AlbumReadable;
+import org.blinkenlights.jid3.ID3Exception;
+import org.dazeend.harmonium.music.ArtSource;
 import org.dazeend.harmonium.music.EditablePlaylist;
+import org.dazeend.harmonium.music.MP3File;
 import org.dazeend.harmonium.music.MusicCollection;
 import org.dazeend.harmonium.music.Playable;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlayableCollection;
+import org.dazeend.harmonium.music.PlayableRateChangeable;
+import org.dazeend.harmonium.music.PlayableTrack;
 import org.dazeend.harmonium.screens.ExitScreen;
 import org.dazeend.harmonium.screens.HManagedResourceScreen;
 import org.dazeend.harmonium.screens.MainMenuScreen;
@@ -356,8 +363,10 @@ public class Harmonium extends HDApplication {
 	 */
 	public static class HarmoniumFactory extends Factory {
 		
+		private final static String VERSION = "0.8 ({REV})";
+
 		private FactoryPreferences preferences;
-		private final static String VERSION = "0.7.2 ({REV})";
+		private final Hashtable<String, Long> _durationTable = new Hashtable<String, Long>();
 
 		/**
 		 *  Create the factory. Reads preferences and initialized data structures.
@@ -408,26 +417,61 @@ public class Harmonium extends HDApplication {
 			return VERSION;
 		}
 
-		/* (non-Javadoc)
+    	private void addTrackDuration(String uri, long duration)
+    	{
+    		_durationTable.put(uri, duration);
+    	}
+    	
+        @Override
+		protected long getMP3Duration(String uri)
+		{
+        	return _durationTable.remove(uri);
+		}
+
+	    /* (non-Javadoc)
          * @see com.tivo.hme.sdk.MP3Factory#getMP3StreamFromURI(java.lang.String)
          */
 		public InputStream getStream(String uri) throws IOException 
         {
-            File file = new File(MusicCollection.getMusicCollection(this).getMusicRoot(), URLDecoder.decode(uri, "UTF-8"));
-            if (file.exists()) 
-            {            	
-                InputStream in = new FileInputStream(file);
-                return in;
-            }
-            else
-            {
-                return super.getStream(uri);
-            }
+			String lowerUri = uri.toLowerCase();
+			if (lowerUri.startsWith("http://"))
+			{
+				System.out.println("Fetching MP3 stream for playback: " + uri);
+				
+	            URL url = new URL(uri);
+	            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	            conn.setInstanceFollowRedirects(true);
+	            InputStream x = conn.getInputStream();
+	            return new BufferedInputStream(x, 102400);
+			}
+			else if (lowerUri.endsWith(".mp3"))
+			{
+	            File file = new File(MusicCollection.getMusicCollection(this).getMusicRoot(), URLDecoder.decode(uri, "UTF-8"));
+	            if (file.exists()) 
+	            {
+					System.out.println("Fetching MP3 file for playback: " + uri);
+
+					try
+					{
+		            	MP3File mp3file = new MP3File(file.getPath(), file);
+		            	addTrackDuration(uri, mp3file.getDuration());
+					} 
+					catch (ID3Exception e)
+					{
+						e.printStackTrace();
+					}
+
+		            InputStream in = new FileInputStream(file);
+	                return in;
+	            }
+			}
+
+			return super.getStream(uri);
         }
 	}
 
-	public static class DiscJockey {
-		
+	public static class DiscJockey 
+	{
 		public static final int BACK_UP_AFTER_SECONDS = 2;
 		
 		private Harmonium app;
@@ -443,12 +487,14 @@ public class Harmonium extends HDApplication {
 		/**
 		 * @param app
 		 */
-		private DiscJockey(Harmonium app) {
+		private DiscJockey(Harmonium app) 
+		{
 			super();
 			this.app = app;
 		}
 
-		public synchronized static DiscJockey getDiscJockey(Harmonium app) {
+		public synchronized static DiscJockey getDiscJockey(Harmonium app) 
+		{
 			if(app.getDiscJockey() == null) {
 				DiscJockey dj = new DiscJockey(app);
 				return dj;
@@ -458,12 +504,13 @@ public class Harmonium extends HDApplication {
 			}
 		}
 		
-		public void play(List<PlaylistEligible> playlist, Boolean shuffleMode, Boolean repeatMode) {
+		public void play(List<PlayableCollection> playlist, Boolean shuffleMode, Boolean repeatMode) 
+		{
 			play(playlist, shuffleMode, repeatMode, null);
 		}
 		
-		public void play(List<PlaylistEligible> playlist, Boolean shuffleMode, Boolean repeatMode, Playable startPlaying) {
-			
+		public void play(List<PlayableCollection> playlist, Boolean shuffleMode, Boolean repeatMode, Playable startPlaying) 
+		{
 			// Only do stuff if the playlist is not empty
 			if(playlist != null && (! playlist.isEmpty() ) ) {
 				
@@ -480,8 +527,8 @@ public class Harmonium extends HDApplication {
 				this.shuffledMusicQueue.clear();
 				
 				// get tracks from the playlist and put them in the music queue
-				for(PlaylistEligible musicItem : playlist) {
-					this.musicQueue.addAll( musicItem.listMemberTracks(this.app) );
+				for(PlayableCollection musicItem : playlist) {
+					this.musicQueue.addAll( musicItem.getMembers(this.app) );
 				}
 				
 				// create the shuffled version of the music queue
@@ -532,19 +579,19 @@ public class Harmonium extends HDApplication {
 			this.app.push(this.nowPlayingScreen, TRANSITION_NONE);
 		}
 		
-		public void enqueueNext(PlaylistEligible ple) {
+		public void enqueueNext(PlayableCollection ple) {
 
 			int nextIndex = this.musicIndex + 1;
-			List<Playable> list = ple.listMemberTracks(this.app);
+			List<? extends Playable> list = ple.getMembers(this.app);
 			this.shuffledMusicQueue.addAll(nextIndex, list);
 			this.musicQueue.addAll(nextIndex, list);
 
 			pushNowPlayingScreen();
 		}
 		
-		public void enqueueAtEnd(PlaylistEligible ple) {
+		public void enqueueAtEnd(PlayableCollection ple) {
 
-			List<Playable> list = ple.listMemberTracks(this.app);
+			List<? extends Playable> list = ple.getMembers(this.app);
 			this.shuffledMusicQueue.addAll(list);
 			this.musicQueue.addAll(list);
 
@@ -596,7 +643,8 @@ public class Harmonium extends HDApplication {
 			}
 		}
 		
-		public String getNextTrackInfo() {
+		public String getNextTrackInfo() 
+		{
 			int nextIndex;
 			Playable nextTrack;
 			
@@ -628,17 +676,21 @@ public class Harmonium extends HDApplication {
 				nextTrack = currentQueue.get(nextIndex);
 				
 				// return the title of the next track to be played
-				return nextTrack.getTrackName() + " - " + nextTrack.getArtistName();
+				if (nextTrack instanceof PlayableTrack)
+				{
+					PlayableTrack pt = (PlayableTrack)nextTrack;
+					return pt.getTrackName() + " - " + pt.getArtistName();
+				}
 			}
-			else{
-				return "";
-			}
+
+			return "";
+			
 		}
 		
-		public void playPrevious() {
-
-			if(! this.musicQueue.isEmpty() ) {
-
+		public void playPrevious() 
+		{
+			if( !this.musicQueue.isEmpty() ) 
+			{
 				List<Playable> currentQueue;
 				if (this.shuffleMode)
 					currentQueue = this.shuffledMusicQueue;
@@ -737,29 +789,53 @@ public class Harmonium extends HDApplication {
 		/**
 		 * fastforward the music stream
 		 */
-		public void fastForward() {
-			if( (this.nowPlaying != null) && this.nowPlaying.setPlayRate(this.nowPlayingScreen, this.playRate.getNextFF().getSpeed() ) ) {
-				this.playRate = this.playRate.getNextFF();
+		public boolean fastForward() 
+		{
+			if( this.nowPlaying != null && this.nowPlaying instanceof PlayableRateChangeable )
+			{
+				PlayableRateChangeable prc = (PlayableRateChangeable)this.nowPlaying;
+				if (prc.setPlayRate(this.nowPlayingScreen, this.playRate.getNextFF().getSpeed())) 
+				{
+					this.playRate = this.playRate.getNextFF();
+					return true;
+				}
 			}
+			return false;
 		}
 		
 		/**
 		 * rewind the music stream
 		 */
-		public void rewind() {
-			if( (this.nowPlaying != null) && this.nowPlaying.setPlayRate(this.nowPlayingScreen, this.playRate.getNextREW().getSpeed() ) ) {
-				this.playRate = this.playRate.getNextREW();
+		public boolean rewind() 
+		{
+			if(this.nowPlaying != null && this.nowPlaying instanceof PlayableRateChangeable) 
+			{
+				PlayableRateChangeable prc = (PlayableRateChangeable)this.nowPlaying;
+				if (prc.setPlayRate(this.nowPlayingScreen, this.playRate.getNextREW().getSpeed()))
+				{
+					this.playRate = this.playRate.getNextREW();
+					return true;
+				}
 			}
+			return false;
 		}
 		
 		/**
 		 * play track at normal speed
 		 *
 		 */
-		public void playNormalSpeed() {
-			if( (this.nowPlaying != null) && this.nowPlaying.setPlayRate(this.nowPlayingScreen, PlayRate.NORMAL.getSpeed() ) ) {
-				this.playRate = PlayRate.NORMAL;
+		public boolean playNormalSpeed() 
+		{
+			if(this.nowPlaying != null && this.nowPlaying instanceof PlayableRateChangeable) 
+			{
+				PlayableRateChangeable prc = (PlayableRateChangeable)this.nowPlaying;
+				if (prc.setPlayRate(this.nowPlayingScreen, PlayRate.NORMAL.getSpeed()))
+				{
+					this.playRate = PlayRate.NORMAL;
+					return true;
+				}
 			}
+			return false;
 		}
 		
 		
@@ -895,7 +971,7 @@ public class Harmonium extends HDApplication {
 				_otherTracks = otherTracks;
 			}
 			
-			public List<Playable> listMemberTracks(Harmonium app)
+			public List<Playable> getMembers(Harmonium app)
 			{
 				return _tracks;
 			}
@@ -988,7 +1064,7 @@ public class Harmonium extends HDApplication {
 			return cache;
 		}
 		
-		public synchronized ImageResource Add(BScreen screen, AlbumReadable album, int width, int height) {
+		public synchronized ImageResource Add(BScreen screen, ArtSource artSource, int width, int height) {
 			
 			// Hash a bunch of album attributes together to uniquely identify the album.
 			//
@@ -999,8 +1075,8 @@ public class Harmonium extends HDApplication {
 			// have different cover art images embedded in files of the same album, we'll always display
 			// the first one we cache.  But I think that's probably unusual.  And I like how fast this is.
 			int hash = 0;
-			if (album.hasAlbumArt(_app.getFactoryPreferences()))
-				hash = (album.getAlbumArtistName() + album.getAlbumName() + album.getReleaseYear() + width + height).hashCode();
+			if (artSource.hasAlbumArt(_app.getFactoryPreferences()))
+				hash = (artSource.getArtHashKey() + width + height).hashCode();
 					
 			ArtCacheItem aci = _managedImageHashtable.get(hash);
 			if (aci == null) {
@@ -1020,7 +1096,7 @@ public class Harmonium extends HDApplication {
 					// Application closes itself.  And changing this doesn't seem to be an improvement.  The failure leaves
 					// things in a weird state such that subsequent songs fail to play, etc.  I think it's better to let it 
 					// fail in a deterministic way, so at least it's relatively easy to identify the offending music.
-					aci = new ArtCacheItem(hash, screen.createImage(album.getScaledAlbumArt(_app.getFactoryPreferences(), width, height)));
+					aci = new ArtCacheItem(hash, screen.createImage(artSource.getScaledAlbumArt(_app.getFactoryPreferences(), width, height)));
 				}
 				else
 					aci = new ArtCacheItem(hash, screen.createImage("default_album_art2.png"));

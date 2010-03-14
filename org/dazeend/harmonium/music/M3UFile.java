@@ -41,43 +41,12 @@ public class M3UFile implements PlaylistFile {
 			while(bin.ready()) {
 				String line = bin.readLine();
 				// ignore any line that begins with a pound ('#')
-				if( ! line.startsWith("#") ) {
-					
-					// Construct absolute path for the line and create the cooresponding File object
-					File lineFile = new File(line);
-					
-					if( (! lineFile.exists() ) || (! lineFile.isAbsolute() ) ) {
-						// The file wasn't absolute or didn't exist, so check relative to the parent of this M3UFile
-						line = file.getParentFile().getAbsolutePath() + File.separator + line;
-					
-						lineFile = new File(line);
-					}
-					
-					if(this.hFactory.getPreferences().inDebugMode()) {
-						if(! lineFile.exists()) {
-							System.out.println("DEBUG: Does not exist: " + lineFile.getPath());
-						}
-						else if(! lineFile.isFile()) {
-							System.out.println("DEBUG: Not a file: " + lineFile.getPath());
-						}
-						else if(! lineFile.canRead()) {
-							System.out.println("DEBUG: File not readable: " + lineFile.getPath());
-						}
-						
-						System.out.flush();
-					}
-					
-					// NOTE: The isFile test below MIGHT be fooled by symlinks 
-					// that point to directories. Not sure.
-					if(lineFile.exists() && lineFile.isFile() && lineFile.canRead()) {
-						// lineFile is valid
-						Playable track = MusicCollection.getMusicCollection( this.hFactory ).lookupTrackByFile(lineFile);
-						
-						if( track != null ) {
-							// The track has been found in the music database. Add it to the list of members.
-							this.members.add(track);
-						}
-					}
+				if( ! line.startsWith("#") ) 
+				{
+					if (line.toLowerCase().startsWith("http://"))
+						addStreamMember(line);
+					else
+						addLocalFileMember(file, line);
 				}
 			}
 		}
@@ -90,19 +59,70 @@ public class M3UFile implements PlaylistFile {
 		if(this.hFactory.getPreferences().inDebugMode() ) {
 			System.out.println("DEBUG: Printing M3U members:");
 			for(Playable track : this.members) {
-				System.out.println("DEBUG: " + track.getPath());
+				System.out.println("DEBUG: " + track.getURI());
 			}
 			System.out.flush();
 		}
 	}
 
-	
 
+
+	private void addLocalFileMember(File playlistFile, String line)
+	{
+		// Construct absolute path for the line and create the cooresponding File object
+		File lineFile = new File(line);
+		
+		if( (! lineFile.exists() ) || (! lineFile.isAbsolute() ) ) {
+			// The file wasn't absolute or didn't exist, so check relative to the parent of this M3UFile
+			line = playlistFile.getParentFile().getAbsolutePath() + File.separator + line;
+		
+			lineFile = new File(line);
+		}
+		
+		if(this.hFactory.getPreferences().inDebugMode()) {
+			if(! lineFile.exists()) {
+				System.out.println("DEBUG: Does not exist: " + lineFile.getPath());
+			}
+			else if(! lineFile.isFile()) {
+				System.out.println("DEBUG: Not a file: " + lineFile.getPath());
+			}
+			else if(! lineFile.canRead()) {
+				System.out.println("DEBUG: File not readable: " + lineFile.getPath());
+			}
+			
+			System.out.flush();
+		}
+		
+		// NOTE: The isFile test below MIGHT be fooled by symlinks 
+		// that point to directories. Not sure.
+		if(lineFile.exists() && lineFile.isFile() && lineFile.canRead()) {
+			// lineFile is valid
+			PlayableLocalTrack track = MusicCollection.getMusicCollection( this.hFactory ).lookupTrackByFile(lineFile);
+			
+			if( track != null ) {
+				// The track has been found in the music database. Add it to the list of members.
+				this.members.add(track);
+			}
+		}
+	}
+
+	private void addStreamMember(String line)
+	{
+		if(this.hFactory.getPreferences().inDebugMode())
+		{
+			System.out.println("DEBUG: Found MP3 stream: " + line);
+			System.out.flush();
+		}
+		
+		MP3Stream mp3stream = new MP3Stream(line);
+		this.members.add(mp3stream);
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.dazeend.harmonium.music.PlaylistFile#getMembers()
 	 */
-	public List<PlaylistEligible> getMembers() {
-		List<PlaylistEligible> list = new ArrayList<PlaylistEligible>();
+	public List<PlayableCollection> getMembers() {
+		List<PlayableCollection> list = new ArrayList<PlayableCollection>();
 		list.addAll(this.members);
 		return list;
 	}
@@ -143,7 +163,7 @@ public class M3UFile implements PlaylistFile {
 
 
 
-	public List<Playable> listMemberTracks(Harmonium app) {
+	public List<Playable> getMembers(Harmonium app) {
 		List<Playable> list = new ArrayList<Playable>();
 		list.addAll(this.members);
 		return list;

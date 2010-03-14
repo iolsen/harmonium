@@ -6,17 +6,17 @@ import java.util.List;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.HPLFile;
 import org.dazeend.harmonium.music.MusicCollection;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlayableCollection;
 
 import com.tivo.hme.bananas.BView;
 
 public class AddToPlaylistScreen extends HListScreen {
 
-	private PlaylistEligible musicItem;
+	private PlayableCollection musicItem;
 	private static final String NEW_PLAYLIST_LABEL = "Add to New Playlist";
 	private static final String NP_PLAYLIST_LABEL = "Add to \"Now Playing\" Playlist";
 	
-	public AddToPlaylistScreen(Harmonium app, PlaylistEligible musicItem) {
+	public AddToPlaylistScreen(Harmonium app, PlayableCollection musicItem) {
 		super(app, "Add " + musicItem.toString() + " to Playlist");
 		
 		this.app = app;

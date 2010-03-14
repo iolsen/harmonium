@@ -8,8 +8,9 @@ import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.AlbumArtist;
 import org.dazeend.harmonium.music.CompareTracksByName;
 import org.dazeend.harmonium.music.MusicCollection;
-import org.dazeend.harmonium.music.Playable;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlayableLocalTrack;
+import org.dazeend.harmonium.music.PlayableCollection;
+import org.dazeend.harmonium.music.PlayableTrack;
 
 import com.tivo.hme.bananas.BView;
 
@@ -21,16 +22,19 @@ public class BrowseMusicByTrackScreen extends HPlaylistAddCapableListScreen
 		this.app = app;
 		
 		// Add all tracks from music collection to screen
-		List<Playable> tracks = new ArrayList<Playable>();
-		tracks.addAll( thisMusicCollection.listMemberTracks(app) );
-		Collections.sort(tracks, new CompareTracksByName());
+		List<PlayableLocalTrack> tracks = new ArrayList<PlayableLocalTrack>();
+		tracks.addAll( thisMusicCollection.getMembers(app) );
+		
+		List<PlayableTrack> sortedTracks = new ArrayList<PlayableTrack>(tracks.size());
+		sortedTracks.addAll(tracks);
+		Collections.sort(sortedTracks, new CompareTracksByName());
 
 		this.list.add(tracks.toArray());
 	}
 	
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("right") || action.equals("select")) {
-        	Playable musicItem = (Playable)this.list.get( this.list.getFocus() );
+        	PlayableLocalTrack musicItem = (PlayableLocalTrack)this.list.get( this.list.getFocus() );
     		this.app.push(new TrackScreen(this.app, musicItem), TRANSITION_LEFT);
             return true;
         }  
@@ -49,8 +53,8 @@ public class BrowseMusicByTrackScreen extends HPlaylistAddCapableListScreen
 		switch(key) {
 		case KEY_PLAY:
 			
-			List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
-			playlist.add( ( PlaylistEligible)this.list.get( this.list.getFocus() ) );
+			List<PlayableCollection> playlist = new ArrayList<PlayableCollection>();
+			playlist.add( ( PlayableCollection)this.list.get( this.list.getFocus() ) );
 			boolean shuffleMode;
 			boolean repeatMode;
 			

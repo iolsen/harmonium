@@ -28,7 +28,7 @@ import org.blinkenlights.jid3.ID3Exception;
 /**
  * Creates the root of the data structure that represents a collection of music.
  */
-public class MusicCollection implements PlaylistEligible {
+public class MusicCollection implements PlayableCollection {
 	
 	// Static variables
 	private static MusicCollection INSTANCE;		// This is the only instance of MusicCollection that should exist.
@@ -37,11 +37,11 @@ public class MusicCollection implements PlaylistEligible {
 	
 	// Instance variables
 	private List<AlbumArtist>	albumArtistList = new ArrayList<AlbumArtist>();
-	private List<Playable>		albumlessTrackList = new ArrayList<Playable>();
+	private List<PlayableLocalTrack>		albumlessTrackList = new ArrayList<PlayableLocalTrack>();
 	private List<TrackArtist>	trackArtistList = new ArrayList<TrackArtist>();
 	private String				musicRoot = "";
 	private String				playlistRoot = "";
-	private Map<String, Playable>	trackMap = new HashMap<String, Playable>(512);	// used to map canonical file paths to Playable objects. Used for playlist lookup
+	private Map<String, PlayableLocalTrack>	trackMap = new HashMap<String, PlayableLocalTrack>(512);	// used to map canonical file paths to Playable objects. Used for playlist lookup
 	private List<PlaylistFile>	playlistFiles = new ArrayList<PlaylistFile>();
 	private HarmoniumFactory	hFactory;
 	private List<File>			m3uCache = new ArrayList<File>();
@@ -123,7 +123,7 @@ public class MusicCollection implements PlaylistEligible {
 	 * 
 	 * @param Track
 	 */
-	private synchronized void removeTrack(Playable track) {
+	private synchronized void removeTrack(PlayableLocalTrack track) {
 		// See if track belongs to an album artist.
 		String trackAlbumArtist = track.getAlbumArtistName();
 		if(! trackAlbumArtist.equals("") ) {
@@ -182,7 +182,7 @@ public class MusicCollection implements PlaylistEligible {
 	 * @param newTrack		the track to add to the music collection
 	 * @return				<code>true</code> if the file was successfully added, otherwise <code>false</code>
 	 */
-	private synchronized boolean addTrack(FactoryPreferences prefs, Playable newTrack) {
+	private synchronized boolean addTrack(FactoryPreferences prefs, PlayableLocalTrack newTrack) {
 		
 		// See if newTrack belongs to a track artist.
 		Boolean addedToTrackArtist = false;
@@ -284,19 +284,19 @@ public class MusicCollection implements PlaylistEligible {
 	/* (non-Javadoc)
 	 * @see org.dazeend.harmonium.PlaylistEligible#listMemberTracks()
 	 */
-	public List<Playable> listMemberTracks(Harmonium app) {
+	public List<PlayableLocalTrack> getMembers(Harmonium app) {
 		
-		List<Playable> outputList = new ArrayList<Playable>();
+		List<PlayableLocalTrack> outputList = new ArrayList<PlayableLocalTrack>();
  		
  		// Get tracks from each member albumArtist and add them to the output list
 		List<AlbumArtist> sortedAlbumArtistList = this.albumArtistList;
 		Collections.sort( sortedAlbumArtistList, new CompareArtists() );
 		for(BaseArtist albumArtist : sortedAlbumArtistList) {
- 			outputList.addAll(albumArtist.listMemberTracks(app));
+ 			outputList.addAll(albumArtist.getMembers(app));
  		}
 		
  		// Get tracks that are direct members of the music root
- 		List<Playable> sortedTrackList = new ArrayList<Playable>();
+ 		List<PlayableLocalTrack> sortedTrackList = new ArrayList<PlayableLocalTrack>();
 		sortedTrackList.addAll(albumlessTrackList);
 		
 		if(app != null) {
@@ -324,7 +324,7 @@ public class MusicCollection implements PlaylistEligible {
 		}
 		
 		// Get a list of all the tracks in the music collection
-		List<Playable> musicCollection = this.listMemberTracks(null);
+		List<? extends Playable> musicCollection = this.getMembers(null);
 		
 		try{
 			// Open the temp file for writing. (We'll write the temp file, then move it at the end.)
@@ -348,7 +348,9 @@ public class MusicCollection implements PlaylistEligible {
 			// Write entries to cache in CSV format
 			// album_artist, album_name, year_num, disc_num, track_num, track_name, artist_name, duration, path
 			
-			for(Playable musicItem : musicCollection) {
+			for(Playable p : musicCollection) {
+				
+				PlayableLocalTrack musicItem = (PlayableLocalTrack)p;
 				
 				// Create the text line for this entry
 				String[] line = {	musicItem.getAlbumArtistName(),
@@ -359,7 +361,7 @@ public class MusicCollection implements PlaylistEligible {
 									musicItem.getTrackName(),
 									musicItem.getArtistName(),
 									String.valueOf(musicItem.getDuration()),
-									musicItem.getPath()
+									musicItem.getURI()
 				};
 				
 				// write the line in CSV format
@@ -515,7 +517,7 @@ public class MusicCollection implements PlaylistEligible {
 				File trackFile = new File(keyArray[i]);
 				if(! trackFile.exists()) {
 					// File no longer exists, so delete the track from the music collection
-					Playable track = this.trackMap.get(keyArray[i]);
+					PlayableLocalTrack track = this.trackMap.get(keyArray[i]);
 					if(track != null) {
 						// Remove track from music collection
 						this.removeTrack(track);
@@ -605,8 +607,8 @@ public class MusicCollection implements PlaylistEligible {
 			albumArtist.printMusic(outputStream);
 		}
 		
-		for(Playable track : this.albumlessTrackList) {
-			outputStream.println("= Track: " + track.getPath());
+		for(PlayableLocalTrack track : this.albumlessTrackList) {
+			outputStream.println("= Track: " + track.getURI());
 		}
 		outputStream.flush();
 	}
@@ -776,7 +778,7 @@ public class MusicCollection implements PlaylistEligible {
 	 * 
 	 * @return
 	 */
-	public List<Playable> getAlbumlessTrackList() {
+	public List<PlayableLocalTrack> getAlbumlessTrackList() {
 		return albumlessTrackList;
 	}
 	
@@ -817,7 +819,7 @@ public class MusicCollection implements PlaylistEligible {
 	 * @param file
 	 * @return
 	 */
-	public Playable lookupTrackByFile(File file) {
+	public PlayableLocalTrack lookupTrackByFile(File file) {
 		
 		String canonicalPath = null;
 		try {

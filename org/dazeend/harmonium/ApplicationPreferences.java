@@ -7,7 +7,7 @@ import org.dazeend.harmonium.music.CompareAlbumsByName;
 import org.dazeend.harmonium.music.CompareAlbumsByYear;
 import org.dazeend.harmonium.music.CompareTracksByName;
 import org.dazeend.harmonium.music.CompareTracksByNumber;
-import org.dazeend.harmonium.music.Playable;
+import org.dazeend.harmonium.music.PlayableTrack;
 
 import com.tivo.hme.interfaces.IContext;
 
@@ -18,8 +18,8 @@ public class ApplicationPreferences {
 	// persistant comparators
 	private Comparator<Album> compareAlbumsByName;
 	private Comparator<Album> compareAlbumsByYear;
-	private Comparator<Playable> compareTracksByName;
-	private Comparator<Playable> compareTracksByNumber;
+	private Comparator<PlayableTrack> compareTracksByName;
+	private Comparator<PlayableTrack> compareTracksByNumber;
 
 	// static keys used for storing preferences
 	private static final String MC_SHUFFLE = "musicCollectionShuffleMode";
@@ -51,43 +51,43 @@ public class ApplicationPreferences {
 	private static final int DEFAULT_SCREENSAVER_DELAY_MS = 300000; // 5 minutes
 	
 	// Music collection options
-	private boolean 		musicCollectionDefaultShuffleMode;
-	private boolean 		musicCollectionDefaultRepeatMode;	
-	private Comparator<Playable> musicCollectionTrackSort;
-	private String			musicCollectionTrackSortMode;
+	private boolean 					musicCollectionDefaultShuffleMode;
+	private boolean 					musicCollectionDefaultRepeatMode;	
+	private Comparator<PlayableTrack>	musicCollectionTrackSort;
+	private String						musicCollectionTrackSortMode;
 
 	
 	// album artist options
-	private boolean 		albumArtistDefaultShuffleMode;
-	private boolean 		albumArtistDefaultRepeatMode;
-	private Comparator<Playable> albumArtistTrackSort;
-	private String			albumArtistTrackSortMode;
+	private boolean 					albumArtistDefaultShuffleMode;
+	private boolean 					albumArtistDefaultRepeatMode;
+	private Comparator<PlayableTrack>	albumArtistTrackSort;
+	private String						albumArtistTrackSortMode;
 	
 	// album options
-	private boolean 		albumDefaultShuffleMode;
-	private boolean 		albumDefaultRepeatMode;
-	private Comparator<Album> albumSort;
-	private String			albumSortMode;
-	private Comparator<Playable> albumTrackSort;
-	private String			albumTrackSortMode;
+	private boolean 					albumDefaultShuffleMode;
+	private boolean 					albumDefaultRepeatMode;
+	private Comparator<Album>			albumSort;
+	private String						albumSortMode;
+	private Comparator<PlayableTrack>	albumTrackSort;
+	private String						albumTrackSortMode;
 	
 	// disc options
-	private boolean 		discDefaultShuffleMode;
-	private boolean 		discDefaultRepeatMode;
-	private Comparator<Playable> discTrackSort;
-	private String			discTrackSortMode;
+	private boolean 					discDefaultShuffleMode;
+	private boolean 					discDefaultRepeatMode;
+	private Comparator<PlayableTrack> 	discTrackSort;
+	private String						discTrackSortMode;
 	
 	// track options
 	// Note: it makes no sense to shuffle a single track
-	private boolean			trackDefaultShuffleMode = false;
-	private boolean			trackDefaultRepeatMode;
+	private boolean						trackDefaultShuffleMode = false;
+	private boolean						trackDefaultRepeatMode;
 	
 	// playlist options
-	private boolean			playlistFileDefaultShuffleMode;
-	private boolean			playlistFileDefaultRepeatMode;
+	private boolean						playlistFileDefaultShuffleMode;
+	private boolean						playlistFileDefaultRepeatMode;
 	
 	// application options
-	private int			screenSaverDelay;
+	private int						screenSaverDelay;
 	
 	
 	public ApplicationPreferences(IContext context) {
@@ -498,7 +498,7 @@ public class ApplicationPreferences {
 	/**
 	 * @return the albumArtistTrackSort
 	 */
-	public Comparator<Playable> getAlbumArtistTrackComparator() {
+	public Comparator<PlayableTrack> getAlbumArtistTrackComparator() {
 		return albumArtistTrackSort;
 	}
 
@@ -550,7 +550,7 @@ public class ApplicationPreferences {
 	/**
 	 * @return the albumTrackSort
 	 */
-	public Comparator<Playable> getAlbumTrackComparator() {
+	public Comparator<PlayableTrack> getAlbumTrackComparator() {
 		return albumTrackSort;
 	}
 
@@ -576,7 +576,7 @@ public class ApplicationPreferences {
 	/**
 	 * @return the discTrackSort
 	 */
-	public Comparator<Playable> getDiscTrackComparator() {
+	public Comparator<PlayableTrack> getDiscTrackComparator() {
 		return discTrackSort;
 	}
 
@@ -602,7 +602,7 @@ public class ApplicationPreferences {
 	/**
 	 * @return the musicCollectionTrackSort
 	 */
-	public Comparator<Playable> getMusicCollectionTrackComparator() {
+	public Comparator<PlayableTrack> getMusicCollectionTrackComparator() {
 		return musicCollectionTrackSort;
 	}
 

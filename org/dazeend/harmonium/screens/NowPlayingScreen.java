@@ -6,8 +6,9 @@ import java.net.URLEncoder;
 import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.Harmonium.DiscJockey;
-import org.dazeend.harmonium.music.MP3File;
 import org.dazeend.harmonium.music.Playable;
+import org.dazeend.harmonium.music.PlayableLocalTrack;
+import org.dazeend.harmonium.music.PlayableTrack;
 
 import com.tivo.hme.bananas.BScreen;
 import com.tivo.hme.bananas.BText;
@@ -31,6 +32,7 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 	private BText nextTrackText;
 	private ProgressBar progressBar;
 	private StreamResource musicStream;
+	private BText artistNameLabelText;
 
 
 	/**
@@ -63,15 +65,6 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 		int albumArtViewY = ( this.getHeight() - ( artSide + (3 * albumInfoRowHeight) ) ) / 2;
 		this.albumArtView = new BView( this.getNormal(), safeTitleH, albumArtViewY, artSide, artSide);
 		
-		// Add art to view
-		new Thread() {
-			public void run() {
-				ImageResource albumArtImage = createManagedImage(musicItem, artSide, artSide);
-				setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
-	    		flush(); // Necessay to ensure UI updates, because we're in another thread.
-			}
-		}.start();
-		
 		// Add album info text
 		this.albumNameText = new BText(	this.getNormal(), 													// parent
 										this.albumArtView.getX() - safeTitleH,								// x
@@ -86,12 +79,6 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 		this.albumNameText.setFlags(RSRC_HALIGN_CENTER);
 		this.albumNameText.setFont(app.hSkin.paragraphFont);
 		
-		if(musicItem.getDiscNumber() > 0) {
-			this.albumNameText.setValue(musicItem.getAlbumName() + " - Disc " + musicItem.getDiscNumber());
-		}
-		else {
-			this.albumNameText.setValue(musicItem.getAlbumName() );
-		}
 		// Add album artist info text
 		this.albumArtistText = new BText(	this.getNormal(), 										// parent
 											this.albumArtView.getX() - safeTitleH,					// x
@@ -105,8 +92,6 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 		this.albumArtistText.setShadow(false);
 		this.albumArtistText.setFlags(RSRC_HALIGN_CENTER);
 		this.albumArtistText.setFont(app.hSkin.paragraphFont);
-		
-		this.albumArtistText.setValue(musicItem.getAlbumArtistName());
 		
 		// Add album year text
 		this.yearText = new BText(	this.getNormal(), 											// parent
@@ -122,14 +107,6 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 		this.yearText.setFlags(RSRC_HALIGN_CENTER);
 		this.yearText.setFont(app.hSkin.paragraphFont);
 		
-		if(musicItem.getReleaseYear() == 0) {
-			this.yearText.setValue("");
-		}
-		else {
-			this.yearText.setValue(musicItem.getReleaseYear());
-		}
-		
-
 		// Define constants to make track info layout easier
 		// NOTE: Can't be defined with other constants, because they rely on albumArtView
 		int leftEdgeCoord = this.albumArtView.getX() + this.albumArtView.getWidth() + hIndent;
@@ -147,8 +124,6 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 		this.trackNameText.setShadow(false);
 		this.trackNameText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_BOTTOM + RSRC_TEXT_WRAP);
 		this.trackNameText.setFont(app.hSkin.barFont);
-		
-		this.trackNameText.setValue(musicItem.getTrackName());
 		
 		// Put in track title label
 		BText trackNameLabelText = new BText(	this.getNormal(),
@@ -175,20 +150,15 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 		this.artistNameText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_BOTTOM + RSRC_TEXT_WRAP);
 		this.artistNameText.setFont(app.hSkin.barFont);
 		
-		this.artistNameText.setValue(musicItem.getArtistName());
-		
-		// Put in album name label
-		BText artistNameLabelText = new BText(	this.getNormal(),
-												leftEdgeCoord,
-												this.albumArtView.getY() + (3 * rowHeight),
-												textWidth,
-												rowHeight
-		);
+		artistNameLabelText = new BText(this.getNormal(),
+										leftEdgeCoord,
+										this.albumArtView.getY() + (3 * rowHeight),
+										textWidth,
+										rowHeight);
 		artistNameLabelText.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
 		artistNameLabelText.setShadow(false);
 		artistNameLabelText.setFlags(RSRC_HALIGN_LEFT + RSRC_VALIGN_TOP);
 		artistNameLabelText.setFont(app.hSkin.paragraphFont);
-		artistNameLabelText.setValue("Artist");
 		
 		// Create Progress Bar
 		this.progressBar = new ProgressBar(	this, 
@@ -283,58 +253,77 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 		this.nextTrackText.setFont(app.hSkin.paragraphFont);
 		this.nextTrackText.setValue( this.app.getDiscJockey().getNextTrackInfo() );
 
+		update(musicItem);
 	}
 	
 	/**
 	 * Update the screen to a new music item
 	 * 
-	 * @param musicItem
+	 * @param nowPlaying
 	 */
-	public void update(final Playable musicItem) {
+	public void update(final Playable nowPlaying) 
+	{
 		// turn off painting while we update the images
     	app.getRoot().setPainting(false);
     	
-    	try {
-
+    	try 
+    	{
        		// Update views with new info
     		new Thread() {
     			public void run() {
-		    		ImageResource albumArtImage = createManagedImage( musicItem, albumArtView.getWidth(), albumArtView.getHeight());
+		    		ImageResource albumArtImage = createManagedImage( nowPlaying, albumArtView.getWidth(), albumArtView.getHeight());
 		    		setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
 		    		flush(); // Necessay to ensure UI updates, because we're in another thread.
     			}
     		}.start();
-		    		
-		    if(musicItem.getDiscNumber() > 0) {
-				this.albumNameText.setValue(musicItem.getAlbumName() + " - Disc " + musicItem.getDiscNumber());
-			}
-			else {
-				this.albumNameText.setValue(musicItem.getAlbumName() );
-			}
-		    
-            this.albumArtistText.setValue(musicItem.getAlbumArtistName());
-            
-            if(musicItem.getReleaseYear() == 0) {
+	
+    		if (nowPlaying instanceof PlayableTrack)
+    		{
+    			artistNameLabelText.setValue("Artist");
+
+    			PlayableTrack pt = (PlayableTrack)nowPlaying;
+    		    if(pt.getDiscNumber() > 0) {
+    				this.albumNameText.setValue(pt.getAlbumName() + " - Disc " + pt.getDiscNumber());
+    			}
+    			else {
+    				this.albumNameText.setValue(pt.getAlbumName() );
+    			}
+    		    
+                this.albumArtistText.setValue(pt.getAlbumArtistName());
+                
+                if(pt.getReleaseYear() == 0) {
+        			this.yearText.setValue("");
+        		}
+        		else {
+        			this.yearText.setValue(pt.getReleaseYear());
+        		}
+                
+                this.trackNameText.setValue(pt.getTrackName());
+                this.artistNameText.setValue(pt.getArtistName());
+    		}
+    		else
+    		{
+    			artistNameLabelText.setValue("");
+				
+    			this.albumNameText.setValue("");
+                this.albumArtistText.setValue("");
     			this.yearText.setValue("");
+                this.trackNameText.setValue(nowPlaying.getURI());
+                this.artistNameText.setValue("");
     		}
-    		else {
-    			this.yearText.setValue(musicItem.getReleaseYear());
-    		}
-            
-            this.trackNameText.setValue(musicItem.getTrackName());
-            this.artistNameText.setValue(musicItem.getArtistName());
-            this.nextTrackText.setValue( this.app.getDiscJockey().getNextTrackInfo() );
-            
+    		
             // indicate that we need to reset the time label on the progress bar
-            if(this.progressBar != null) {
+            if(this.progressBar != null)
             	this.progressBar.setDurationUpdated(false);
-            }
+
+            this.nextTrackText.setValue( this.app.getDiscJockey().getNextTrackInfo() );
             
             // update the shuffle and repeat mode indicators
             this.updateShuffle();
             this.updateRepeat();
     	}
-    	finally {
+    	finally 
+    	{
     		app.getRoot().setPainting(true);
     	}
 	}
@@ -371,14 +360,17 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 	 * 
 	 * @param mp3File
 	 */
-	public boolean playMP3(MP3File mp3File) {
+	public boolean play(Playable playable) {
+
 		// Make sure that there is no music stream already playing
-		if(this.musicStream != null) {
+		if(this.musicStream != null) 
 			return false;
-		}
 		
 		// Make sure that the file exists on disk and hasn't been deleted
-		if( ( mp3File.getTrackFile() == null ) || ( ! mp3File.getTrackFile().exists() ) ) {
+		if (playable instanceof PlayableLocalTrack)
+		{
+			PlayableLocalTrack plt = (PlayableLocalTrack)playable;
+			if( ( plt.getTrackFile() == null ) || ( !plt.getTrackFile().exists() ) )
 			return false;
 		}
 		
@@ -387,26 +379,27 @@ public class NowPlayingScreen extends HManagedResourceScreen {
         // connect back to our factory and ask for the file. The URI
         // consists of:
         //
-        // (our base URI) + (the track's path name)
+        // (our base URI) + (the Playable's URI)
         //
 		
 		String url = this.getApp().getContext().getBaseURI().toString();
         try {
-            url += URLEncoder.encode(mp3File.getPath(), "UTF-8");
+            url += URLEncoder.encode(playable.getURI(), "UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
  
         // MP3's are played as a streamed resource   
-        this.musicStream = this.createStream(url, null, true);
+        this.musicStream = this.createStream(url, playable.getContentType(), true);
         this.setResource(this.musicStream); 
         
         return true;
 	}
 	
-	public void stopMP3() {
-		if(this.musicStream != null) {
-			
+	public void stopPlayback() 
+	{
+		if(this.musicStream != null) 
+		{
 			if (this.app.isInSimulator()) {
 				System.out.println("Stopping playback");
 			}
@@ -598,41 +591,42 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 
 	}
 	
-	/* (non-Javadoc)
-	 * Handles TiVo events
-	 */
-	@Override
-	public boolean handleEvent(HmeEvent event) {
-		
-		// Check to see if this event is of a type that we want to handle
-		switch( event.getOpCode() ) {
-		case EVT_RSRC_INFO:
-        	HmeEvent.ResourceInfo resourceInfo = (HmeEvent.ResourceInfo) event;
-        	
-        	// Check that this event is for the music stream
-        	if( (this.musicStream != null) && (event.getID() == this.musicStream.getID() ) ) {
-        		
-	        	// Check the type of status sent
-        		switch( resourceInfo.getStatus() ) {
-        		case RSRC_STATUS_PLAYING:
+	private void handleResourceInfoEvent(HmeEvent event)
+	{
+    	HmeEvent.ResourceInfo resourceInfo = (HmeEvent.ResourceInfo) event;
+    	
+    	if (this.musicStream != null)
+    		System.out.println("Stream status: " + this.musicStream.getStatus());
+    	
+    	// Check that this event is for the music stream
+    	if( (this.musicStream != null) && (event.getID() == this.musicStream.getID() ) ) 
+    	{
+        	// Check the type of status sent
+    		switch( resourceInfo.getStatus() ) 
+    		{
+	    		case RSRC_STATUS_PLAYING:
 					// the current track is playing. Update the progress bar, if we know the length of the track.
-					if( (this.progressBar != null) && (this.app.getDiscJockey().getNowPlaying().getDuration() > 0) ) {
-						
+					if(this.progressBar != null) 
+					{
 						// Set the duration label, if it hasn't already been set, and if we know what our font looks like
-						if( (! this.progressBar.isDurationUpdated() ) && (this.progressBar.fontInfo != null ) ) {
-							this.progressBar.setDuration( this.app.getDiscJockey().getNowPlaying().getDuration() );
-						}
-
+						long duration = this.app.getDiscJockey().getNowPlaying().getDuration();
+						
+						if( (! this.progressBar.isDurationUpdated() ) && (this.progressBar.fontInfo != null ) )
+							this.progressBar.setDuration(duration);
+	
 						// Set elapsed, which updates the elapsed label and the progress bar position.
-						String [] positionInfo = resourceInfo.getMap().get("pos").toString().split("/");
-						long elapsed = Long.parseLong(positionInfo[0]);
-						this.progressBar.setElapsed(elapsed);
+						if (duration > 0)
+						{
+							String [] positionInfo = resourceInfo.getMap().get("pos").toString().split("/");
+							long elapsed = Long.parseLong(positionInfo[0]);
+							this.progressBar.setElapsed(elapsed);
+						}
 					}
 					break;
 					
-        		case RSRC_STATUS_SEEKING:
-
-        			// Set elapsed, which updates the elapsed label and the progress bar position.
+	    		case RSRC_STATUS_SEEKING:
+	
+	    			// Set elapsed, which updates the elapsed label and the progress bar position.
 					String [] positionInfo = resourceInfo.getMap().get("pos").toString().split("/");
 					long elapsed = Long.parseLong(positionInfo[0]);
 					double fractionComplete = this.progressBar.setElapsed(elapsed);
@@ -642,45 +636,59 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 	        		// or rewinding. Implement it.
 	        		double lowerLimit = 0;
 	        		double upperLimit = .95;
-	        		if(Float.parseFloat( resourceInfo.getMap().get("speed").toString() ) < 0  && fractionComplete <= lowerLimit) {
+	        		if(Float.parseFloat( resourceInfo.getMap().get("speed").toString() ) < 0  && fractionComplete <= lowerLimit) 
+	        		{
 	        			// We are rewinding and are about to hit the beginning of the track. 
 	        			// Position the track at our lower limit and drop back to NORMAL speed.
 	        			long position = (long)( this.app.getDiscJockey().getNowPlaying().getDuration() * lowerLimit);
 	        			this.musicStream.setPosition(position);
 	        			this.app.getDiscJockey().playNormalSpeed();
 	        		}
-	        		if( Float.parseFloat( resourceInfo.getMap().get("speed").toString() ) > 1 && fractionComplete >= upperLimit ) {
+	        		if( Float.parseFloat( resourceInfo.getMap().get("speed").toString() ) > 1 && fractionComplete >= upperLimit ) 
+	        		{
 	        			// We are fast forwarding and are about to hit the end of the track. 
 	        			// Position the track at our upper limit and drop back to NORMAL speed.
 	        			long position = (long)( this.app.getDiscJockey().getNowPlaying().getDuration() * upperLimit);
-
+	
 	        			this.musicStream.setPosition(position);
 	        			this.app.getDiscJockey().playNormalSpeed();
 	        		}
 	        		break;
 	        		
-        		case RSRC_STATUS_CLOSED:
-        		case RSRC_STATUS_COMPLETE:
-        		case RSRC_STATUS_ERROR:
+	    		case RSRC_STATUS_CLOSED:
+	    		case RSRC_STATUS_COMPLETE:
+	    		case RSRC_STATUS_ERROR:
 					// the current track has finished, so check if there's another track to play.
-        			if( this.app.getDiscJockey().isAtEndOfPlaylist() && ( ! this.app.getDiscJockey().isRepeating() ) ) {
-     
-        				// There's not another track to play
-        				this.app.resetInactivityTimer();
-        				
-        				// Pop the screen saver if it is showing
-        				if(this.app.getCurrentScreen().getClass() == ScreenSaverScreen.class) {
-        					this.pop();
-        				}
-        				
-        				// Pop this Now Playing Screen only if it is showing.
-        				if(this.app.getCurrentScreen().equals(this)) {
-        					this.pop();
-        				}
+	    			if( this.app.getDiscJockey().isAtEndOfPlaylist() && ( ! this.app.getDiscJockey().isRepeating() ) ) 
+	    			{
+	 
+	    				// There's not another track to play
+	    				this.app.resetInactivityTimer();
+	    				
+	    				// Pop the screen saver if it is showing
+	    				if(this.app.getCurrentScreen().getClass() == ScreenSaverScreen.class)
+	    					this.pop();
+	    				
+	    				// Pop this Now Playing Screen only if it is showing.
+	    				if(this.app.getCurrentScreen().equals(this)) 
+	    					this.pop();
 					}
 					break;
-				}
-        	}
+			}
+	    }
+	}
+	
+	/* (non-Javadoc)
+	 * Handles TiVo events
+	 */
+	@Override
+	public boolean handleEvent(HmeEvent event) 
+	{
+		// Check to see if this event is of a type that we want to handle
+		if (event.getOpCode() == EVT_RSRC_INFO)
+		{
+			handleResourceInfoEvent(event);
+			return true;
 		}
 
 		return super.handleEvent(event);
@@ -800,9 +808,18 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 			
 			// Re-size the time labels and set their text
             this.durationText.setBounds(this.getWidth() - labelWidth, 0, labelWidth, this.getHeight());
-            this.durationText.setValue(label);
-            this.elapsedText.setBounds(0, 0, labelWidth, this.getHeight() );
             
+            if (milliseconds > 0)
+                this.durationText.setValue(label);
+            else
+            {
+                this.elapsedText.setValue("");
+                this.durationText.setValue("");
+                setPosition(0);
+            }
+
+            this.elapsedText.setBounds(0, 0, labelWidth, this.getHeight() );
+
             // indicate that the duration label has been set
             this.durationUpdated = true;
 		}

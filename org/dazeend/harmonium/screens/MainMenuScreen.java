@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.MusicCollection;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlayableCollection;
 
 import com.tivo.hme.bananas.BView;
 
@@ -52,8 +52,8 @@ public class MainMenuScreen extends HListScreen {
         		return true;
         	}
         	else if( menuOption.equals(PLAY_ALL_MUSIC)) {
-        		List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
-				playlist.add( (PlaylistEligible)this.musicCollection);
+        		List<PlayableCollection> playlist = new ArrayList<PlayableCollection>();
+				playlist.add( (PlayableCollection)this.musicCollection);
 				boolean shuffleMode = this.app.getPreferences().getMusicCollectionDefaultShuffleMode();
 				boolean repeatMode = this.app.getPreferences().getMusicCollectionDefaultRepeatMode();
 				this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode);
@@ -101,8 +101,8 @@ public class MainMenuScreen extends HListScreen {
 			
 			// If we just pressed play while over PLAY_ALL_MUSIC, play the music.
 			if( menuOption.equals(PLAY_ALL_MUSIC)) {
-        		List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
-				playlist.add( (PlaylistEligible)this.musicCollection);
+        		List<PlayableCollection> playlist = new ArrayList<PlayableCollection>();
+				playlist.add( (PlayableCollection)this.musicCollection);
 				boolean shuffleMode = this.app.getPreferences().getMusicCollectionDefaultShuffleMode();
 				boolean repeatMode = this.app.getPreferences().getMusicCollectionDefaultRepeatMode();
 				this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode);

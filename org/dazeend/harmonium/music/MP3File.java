@@ -28,7 +28,7 @@ import com.tivo.hme.sdk.util.Mp3Helper;
 /**
  * This class represents and manages playback of MP3 files.
  */
-public class MP3File extends HMusic implements Playable {
+public class MP3File extends HMusic implements PlayableLocalTrack {
 
 	private String 			albumArtistName = "";	
 	private String			albumName = "";			
@@ -551,10 +551,12 @@ public class MP3File extends HMusic implements Playable {
 	}
 
 	/**
-	 * @return the trackPath
+	 * Gets the path to the track on disk relative to the music root.
+	 * 
+	 * @return	the path to the track on disk
 	 */
 	//@Override
-	public String getPath() {
+	public String getURI() {
 		return this.trackPath;
 	}
 	
@@ -595,22 +597,17 @@ public class MP3File extends HMusic implements Playable {
 	 * @see org.dazeend.harmonium.Playable#play()
 	 */
 	//@Override
-	public boolean play(NowPlayingScreen nowPlayingScreen) {
-		if( nowPlayingScreen.playMP3(this) ) {
-			return true;
-		}
-		else {
-			return false;
-		}
+	public boolean play(NowPlayingScreen nowPlayingScreen) 
+	{
+		return nowPlayingScreen.play(this); 
 	}
-	
 	
 	/* (non-Javadoc)
 	 * @see org.dazeend.harmonium.music.Playable#stop()
 	 */
 	//@Override
 	public boolean stop(NowPlayingScreen nowPlayingScreen) {
-		nowPlayingScreen.stopMP3();
+		nowPlayingScreen.stopPlayback();
 		return true;
 	}
 
@@ -682,7 +679,7 @@ public class MP3File extends HMusic implements Playable {
 	 * @see org.dazeend.harmonium.PlaylistEligible#listMemberTracks()
 	 */
 	//@Override
-	public List<Playable> listMemberTracks(Harmonium app) {
+	public List<Playable> getMembers(Harmonium app) {
 		// Playable objects are the leaf of the tree and there can be no other	
 		// tracks below it. So return a list with only this object in it.
 		List<Playable> list = new ArrayList<Playable>();
@@ -771,7 +768,13 @@ public class MP3File extends HMusic implements Playable {
 		return getArtistName();
 	}
 
-	
+	public String getArtHashKey()
+	{
+		return getAlbumArtistName() + getAlbumName() + getReleaseYear();
+	}
 
-	
+	public String getContentType()
+	{
+		return "audio/mpeg";
+	}
 }

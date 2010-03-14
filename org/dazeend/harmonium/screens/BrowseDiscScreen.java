@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.Disc;
-import org.dazeend.harmonium.music.Playable;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlayableLocalTrack;
+import org.dazeend.harmonium.music.PlayableCollection;
 
 import com.tivo.hme.bananas.BView;
 
@@ -21,16 +21,16 @@ public class BrowseDiscScreen extends HAlbumInfoListScreen {
 
 		this.disc = thisDisc;
 		
-		List<Playable> tracks = new ArrayList<Playable>();
+		List<PlayableLocalTrack> tracks = new ArrayList<PlayableLocalTrack>();
 		tracks.addAll( thisDisc.getTrackList() );
 		Collections.sort(tracks, this.app.getPreferences().getDiscTrackComparator());
-		for (Playable track : tracks)
+		for (PlayableLocalTrack track : tracks)
 			addToList(track);
 	}
 	
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("right") || action.equals("select")) {
-        	Playable track = (Playable)getListSelection();
+        	PlayableLocalTrack track = (PlayableLocalTrack)getListSelection();
 
     		if (this.disc.getTrackList().size() > 1)
     			this.app.push(new TrackScreen(this.app, track, this.disc), TRANSITION_LEFT);
@@ -53,11 +53,11 @@ public class BrowseDiscScreen extends HAlbumInfoListScreen {
 		switch(key) {
 		case KEY_PLAY:
 			
-			List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
+			List<PlayableCollection> playlist = new ArrayList<PlayableCollection>();
 			playlist.add( this.disc );
 			boolean shuffleMode = this.app.getPreferences().getTrackDefaultShuffleMode();
 			boolean repeatMode = this.app.getPreferences().getTrackDefaultRepeatMode();
-			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode, (Playable)getListSelection());
+			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode, (PlayableLocalTrack)getListSelection());
 			return true;
 		}
 		

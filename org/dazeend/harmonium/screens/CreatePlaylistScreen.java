@@ -6,7 +6,7 @@ import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.HPLFile;
 import org.dazeend.harmonium.music.MusicCollection;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlayableCollection;
 
 import com.almilli.tivo.bananas.hd.HDKeyboard;
 import com.tivo.hme.bananas.BButton;
@@ -16,7 +16,7 @@ import com.tivo.hme.bananas.BView;
 
 public class CreatePlaylistScreen extends HScreen {
 
-	private PlaylistEligible musicItem;
+	private PlayableCollection musicItem;
 	private BKeyboard keyboard;
 	private BButton OKButton;
 
@@ -24,7 +24,7 @@ public class CreatePlaylistScreen extends HScreen {
 	
 	private static final String OK_LABEL = "Create New Playlist";
 	
-	public CreatePlaylistScreen(Harmonium app, PlaylistEligible musicItem) {
+	public CreatePlaylistScreen(Harmonium app, PlayableCollection musicItem) {
 		super(app, "Create Playlist with Filename...");
 		
 		this.app = app;

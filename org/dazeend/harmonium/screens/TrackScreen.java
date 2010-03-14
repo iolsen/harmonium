@@ -7,8 +7,8 @@ import java.util.Vector;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.Album;
 import org.dazeend.harmonium.music.Disc;
-import org.dazeend.harmonium.music.Playable;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlayableLocalTrack;
+import org.dazeend.harmonium.music.PlayableCollection;
 import org.dazeend.harmonium.music.PlaylistFile;
 
 import com.tivo.hme.bananas.BView;
@@ -16,8 +16,8 @@ import com.tivo.hme.bananas.BView;
 public class TrackScreen extends HAlbumInfoListScreen {
 
 	private String screenTitle;
-	private Playable playableTrack;
-	private PlaylistEligible trackParent;
+	private PlayableLocalTrack playableTrack;
+	private PlayableCollection trackParent;
 	private final String playTrackString = "Play This Track Now";
 	private final String playOnlyTrackString = "Play Only This Track Now";
 	private final String addTrackToPlaylistString = "Add Track to Playlist";
@@ -30,11 +30,11 @@ public class TrackScreen extends HAlbumInfoListScreen {
 	
 	private HList list;
 	
-	public TrackScreen(Harmonium app, final Playable thisTrack) {
+	public TrackScreen(Harmonium app, final PlayableLocalTrack thisTrack) {
 		this(app, thisTrack, null);
 	}
 	
-	public TrackScreen(Harmonium app, final Playable thisTrack, final PlaylistEligible trackParent) {
+	public TrackScreen(Harmonium app, final PlayableLocalTrack thisTrack, final PlayableCollection trackParent) {
 		super( app, thisTrack, thisTrack.toString(), false );
 		
 		artistNameLabelText.setValue("Artist");
@@ -124,15 +124,15 @@ public class TrackScreen extends HAlbumInfoListScreen {
 	private void play() {
     	String menuOption = (String)this.list.get( this.list.getFocus() );
     	if(menuOption.equals(this.playTrackString) || menuOption.equals(this.playOnlyTrackString)) {
-    		List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
-			playlist.add( (PlaylistEligible)this.playableTrack);
+    		List<PlayableCollection> playlist = new ArrayList<PlayableCollection>();
+			playlist.add( (PlayableCollection)this.playableTrack);
 			boolean shuffleMode = this.app.getPreferences().getTrackDefaultShuffleMode();
 			boolean repeatMode = this.app.getPreferences().getTrackDefaultRepeatMode();
 			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode);
     	}        
     	else if (menuOption.equals(playParentAlbumString) || menuOption.equals(playParentPlaylistString) || menuOption.equals(this.playParentDiscString)) {
     		
-			List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
+			List<PlayableCollection> playlist = new ArrayList<PlayableCollection>();
 			playlist.add( this.trackParent );
 
 			boolean shuffleMode;

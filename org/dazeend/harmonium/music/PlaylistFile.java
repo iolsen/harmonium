@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.dazeend.harmonium.Harmonium;
 
-public interface PlaylistFile extends PlaylistEligible, Comparable<PlaylistFile> {
+public interface PlaylistFile extends PlayableCollection, Comparable<PlaylistFile> {
 
 	File getFile();
 	
@@ -29,7 +29,7 @@ public interface PlaylistFile extends PlaylistEligible, Comparable<PlaylistFile>
 	 * 
 	 * @return
 	 */
-	List<PlaylistEligible> getMembers();
+	List<PlayableCollection> getMembers();
 	
 	/**
 	 * Returns the description for this Playlist.

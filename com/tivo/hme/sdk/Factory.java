@@ -235,6 +235,11 @@ public class Factory implements IFactory
     {
         return active.size();
     }
+    
+    protected long getMP3Duration(String uri)
+    {
+    	return -1;
+    }
 
     /**
      * This is called by the HTTP server when the factory must handle an http
@@ -281,15 +286,11 @@ public class Factory implements IFactory
             // set the MP3 content type string
             ct = "audio/mpeg";
             
-            // get another copy of the stream to use for calculating the length
-            // so it can be set in the http header
-            InputStream tmp = getStream(baseUri);
-            try {
-                Mp3Helper mp3Helper = new Mp3Helper(tmp, tmp.available());
-                http.addHeader(IHmeConstants.TIVO_DURATION, "" + mp3Helper.getMp3Duration());
-            } finally {
-                tmp.close();
-            }
+            // Get the mp3 stream's duration
+            long mp3duration = getMP3Duration(uri);
+            System.out.println("MP3 stream duration: " + mp3duration);
+            if (mp3duration > 0)
+                http.addHeader(IHmeConstants.TIVO_DURATION, "" + mp3duration);
             
             // do MP3 seek if needed
             if (in != null && queryStr != null)

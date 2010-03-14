@@ -8,8 +8,8 @@ import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.Album;
 import org.dazeend.harmonium.music.CompareDiscs;
 import org.dazeend.harmonium.music.Disc;
-import org.dazeend.harmonium.music.Playable;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlayableLocalTrack;
+import org.dazeend.harmonium.music.PlayableCollection;
 
 import com.tivo.hme.bananas.BView;
 
@@ -33,25 +33,25 @@ public class BrowseAlbumScreen extends HAlbumInfoListScreen {
 		
 		// If this album has any tracks that are not identified as members of a disc,
 		// add them to the screen.
-		List<Playable> tracks = new ArrayList<Playable>();
+		List<PlayableLocalTrack> tracks = new ArrayList<PlayableLocalTrack>();
 		tracks.addAll( thisAlbum.getTrackList() );
 		Collections.sort(tracks, this.app.getPreferences().getAlbumTrackComparator());
-		for (Playable track : tracks)
+		for (PlayableLocalTrack track : tracks)
 			addToList(track);
 	}
 	
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("right") || action.equals("select")) {
-        	PlaylistEligible musicItem = getListSelection();
+        	PlayableCollection musicItem = getListSelection();
        
         	if(musicItem instanceof Disc) {
         		this.app.push(new BrowseDiscScreen(this.app, (Disc)musicItem), TRANSITION_LEFT);
         	}
         	else {
         		if (this.album.getTrackList().size() > 1)
-        			this.app.push(new TrackScreen(this.app, (Playable)musicItem, this.album), TRANSITION_LEFT);
+        			this.app.push(new TrackScreen(this.app, (PlayableLocalTrack)musicItem, this.album), TRANSITION_LEFT);
         		else
-        			this.app.push(new TrackScreen(this.app, (Playable)musicItem), TRANSITION_LEFT);
+        			this.app.push(new TrackScreen(this.app, (PlayableLocalTrack)musicItem), TRANSITION_LEFT);
         	}
             return true;
         } 
@@ -70,11 +70,11 @@ public class BrowseAlbumScreen extends HAlbumInfoListScreen {
 		switch(key) {
 		case KEY_PLAY:
 			
-			List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
+			List<PlayableCollection> playlist = new ArrayList<PlayableCollection>();
 			boolean shuffleMode;
 			boolean repeatMode;
-			PlaylistEligible selected = getListSelection();
-			Playable startPlaying = null;
+			PlayableCollection selected = getListSelection();
+			PlayableLocalTrack startPlaying = null;
 			
 			if(  selected instanceof Disc ) {
 				// Playing an entire disc
@@ -87,7 +87,7 @@ public class BrowseAlbumScreen extends HAlbumInfoListScreen {
 				playlist.add( this.album );
 				shuffleMode = this.app.getPreferences().getTrackDefaultShuffleMode();
 				repeatMode = this.app.getPreferences().getTrackDefaultRepeatMode();
-				startPlaying = (Playable)selected;
+				startPlaying = (PlayableLocalTrack)selected;
 			}
 			this.app.getDiscJockey().play(playlist, shuffleMode, repeatMode, startPlaying);
 			return true;

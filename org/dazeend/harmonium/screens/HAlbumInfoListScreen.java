@@ -6,7 +6,8 @@ import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.AlbumArtListItem;
 import org.dazeend.harmonium.music.AlbumReadable;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.ArtSource;
+import org.dazeend.harmonium.music.PlayableCollection;
 
 import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
@@ -220,7 +221,7 @@ public class HAlbumInfoListScreen extends HPlaylistAddCapableListScreen {
 	
 	protected int getListY() { return list.getY(); }
 	
-	protected PlaylistEligible getListSelection() { return (PlaylistEligible)this.list.get(this.list.getFocus()); }
+	protected PlayableCollection getListSelection() { return (PlayableCollection)this.list.get(this.list.getFocus()); }
 
 	protected void initAlbumInfo(final AlbumReadable musicItem) {
 		
@@ -409,11 +410,11 @@ public class HAlbumInfoListScreen extends HPlaylistAddCapableListScreen {
         	return true;
 	    }
 	    
-		private ImageResource getAlbumImage(AlbumReadable musicItem) throws IOException {
+		private ImageResource getAlbumImage(ArtSource artSource) throws IOException {
 			
 			int artWidth = Math.min(this.albumArtView.getWidth(), 640);
 			int artHeight = Math.min(this.albumArtView.getHeight(), 480);
-			return createManagedImage(musicItem, artWidth, artHeight);
+			return createManagedImage(artSource, artWidth, artHeight);
 		}
 	}
 

@@ -14,7 +14,7 @@ public class TrackArtist extends BaseArtist
 	}
 
 	@Override
-	public boolean addTrack(FactoryPreferences prefs, Playable newTrack)
+	public boolean addTrack(FactoryPreferences prefs, PlayableLocalTrack newTrack)
 	{
 		// Check to ensure that the newTrack is eligible to be a member of this track artist.
 		if( _artistName.compareToIgnoreCase(newTrack.getArtistName()) != 0 ) {
@@ -38,12 +38,12 @@ public class TrackArtist extends BaseArtist
 	}
 
 	@Override
-	public List<Playable> listMemberTracks(Harmonium app)
+	public List<PlayableLocalTrack> getMembers(Harmonium app)
 	{
-		List<Playable> outputList = new ArrayList<Playable>();
+		List<PlayableLocalTrack> outputList = new ArrayList<PlayableLocalTrack>();
  		
  		// Get tracks that are direct members of this album artist
- 		List<Playable> sortedTrackList = new ArrayList<Playable>();
+ 		List<PlayableLocalTrack> sortedTrackList = new ArrayList<PlayableLocalTrack>();
 		sortedTrackList.addAll(_trackList);
 		
 		if(app != null) {
@@ -56,7 +56,7 @@ public class TrackArtist extends BaseArtist
 	}
 
 	@Override
-	public void removeTrack(Playable track)
+	public void removeTrack(PlayableLocalTrack track)
 	{
 		_trackList.remove(track);
 	}

@@ -8,8 +8,8 @@ import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.AlbumArtist;
 import org.dazeend.harmonium.music.CompareArtists;
 import org.dazeend.harmonium.music.MusicCollection;
-import org.dazeend.harmonium.music.Playable;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlayableLocalTrack;
+import org.dazeend.harmonium.music.PlayableCollection;
 
 import com.tivo.hme.bananas.BView;
 
@@ -28,7 +28,7 @@ public class BrowseMusicByAlbumArtistScreen extends HPlaylistAddCapableListScree
 		
 		// If this album has any tracks that are not identified as members of an album,
 		// add them to the screen.
-		List<Playable> tracks = new ArrayList<Playable>();
+		List<PlayableLocalTrack> tracks = new ArrayList<PlayableLocalTrack>();
 		tracks.addAll( thisMusicCollection.getAlbumlessTrackList() );
 		Collections.sort(tracks, this.app.getPreferences().getMusicCollectionTrackComparator());
 
@@ -37,13 +37,13 @@ public class BrowseMusicByAlbumArtistScreen extends HPlaylistAddCapableListScree
 	
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("right") || action.equals("select")) {
-        	PlaylistEligible musicItem = (PlaylistEligible)this.list.get( this.list.getFocus() );
+        	PlayableCollection musicItem = (PlayableCollection)this.list.get( this.list.getFocus() );
  
         	if(musicItem.getClass() == AlbumArtist.class) {
         		this.app.push(new BrowseAlbumArtistScreen(this.app, (AlbumArtist)musicItem), TRANSITION_LEFT);
         	}
         	else {
-        		this.app.push(new TrackScreen(this.app, (Playable)musicItem), TRANSITION_LEFT);
+        		this.app.push(new TrackScreen(this.app, (PlayableLocalTrack)musicItem), TRANSITION_LEFT);
         	}
             return true;
         }  
@@ -62,8 +62,8 @@ public class BrowseMusicByAlbumArtistScreen extends HPlaylistAddCapableListScree
 		switch(key) {
 		case KEY_PLAY:
 			
-			List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
-			playlist.add( ( PlaylistEligible)this.list.get( this.list.getFocus() ) );
+			List<PlayableCollection> playlist = new ArrayList<PlayableCollection>();
+			playlist.add( ( PlayableCollection)this.list.get( this.list.getFocus() ) );
 			boolean shuffleMode;
 			boolean repeatMode;
 			

@@ -57,7 +57,7 @@ public class AlbumArtist extends BaseArtist {
 	 * 
 	 * @param track
 	 */
-	public synchronized void removeTrack(Playable track) {
+	public synchronized void removeTrack(PlayableLocalTrack track) {
 		// See if track belongs to an album.
 		String trackAlbum = track.getAlbumName();
 		if(! trackAlbum.equals("") ) {
@@ -92,7 +92,7 @@ public class AlbumArtist extends BaseArtist {
 	 * @param newTrack		the track to add to the album artist
 	 * @return				<code>true</code> if the file was successfully added, otherwise <code>false</code>
 	 */
-	public synchronized boolean addTrack(FactoryPreferences prefs, Playable newTrack) {
+	public synchronized boolean addTrack(FactoryPreferences prefs, PlayableLocalTrack newTrack) {
 		// Check to ensure that the newTrack is eligible to be a member of this album artist.
 		if( _artistName.compareToIgnoreCase(newTrack.getAlbumArtistName()) != 0 ) {
 			return false;
@@ -164,9 +164,9 @@ public class AlbumArtist extends BaseArtist {
 	/* (non-Javadoc)
 	 * @see org.dazeend.harmonium.PlaylistEligible#listMemberTracks()
 	 */
-	public List<Playable> listMemberTracks(Harmonium app) {
+	public List<PlayableLocalTrack> getMembers(Harmonium app) {
 		
-		List<Playable> outputList = new ArrayList<Playable>();
+		List<PlayableLocalTrack> outputList = new ArrayList<PlayableLocalTrack>();
  		
  		// Get tracks from each member album and add them to the output list
 		List<Album> sortedAlbumList = this.albumList;
@@ -176,11 +176,11 @@ public class AlbumArtist extends BaseArtist {
 		}
 		
 		for(Album album : sortedAlbumList) {
- 			outputList.addAll(album.listMemberTracks(app));
+ 			outputList.addAll(album.getMembers(app));
  		}
 		
  		// Get tracks that are direct members of this album artist
- 		List<Playable> sortedTrackList = new ArrayList<Playable>();
+ 		List<PlayableLocalTrack> sortedTrackList = new ArrayList<PlayableLocalTrack>();
 		sortedTrackList.addAll(_trackList);
 		
 		if(app != null) {
@@ -216,8 +216,8 @@ public class AlbumArtist extends BaseArtist {
 			album.printMusic(outputStream);
 		}
 		
-		for(Playable track : this._trackList) {
-			outputStream.println("== Track: " + track.getPath());
+		for(PlayableLocalTrack track : this._trackList) {
+			outputStream.println("== Track: " + track.getURI());
 		}
 		outputStream.flush();
 	}

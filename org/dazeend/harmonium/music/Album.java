@@ -15,16 +15,16 @@ import org.dazeend.harmonium.Harmonium;
 /**
  * Represents an album.
  */
-public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem {
+public class Album extends HMusic implements PlayableCollection, AlbumArtListItem {
 
-	private List<Disc>		discList = Collections.synchronizedList( new ArrayList<Disc>() );
-	private List<Playable>	trackList = Collections.synchronizedList( new ArrayList<Playable>() );
-	private String			albumArtistName = "";	// Set only through constructor. Setting later could break data structure.
-	private String			albumArtistNameTitleSortForm;
-	private String 			albumName = "";			// Set only through constructor. Setting later could break data structure.
-	private String			albumNameTitleSortForm = ""; 
-	private int				releaseYear;
-	private	AlbumReadable	artSource;				// the object to pull album art from
+	private List<Disc>					discList = Collections.synchronizedList( new ArrayList<Disc>() );
+	private List<PlayableLocalTrack>	trackList = Collections.synchronizedList( new ArrayList<PlayableLocalTrack>() );
+	private String						albumArtistName = "";	// Set only through constructor. Setting later could break data structure.
+	private String						albumArtistNameTitleSortForm;
+	private String 						albumName = "";			// Set only through constructor. Setting later could break data structure.
+	private String						albumNameTitleSortForm = ""; 
+	private int							releaseYear;
+	private	ArtSource					artSource;				// the object to pull album art from
 	
 	/**
 	 * Creates album and sets key fields.
@@ -102,7 +102,7 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 	 * 
 	 * @param track
 	 */
-	public synchronized void removeTrack(Playable track) {
+	public synchronized void removeTrack(PlayableLocalTrack track) {
 		// See if track belongs to a disc.
 		int trackDisc = track.getDiscNumber();
 		if(trackDisc != 0) {
@@ -137,7 +137,7 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 	 * @param newTrack		the track to add to the disc
 	 * @return				<code>true</code> if the file was successfully added, otherwise <code>false</code>
 	 */
-	public synchronized boolean addTrack(FactoryPreferences prefs, Playable newTrack) {
+	public synchronized boolean addTrack(FactoryPreferences prefs, PlayableLocalTrack newTrack) {
 		// Check to ensure that the newTrack is eligible to be a member of this album.
 		if( albumName.compareToIgnoreCase(newTrack.getAlbumName()) != 0 || albumArtistName.compareToIgnoreCase(newTrack.getAlbumArtistName()) != 0 ) {
 			return false;
@@ -323,7 +323,7 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 	 * 
 	 * @return the trackList
 	 */
-	public List<Playable> getTrackList() {
+	public List<PlayableLocalTrack> getTrackList() {
 		return trackList;
 	}
 
@@ -342,19 +342,19 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 	/* (non-Javadoc)
 	 * @see org.dazeend.harmonium.PlaylistEligible#listMemberTracks()
 	 */
-	public List<Playable> listMemberTracks(Harmonium app) {
+	public List<PlayableLocalTrack> getMembers(Harmonium app) {
 		
-		List<Playable> outputList = new ArrayList<Playable>();
+		List<PlayableLocalTrack> outputList = new ArrayList<PlayableLocalTrack>();
  		
  		// Get tracks from each member disc and add them to the output list
 		List<Disc> sortedDiscList = discList;
 		Collections.sort(sortedDiscList, new CompareDiscs());
 		for(Disc disc : sortedDiscList) {
- 			outputList.addAll(disc.listMemberTracks(app));
+ 			outputList.addAll(disc.getMembers(app));
  		}
 		
  		// Get tracks that are direct members of this album
- 		List<Playable> sortedTrackList = new ArrayList<Playable>();
+ 		List<PlayableLocalTrack> sortedTrackList = new ArrayList<PlayableLocalTrack>();
 		sortedTrackList.addAll(trackList);
 		
 		if(app != null) {
@@ -377,8 +377,8 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 			disc.printMusic(outputStream);
 		}
 		
-		for(Playable track : this.trackList) {
-			outputStream.println("=== Track: " + track.getPath());
+		for(PlayableLocalTrack track : this.trackList) {
+			outputStream.println("=== Track: " + track.getURI());
 		}
 		outputStream.flush();
 	}
@@ -418,6 +418,11 @@ public class Album extends HMusic implements PlaylistEligible, AlbumArtListItem 
 	public String getDisplayArtistName()
 	{
 		return getAlbumArtistName();
+	}
+
+	public String getArtHashKey()
+	{
+		return artSource.getArtHashKey();
 	}
 	
 	

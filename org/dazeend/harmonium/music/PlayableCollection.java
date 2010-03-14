@@ -5,17 +5,18 @@ import java.util.List;
 import org.dazeend.harmonium.Harmonium;
 
 /**
- * Interface for objects that can be placed in a {@link Playlist}.
+ * Interface for objects that represent a collection of one or more Playable objects.
  */
-public interface PlaylistEligible {
-
+public interface PlayableCollection 
+{
 	/**
-	 * Gets a sorted <code>List</code> of {@link Playable} objects in this object.
+	 * Gets a sorted <code>List</code> of {@link Playable} objects.
 	 * 
 	 * @param app
 	 * @return
 	 */
-	public List<Playable> listMemberTracks(Harmonium app);
+	public List<? extends Playable> getMembers(Harmonium app);
+	//public Playable[] getMemberArray(Harmonium app);
 	
 	/**
 	 * Returns a string representing the object.

@@ -1,7 +1,7 @@
 package org.dazeend.harmonium.screens;
 
 import org.dazeend.harmonium.Harmonium;
-import org.dazeend.harmonium.music.Playable;
+import org.dazeend.harmonium.music.PlayableLocalTrack;
 
 import com.tivo.hme.bananas.BView;
 
@@ -11,7 +11,7 @@ public class TrackInfoScreen extends HAlbumInfoListScreen {
 	private final String goBackString = "Go Back";
 	private HList list;
 	
-	public TrackInfoScreen(Harmonium app, final Playable thisTrack) {
+	public TrackInfoScreen(Harmonium app, final PlayableLocalTrack thisTrack) {
 		super( app, thisTrack, thisTrack.toString(), false );
 		
 		this.screenTitle = thisTrack.toString();

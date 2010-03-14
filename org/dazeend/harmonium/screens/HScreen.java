@@ -3,7 +3,7 @@ package org.dazeend.harmonium.screens;
 import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.PlayRate;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlayableCollection;
 
 import com.tivo.hme.bananas.BEvent;
 import com.tivo.hme.bananas.BList;
@@ -174,7 +174,7 @@ public class HScreen extends HManagedResourceScreen {
 			
 			((Harmonium)this.getApp()).checkKeyPressToResetInactivityTimer(code);
 			
-			PlaylistEligible focusObject;
+			PlayableCollection focusObject;
 			String currentLetter;
 			int i;
 			switch(code) {
@@ -183,14 +183,14 @@ public class HScreen extends HManagedResourceScreen {
 				if (i == -1) {
 					return true;
 				}
-				focusObject = (PlaylistEligible)this.get(i);
+				focusObject = (PlayableCollection)this.get(i);
 
 				// Get the leading letter of the focused object
 				currentLetter = focusObject.toStringTitleSortForm().toLowerCase().substring(0, 1);
 	
 				// Search forward until you reach an object that starts with a later letter
 				i = this.getFocus() + 1;
-				while( ( i < this.size() ) && ( ((PlaylistEligible)this.get(i)).toStringTitleSortForm().toLowerCase().substring(0, 1).compareTo(currentLetter) <= 0 ) ) {
+				while( ( i < this.size() ) && ( ((PlayableCollection)this.get(i)).toStringTitleSortForm().toLowerCase().substring(0, 1).compareTo(currentLetter) <= 0 ) ) {
 					++i;
 				}
 				
@@ -204,7 +204,7 @@ public class HScreen extends HManagedResourceScreen {
 				if (i == -1) {
 					return true;
 				}
-				focusObject = (PlaylistEligible)this.get(i);
+				focusObject = (PlayableCollection)this.get(i);
 
 				
 				// Get the leading letter of the focused object
@@ -212,7 +212,7 @@ public class HScreen extends HManagedResourceScreen {
 				
 				// Search backward until you reach an object that starts with an earlier letter
 				i = this.getFocus() - 1;
-				while( ( i >= 0 ) && ( ((PlaylistEligible)this.get(i)).toStringTitleSortForm().toLowerCase().substring(0, 1).compareTo(currentLetter) >= 0 ) ) {
+				while( ( i >= 0 ) && ( ((PlayableCollection)this.get(i)).toStringTitleSortForm().toLowerCase().substring(0, 1).compareTo(currentLetter) >= 0 ) ) {
 					--i;
 				}
 				

@@ -7,8 +7,8 @@ import java.util.List;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.Album;
 import org.dazeend.harmonium.music.AlbumArtist;
-import org.dazeend.harmonium.music.Playable;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlayableLocalTrack;
+import org.dazeend.harmonium.music.PlayableCollection;
 
 import com.tivo.hme.bananas.BView;
 
@@ -18,7 +18,7 @@ import com.tivo.hme.bananas.BView;
 public class BrowseAlbumArtistScreen extends HAlbumInfoListScreen
 {
 
-	private List<Playable> tracksWithNoAlbum;
+	private List<PlayableLocalTrack> tracksWithNoAlbum;
 
 	public BrowseAlbumArtistScreen(Harmonium app, AlbumArtist thisAlbumArtist)
 	{
@@ -53,7 +53,7 @@ public class BrowseAlbumArtistScreen extends HAlbumInfoListScreen
 
 		// If this album has any tracks that are direct members, add them to the
 		// screen.
-		tracksWithNoAlbum = new ArrayList<Playable>();
+		tracksWithNoAlbum = new ArrayList<PlayableLocalTrack>();
 		tracksWithNoAlbum.addAll(thisAlbumArtist.getTrackList());
 		Collections.sort(tracksWithNoAlbum, this.app.getPreferences().getAlbumArtistTrackComparator());
 		this.list.add(tracksWithNoAlbum.toArray());
@@ -63,14 +63,14 @@ public class BrowseAlbumArtistScreen extends HAlbumInfoListScreen
 	{
 		if (action.equals("right") || action.equals("select"))
 		{
-			PlaylistEligible musicItem = (PlaylistEligible) list.get(list.getFocus());
+			PlayableCollection musicItem = (PlayableCollection) list.get(list.getFocus());
 
 			if (musicItem instanceof Album)
 			{
 				this.app.push(new BrowseAlbumScreen(this.app, (Album) musicItem), TRANSITION_LEFT);
 			} else
 			{
-				this.app.push(new TrackScreen(this.app, (Playable) musicItem), TRANSITION_LEFT);
+				this.app.push(new TrackScreen(this.app, (PlayableLocalTrack) musicItem), TRANSITION_LEFT);
 			}
 
 			return true;
@@ -92,8 +92,8 @@ public class BrowseAlbumArtistScreen extends HAlbumInfoListScreen
 		{
 		case KEY_PLAY:
 
-			List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
-			playlist.add((PlaylistEligible) this.list.get(this.list.getFocus()));
+			List<PlayableCollection> playlist = new ArrayList<PlayableCollection>();
+			playlist.add((PlayableCollection) this.list.get(this.list.getFocus()));
 			boolean shuffleMode;
 			boolean repeatMode;
 

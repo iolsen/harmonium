@@ -4,7 +4,7 @@ import java.util.Vector;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.dazeend.harmonium.Harmonium;
-import org.dazeend.harmonium.music.AlbumReadable;
+import org.dazeend.harmonium.music.ArtSource;
 
 import com.tivo.hme.bananas.BApplication;
 import com.tivo.hme.bananas.BScreen;
@@ -86,8 +86,8 @@ public abstract class HManagedResourceScreen extends BScreen {
 		}
 	}
 	
-	protected ImageResource createManagedImage(AlbumReadable album, int width, int height) {
-		return app.getAlbumArtCache().Add(this, album, width, height);
+	protected ImageResource createManagedImage(ArtSource artSource, int width, int height) {
+		return app.getAlbumArtCache().Add(this, artSource, width, height);
 	}
 
 	protected ImageResource createManagedImage(String arg0) {

@@ -8,9 +8,9 @@ import java.util.regex.Matcher;
 import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.Harmonium;
 
-public abstract class BaseArtist extends HMusic implements PlaylistEligible {
+public abstract class BaseArtist extends HMusic implements PlayableCollection {
 
-	protected List<Playable>	_trackList = Collections.synchronizedList( new ArrayList<Playable>() );
+	protected List<PlayableLocalTrack>	_trackList = Collections.synchronizedList( new ArrayList<PlayableLocalTrack>() );
 	protected String			_artistName = "";	// Set only through constructor. Setting later could break data structure.
 	protected String			_albumArtistNameTitleSortForm = "";
 
@@ -44,13 +44,13 @@ public abstract class BaseArtist extends HMusic implements PlaylistEligible {
 	 * 
 	 * @return the trackList
 	 */
-	public List<Playable> getTrackList() {
+	public List<PlayableLocalTrack> getTrackList() {
 		return _trackList;
 	}
 
-	public abstract void removeTrack(Playable track);
-	public abstract boolean addTrack(FactoryPreferences prefs, Playable newTrack);
-	public abstract List<Playable> listMemberTracks(Harmonium app);
+	public abstract void removeTrack(PlayableLocalTrack track);
+	public abstract boolean addTrack(FactoryPreferences prefs, PlayableLocalTrack newTrack);
+	public abstract List<PlayableLocalTrack> getMembers(Harmonium app);
 
 	public String toStringTitleSortForm()
 	{

@@ -5,7 +5,9 @@ import java.util.List;
 
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.Playable;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlayableLocalTrack;
+import org.dazeend.harmonium.music.PlayableCollection;
+import org.dazeend.harmonium.music.PlayableTrack;
 import org.dazeend.harmonium.music.PlaylistFile;
 
 import com.tivo.hme.bananas.BText;
@@ -49,7 +51,7 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 		
 		// Add playlist tracks to the list.
 		List<Playable> tracks = new ArrayList<Playable>();
-		tracks.addAll( playlistFile.listMemberTracks(this.app) );
+		tracks.addAll( playlistFile.getMembers(this.app) );
 		this.list.add( tracks.toArray() );
 	}
 
@@ -59,7 +61,7 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 		
 		// Add currently playing playlist tracks to the list.
 		this.shuffled = app.getDiscJockey().isShuffling();
-		this.list.add( app.getDiscJockey().getCurrentPlaylist().listMemberTracks(app).toArray() );
+		this.list.add( app.getDiscJockey().getCurrentPlaylist().getMembers(app).toArray() );
 	}
 	
 	public boolean isNowPlayingPlaylist() {
@@ -69,15 +71,17 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 	public boolean handleAction(BView view, Object action) {
         if(action.equals("right") || action.equals("select")) {
 
-        	PlaylistEligible musicItem = (PlaylistEligible)list.get( list.getFocus() );
+        	PlayableCollection musicItem = (PlayableCollection)list.get( list.getFocus() );
             
-        	if (!isNowPlayingPlaylist())
-        		this.app.push(new TrackScreen(this.app, (Playable)musicItem, this.playlistFile), TRANSITION_LEFT);
-        	else {
+        	if (!isNowPlayingPlaylist() && musicItem instanceof PlayableLocalTrack)
+        		this.app.push(new TrackScreen(this.app, (PlayableLocalTrack)musicItem, this.playlistFile), TRANSITION_LEFT);
+        	else 
+        	{
         		try
 				{
 					this.app.getDiscJockey().playItemInQueue((Playable)musicItem);
-				} catch (Exception e)
+				} 
+        		catch (Exception e)
 				{
 					return true;
 				}
@@ -101,8 +105,8 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 			Playable startPlaying = (Playable)this.list.get(this.list.getFocus());
 
 			if (this.playlistFile != null) {
-				List<PlaylistEligible> playlist = new ArrayList<PlaylistEligible>();
-				playlist.addAll( this.playlistFile.listMemberTracks(this.app) );
+				List<PlayableCollection> playlist = new ArrayList<PlayableCollection>();
+				playlist.addAll( this.playlistFile.getMembers(this.app) );
 
 				boolean shuffleMode = this.playlistFile.getShuffleMode(this.app);
 				boolean repeatMode = this.playlistFile.getRepeatMode(this.app);
@@ -142,7 +146,7 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 		if (this.playlistFile == null && this.shuffled != this.app.getDiscJockey().isShuffling() )
 		{
 			this.list.clear();
-			this.list.add( app.getDiscJockey().getCurrentPlaylist().listMemberTracks(app).toArray() );
+			this.list.add( app.getDiscJockey().getCurrentPlaylist().getMembers(app).toArray() );
 			shuffled = this.app.getDiscJockey().isShuffling();
 		}
 		
@@ -166,7 +170,10 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 
 		protected String getRowText(int index) {
 			Playable p = (Playable)this.get(index);
-			return p.getTrackName() + " - " + p.getArtistName();
+			if (p instanceof PlayableTrack)
+				return ((PlayableTrack)p).getTrackName() + " - " + ((PlayableTrack)p).getArtistName();
+			else
+				return p.toStringTitleSortForm();
 		}
 	}
 }

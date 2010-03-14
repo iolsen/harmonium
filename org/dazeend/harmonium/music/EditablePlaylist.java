@@ -3,7 +3,7 @@ package org.dazeend.harmonium.music;
 import java.io.IOException;
 import java.util.List;
 
-public abstract class EditablePlaylist implements PlaylistEligible
+public abstract class EditablePlaylist implements PlayableCollection
 {
 	protected List<Playable> _tracks;
 

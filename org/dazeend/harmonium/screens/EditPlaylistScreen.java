@@ -8,6 +8,7 @@ import org.dazeend.harmonium.Harmonium.DiscJockey;
 import org.dazeend.harmonium.Harmonium.DiscJockey.CurrentPlaylist;
 import org.dazeend.harmonium.music.EditablePlaylist;
 import org.dazeend.harmonium.music.Playable;
+import org.dazeend.harmonium.music.PlayableLocalTrack;
 
 import com.tivo.hme.bananas.BButton;
 import com.tivo.hme.bananas.BEvent;
@@ -60,7 +61,7 @@ public class EditPlaylistScreen extends HScreen {
 		        text.setFlags(RSRC_HALIGN_LEFT);
 		        text.setFont( ( (Harmonium)this.getBApp() ).hSkin.barFont );
 		        text.setColor(HSkin.BAR_TEXT_COLOR);
-		        text.setValue( String.valueOf(index + 1) + ". " + ((Playable)this.get(index)).getTrackName() + " - " + ((Playable)this.get(index)).getArtistName());
+		        text.setValue( String.valueOf(index + 1) + ". " + ((PlayableLocalTrack)this.get(index)).getTrackName() + " - " + ((PlayableLocalTrack)this.get(index)).getArtistName());
 
 		        View p = parent;
 		        while (p instanceof HManagedResourceScreen == false && p != null)
@@ -135,7 +136,7 @@ public class EditPlaylistScreen extends HScreen {
 			this.shuffled = app.getDiscJockey().isShuffling();
 		
 		// create list and button only if the playlist has members
-		if(this.editablePlaylist.listMemberTracks(app).size() > 0) {
+		if(this.editablePlaylist.getMembers(app).size() > 0) {
 			int buttonWidth =  ( this.screenWidth - (2 * this.safeTitleH) ) / this.rows;
 	        
 			
@@ -359,7 +360,7 @@ public class EditPlaylistScreen extends HScreen {
 			// re-populate the BList
 			buildList(true, index);
 		
-			if(this.editablePlaylist.listMemberTracks(app).isEmpty()) {
+			if(this.editablePlaylist.getMembers(app).isEmpty()) {
 				// this was the last member of the playlist, so pop the screen
 				postEvent(new BEvent.Action(this, "pop"));
 			}
@@ -378,7 +379,7 @@ public class EditPlaylistScreen extends HScreen {
 			this.list.clear();
 		}
 
-		this.list.add(this.editablePlaylist.listMemberTracks(app).toArray());
+		this.list.add(this.editablePlaylist.getMembers(app).toArray());
 		
 		// set the focus
 		if(focusIndex < this.list.size()) {
@@ -462,7 +463,7 @@ public class EditPlaylistScreen extends HScreen {
 				postEvent(new BEvent.Action(this, "deleteItem"));
 				return true;
 			case KEY_SELECT:
-				this.app.push(new TrackInfoScreen( this.app, (Playable)this.list.get( this.list.getFocus() ) ), TRANSITION_LEFT);
+				this.app.push(new TrackInfoScreen( this.app, (PlayableLocalTrack)this.list.get( this.list.getFocus() ) ), TRANSITION_LEFT);
 				return true;
 			case KEY_NUM1:
 				// Jump to 10% through the list

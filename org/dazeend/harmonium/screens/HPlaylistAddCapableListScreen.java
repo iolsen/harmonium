@@ -2,7 +2,7 @@ package org.dazeend.harmonium.screens;
 
 import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
-import org.dazeend.harmonium.music.PlaylistEligible;
+import org.dazeend.harmonium.music.PlayableCollection;
 import com.tivo.hme.bananas.BText;
 
 public abstract class HPlaylistAddCapableListScreen extends HSkipListScreen
@@ -43,7 +43,7 @@ public abstract class HPlaylistAddCapableListScreen extends HSkipListScreen
 		if (_enableAddToPlaylist && key == KEY_ENTER) {
 			this.app.play("select.snd");
 			int selectedIndex = this.list.getFocus();
-			PlaylistEligible toPlay = (PlaylistEligible) this.list.get(selectedIndex);
+			PlayableCollection toPlay = (PlayableCollection) this.list.get(selectedIndex);
 			this.app.push(new AddToPlaylistScreen(this.app, toPlay), TRANSITION_LEFT);
 			return true;
 		}
