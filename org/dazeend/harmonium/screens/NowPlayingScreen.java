@@ -688,7 +688,6 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 		if (event.getOpCode() == EVT_RSRC_INFO)
 		{
 			handleResourceInfoEvent(event);
-			return true;
 		}
 
 		return super.handleEvent(event);
