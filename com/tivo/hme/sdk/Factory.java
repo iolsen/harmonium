@@ -287,7 +287,7 @@ public class Factory implements IFactory
             ct = "audio/mpeg";
             
             // Get the mp3 stream's duration
-            long mp3duration = getMP3Duration(uri);
+            long mp3duration = getMP3Duration(baseUri);
             System.out.println("MP3 stream duration: " + mp3duration);
             if (mp3duration > 0)
                 http.addHeader(IHmeConstants.TIVO_DURATION, "" + mp3duration);
