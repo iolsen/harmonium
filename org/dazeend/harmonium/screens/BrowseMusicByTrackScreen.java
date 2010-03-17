@@ -29,7 +29,7 @@ public class BrowseMusicByTrackScreen extends HPlaylistAddCapableListScreen
 		sortedTracks.addAll(tracks);
 		Collections.sort(sortedTracks, new CompareTracksByName());
 
-		this.list.add(tracks.toArray());
+		this.list.add(sortedTracks.toArray());
 	}
 	
 	public boolean handleAction(BView view, Object action) {

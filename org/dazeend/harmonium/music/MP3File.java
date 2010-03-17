@@ -91,9 +91,6 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 			
 			// Create title formatted string for track. 
 			if(! this.trackName.equals("")) {
-				// The track has a name, so re-format it
-				// Compile pattern for matching leading articles
-				Pattern titlePattern = Pattern.compile("(?i)^(the|a|an)\\s");
 				Matcher stringMatcher = titlePattern.matcher(this.trackName);
 				if(stringMatcher.lookingAt()) {
 					// Found a leading article. Move it to the end of the string.

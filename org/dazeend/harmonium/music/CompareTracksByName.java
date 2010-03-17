@@ -15,11 +15,6 @@ public class CompareTracksByName implements Comparator<PlayableTrack> {
 	 */
 	public int compare(PlayableTrack track1, PlayableTrack track2) {
 		
-		// If one of the tracks is null, then throw an exception
-		if(track1 == null || track2 == null) {
-			throw new NullPointerException();
-		}
-		
 		// Sort first by track name. If only one track has a name set, it should come before.
 		if( (! track1.getTrackNameTitleSortForm().equals("") ) && track2.getTrackNameTitleSortForm().equals("") ) {
 			return -1;
