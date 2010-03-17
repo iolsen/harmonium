@@ -9,13 +9,13 @@ fi
 #######################
 # update from repo
 #######################
-hg pull $1
-hg update --clean
+#hg pull $1
+#hg update --clean
 
 #######################
 # get version info
 #######################
-export VERSION=`grep "VERSION\s*=\s*" org/dazeend/harmonium/Harmonium.java | grep -o "[0-9]*\.[0-9]*\.[0-9]*"`
+export VERSION=`grep "VERSION\s*=\s*" org/dazeend/harmonium/Harmonium.java | egrep -o "[0-9]+\.[0-9]+(\.[0-9]+)?"`
 export rev=`hg log -l1|grep changeset|grep -o  ":\([[:alnum:]]\+\)"|grep -o "\([[:alnum:]]\+\)"`
 
 echo "Building release archives for version ${VERSION} (${rev})."
