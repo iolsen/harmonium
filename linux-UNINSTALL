@@ -1,0 +1,37 @@
+Linux Daemon Un-Installation
+----------------------------
+These instructions guide a user in uninstalling Harmonium as a daemon on a
+computer running Linux.
+
+Un-Installation Instructions
+----------------------------
+
+1.  Stop the Harmonium Music Player daemon process.
+
+    Example
+          $ sudo /etc/init.d/harmonium stop
+
+2.  Uninstall Harmonium as a daemon. The process of uninstalling a daemon
+    differs depending on the distribution of Linux being used.
+
+            Debian and Debian derivitives (Ubuntu, etc.)
+            --------------------------------------------
+            Use the update-rc.d command to uninstall Harmonium as a daemon 
+            that starts at boot time.
+
+            Example
+                $ sudo update-rc.d -f harmonium remove
+
+          
+            Red Hat and Red Hat derivitives (Fedora, CentOS, etc.)
+            ------------------------------------------------------
+            Use the chkconfig command to uninstall Harmonium as a daemon that 
+            starts at boot time.
+
+            Example
+                $ sudo chkconfig --del harmonium
+
+3.  Delete the Harmonium installation directory and all files in it.
+
+    Example
+          $ sudo rm -rf /usr/local/Harmonium

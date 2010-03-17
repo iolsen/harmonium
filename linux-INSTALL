@@ -1,0 +1,155 @@
+Linux Daemon Installation
+-------------------------
+This distribution of Harmonium installs Harmonium as a daemon on a computer
+running Linux. Installing Harmonium as a daemon will cause the computer to
+start Harmonium automatically each time it is booted.
+
+TiVo Requirements
+-----------------
+    * A network enabled Series 2, Series 3, or HD TiVo.
+
+      Note
+          Configuring your TiVo to connect to your network is beyond the scope
+          of these instructions. For help see the TiVo website:
+          http://www.tivo.com/mytivo/howto/getconnected/howto_connect_dvr_internet.html 
+
+    * The TiVo must be enabled for Home Network Applications. To do this,
+      perform the following:
+         1. From TiVo Central, go to Music, Photos, & More.
+         2. Select Enable Home Network Applications...
+         3. Press THUMBS UP three times, then press ENTER to enable local HME
+            applications.
+         4. Return to TiVo Central, then Music, Photos, & More. The option
+            should now appear as Disable Home Network Applications...
+
+Server Requirements
+
+    * Processor: x86 CPU (Intel Pentium, Celeron, Xeon, etc.; 
+      AMD Athlon, etc.)
+
+    * Operating System: any LSB compliant distribution of Linux. (Debian,
+      Ubuntu, Red Hat, Fedora, Slackware, etc.)
+
+    * Java runtime evironment version 6 or later.
+
+      Tested
+          Java(TM) SE Runtime Environment (build 1.6.0_16-b01)
+
+    * Connected to same network as TiVo.
+
+      Note
+          The server's networking subsystem must be initialized before starting
+          Harmonium. In particular, the server's network interface must have an
+          IP address assigned before Harmonium is started. This might be an
+          issue if your computer uses Gnome Network Manager to manage your
+          computer's network interface. 
+
+Installation Instructions
+-------------------------
+
+      Pre-Installation
+      ----------------
+   1. Identify the path to the music root directory. All music files must be in
+      the music root or one of its subdirectories.
+
+      Note
+          In our example below, we assume that the music root is:
+          /home/userid/music 
+
+   2. Identify the path to the playlist root directory. All playlist files must
+      be in the playlist root or one of its subdirectories.
+
+      Note
+          In our example below, we assume that the playlist root is:
+          /home/userid/playlists 
+
+      Installation
+      ------------
+   3. Copy the installation file to your chosen installation location, and then
+      uncompress and untar it.
+
+      Example
+          $ sudo mv harmonium.tar.gz /usr/local
+          $ cd /usr/local
+          $ sudo tar zxvf harmonium.tar.gz
+
+   4. In the conf directory under the Harmonium installation directory, find
+      and open the file called wrapper.conf using a text editor.
+
+      Example
+          $ sudo nano /usr/local/Harmonium/conf/wrapper.conf 
+
+   5. Find the line in wrapper.conf that reads: 
+      wrapper.app.parameter.4="/home/your/path/to/music"
+      Modify the line so that the path to your music root appears inside the 
+      quotation marks.
+
+      Example
+          wrapper.app.parameter.4="/home/userid/music"
+
+   6. Find the line in wrapper.conf that reads:
+      wrapper.app.parameter.6="/home/your/path/to/playlists"
+      Modify the line so that the path to your playlist root appears inside
+      the quotation marks.
+
+      Example
+          wrapper.app.parameter.6="/home/userid/playlists"
+
+   7. Save the wrapper.conf file, and exit the text editor.
+
+   8. Change directories to the /etc/init.d directory and create a symbolic 
+      link that points to script called harmonium in the bin directory under
+      the Harmonium installation directory.
+
+      Note
+          You must use a symbolic link. Do not copy the script into
+          /etc/init.d.
+
+      Example
+          $ cd /etc/init.d
+          $ sudo ln -s /usr/local/Harmonium/bin/harmonium harmonium 
+
+   9. Test Harmonium by running /etc/init.d/harmonium in console mode. Check
+      that Harmonium appears on your TiVo under "Music, Programs, and More." If
+      there seems to be a problem, check the log file in the logs directory
+      under the Harmonium installation directory. After testing, close
+      Harmonium by using the keystroke Ctrl-C.
+
+      Example
+          $ sudo /etc/init.d/harmonium console
+
+  10. If everything seems to be working, install Harmonium as a daemon. The
+      process of installing a new daemon differs depending on the distribution
+      of Linux that is being used.
+          
+            Debian and Debian derivitives (Ubuntu, etc.)
+            --------------------------------------------
+            Use the update-rc.d command to install Harmonium as a daemon 
+            that starts at boot time.
+
+            Example
+                $ sudo update-rc.d harmonium defaults 99 
+
+          
+            Red Hat and Red Hat derivitives (Fedora, CentOS, etc.)
+            ------------------------------------------------------
+            Use the chkconfig command to install Harmonium as a daemon that 
+            starts at boot time.
+
+            Example
+                $ sudo chkconfig --level 35 harmonium on 
+
+            Note
+                When Harmonium first starts, it reads and catalogs the music 
+                files that it finds under your music root. This process may 
+                take several minutes. (A sample collection of 3500 music files 
+                takes 20 minutes to complete.) Until this process has
+                completed, Harmonium will not appear on your TiVo. 
+
+  11. Start the daemon. Harmonium should restart automatically the next time 
+      the computer is rebooted.
+
+      Example
+          $ sudo /etc/init.d/harmonium start 
+
+

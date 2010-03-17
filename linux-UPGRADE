@@ -1,0 +1,90 @@
+Linux Daemon Installation Upgrade
+---------------------------------
+These instructions document how to upgrade an existing installation of
+Haromonium running as a Linux daemon. If you do not yet have Harmonium
+installed, please refer to the installation instructions.
+
+TiVo Requirements
+-----------------
+    * A network enabled Series 2, Series 3, or HD TiVo.
+
+      Note
+          Configuring your TiVo to connect to your network is beyond
+          the scope of these instructions. For help see the TiVo website. 
+
+    * The TiVo must be enabled for Home Network Applications. To do this,
+      perform the following:
+         1. From TiVo Central, go to Music, Photos, & More.
+         2. Select Enable Home Network Applications...
+         3. Press THUMBS UP three times, then press ENTER to enable local HME
+            applications.
+         4. Return to TiVo Central, then Music, Photos, & More. The option
+            should now appear as Disable Home Network Applications...
+
+Server Requirements
+
+    * Processor: x86 CPU (Intel Pentium, Celeron, Xeon, etc.; 
+      AMD Athlon, etc.)
+
+    * Operating System: any LSB compliant distribution of Linux. (Debian,
+      Ubuntu, Red Hat, Fedora, Slackware, etc.)
+
+    * Java runtime evironment version 6 or later.
+
+      Tested
+          Java(TM) SE Runtime Environment (build 1.6.0_16-b01)
+
+    * Connected to same network as TiVo.
+
+      Note
+          The server's networking subsystem must be initialized before starting
+          Harmonium. In particular, the server's network interface must have an
+          IP address assigned before Harmonium is started. This might be an
+          issue if your computer uses Gnome Network Manager to manage your
+          computer's network interface. 
+
+Upgrade Instructions
+--------------------
+   1. Uncompress the installation file to a temporary location.
+
+      Example
+          $ cp harmonium.tar.gz /home/userid
+          $ cd /home/userid
+          $ tar zxvf harmonium.tar.gz
+
+   2. Stop the Harmonium daemon.
+
+      Example
+          $ sudo /etc/init.d/harmonium stop 
+
+   3. Copy the new Harmonium.jar file to the installation directory.
+
+      Example
+          $ sudo cp /home/userid/Harmonium/Harmonium.jar /usr/local/Harmonium 
+
+   4. Delete all JAR files from the lib directory within the Harmonium 
+      installation directory.
+
+      Example
+          $ sudo rm /usr/local/Harmonium/lib/*.jar 
+
+   5. Copy new JAR files to the lib directory within the Harmonium installation
+      directory.
+
+      Example
+          $ sudo cp /home/userid/Harmonium/lib/*.jar /usr/local/Harmonium/lib 
+
+   6. Copy new wrapper.conf file to the conf directory within the Harmonium
+      installation directory.
+      
+      Example
+         $ sudo cp /home/userid/Harmonium/conf/wrapper.conf /usr/local/Harmonium/conf
+         
+   7. Reconfigure wrapper.conf as described in INSTALL
+
+   8. Restart the Harmonium service.
+
+      Example
+          $ sudo /etc/init.d/harmonium start 
+
+
