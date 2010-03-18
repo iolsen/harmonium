@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +24,12 @@ import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.screens.NowPlayingScreen;
 
+import net.roarsoftware.lastfm.Album;
+import net.roarsoftware.lastfm.ImageSize;
+import java.net.URL;
+
 import com.tivo.hme.sdk.util.Mp3Helper;
+
 
 
 /**
@@ -45,6 +52,7 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 	
 	private Boolean			albumImageFetched = false;
 	private Boolean			hasAlbumArt = false;
+
 
 	/**
 	 * Constructor scans MP3 file for ID3 tags to get track information.
@@ -416,6 +424,49 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 		
 		return img;
 	}
+
+	/*
+	private BufferedReader read(String url) throws Exception{
+		return new BufferedReader(
+			new InputStreamReader(
+				new URL(url).openStream()));}
+	*/
+
+	//This function connects to last.fm, retrieves a URL to album art and downloads the album art
+	private Image getAlbumArtFromHTTP(FactoryPreferences prefs) throws Exception
+	{
+
+		if (prefs.inDebugMode())
+			System.out.println("Retrieving http-based cover art for " + this.trackFile.getAbsolutePath());
+		
+		Image img = null;
+		String apiKey = "7984437bf046cc74c368f02bf9de16de";
+		Album AlbumInfo = Album.getInfo(artistName,albumName,apiKey);
+		String ImageURL = AlbumInfo.getImageURL(ImageSize.valueOf("LARGE"));
+
+		//lets prevent some MalformedURLExceptions by making sure we actually have something in our URL
+		if(ImageURL.length() > 0)
+		{
+			try {
+				URL url = new URL(ImageURL);
+				img = java.awt.Toolkit.getDefaultToolkit().getDefaultToolkit().createImage(url);
+				//if (prefs.inDebugMode())
+				System.out.println("Succeeded in getting album cover for " + artistName + "-" + albumName);
+			}
+			catch (MalformedURLException e) {
+				System.out.println("EGads, Malformed URL!");
+			}
+			catch (IOException e) {
+				System.out.println("EGads IOException!");
+			}
+		}
+
+		if (img == null && prefs.inDebugMode()) {
+			System.out.println("No Album Art Found For Artist: " + artistName + " Album: " + albumName);
+		}
+		
+		return img;
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.dazeend.harmonium.Playable#getAlbumArt()
@@ -439,6 +490,13 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 			// and we're not ignoring file-based art, look for it now.
 			if (img == null && !prefs.preferJpgFileArt() && !prefs.ignoreJpgFileArt())
 				img = getAlbumArtFromFile(prefs);
+
+			//If we still dont have it, give the online service a shot.
+			if (img == null){
+				img = getAlbumArtFromHTTP(prefs);
+			}
+		
+				
 			
 			hasAlbumArt = (img != null);
 		} 

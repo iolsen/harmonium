@@ -363,7 +363,7 @@ public class Harmonium extends HDApplication {
 	 */
 	public static class HarmoniumFactory extends Factory {
 		
-		private final static String VERSION = "0.8 ({REV})";
+		private final static String VERSION = "0.8 (e76845a6968b)";
 
 		private FactoryPreferences preferences;
 		private final Hashtable<String, Long> _durationTable = new Hashtable<String, Long>();
@@ -593,7 +593,16 @@ public class Harmonium extends HDApplication {
 
 			List<? extends Playable> list = ple.getMembers(this.app);
 			this.shuffledMusicQueue.addAll(list);
+			//After we add items to a shuffled queue, the list should be randomized again
+			Collections.shuffle(this.shuffledMusicQueue);
+			//this.musicIndex is updated when we toggle shuffleMode so we only need to update 
+			//the index if we are currently in shuffle mode
+			if(this.shuffleMode)
+				this.musicIndex = this.shuffledMusicQueue.indexOf(this.nowPlaying);
 			this.musicQueue.addAll(list);
+
+			//We need to updateNext here just incase the playlist only had one song in it
+			this.nowPlayingScreen.updateNext();
 
 			pushNowPlayingScreen();
 		}
@@ -611,6 +620,7 @@ public class Harmonium extends HDApplication {
 					// We have reached the last track
 					if(this.repeatMode) {
 						// Reset to the first track if we are in repeat mode
+						Collections.shuffle(this.shuffledMusicQueue);
 						this.musicIndex = 0;
 					}
 					else {
@@ -898,7 +908,10 @@ public class Harmonium extends HDApplication {
 			this.shuffleMode = ! this.shuffleMode;
 
 			if (this.shuffleMode)
+			{
+				Collections.shuffle(this.shuffledMusicQueue);
 				this.musicIndex = this.shuffledMusicQueue.indexOf(this.nowPlaying);
+			}
 			else
 				this.musicIndex = getNowPlayingIndex();
 			
