@@ -586,6 +586,9 @@ public class Harmonium extends HDApplication {
 			this.shuffledMusicQueue.addAll(nextIndex, list);
 			this.musicQueue.addAll(nextIndex, list);
 
+			//We need to updateNext here just incase the playlist only had one song in it
+			this.nowPlayingScreen.updateNext();
+
 			pushNowPlayingScreen();
 		}
 		
