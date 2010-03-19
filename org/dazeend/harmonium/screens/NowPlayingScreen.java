@@ -595,8 +595,8 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 	{
     	HmeEvent.ResourceInfo resourceInfo = (HmeEvent.ResourceInfo) event;
     	
-    	if (this.musicStream != null)
-    		System.out.println("Stream status: " + this.musicStream.getStatus());
+//    	if (this.app.getFactoryPreferences().inDebugMode() && this.musicStream != null)
+//    		System.out.println("Stream status: " + this.musicStream.getStatus());
     	
     	// Check that this event is for the music stream
     	if( (this.musicStream != null) && (event.getID() == this.musicStream.getID() ) ) 
