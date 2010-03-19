@@ -1,5 +1,8 @@
 package net.roarsoftware.lastfm;
 
+import static net.roarsoftware.util.StringUtilities.encode;
+import static net.roarsoftware.util.StringUtilities.map;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,23 +16,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import net.roarsoftware.lastfm.Result.Status;
+import net.roarsoftware.lastfm.cache.Cache;
+import net.roarsoftware.lastfm.cache.FileSystemCache;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import net.roarsoftware.lastfm.Result.Status;
-import net.roarsoftware.lastfm.cache.Cache;
-import net.roarsoftware.lastfm.cache.FileSystemCache;
-import static net.roarsoftware.util.StringUtilities.encode;
-import static net.roarsoftware.util.StringUtilities.map;
-import static net.roarsoftware.util.StringUtilities.md5;
 
 /**
  * The <code>Caller</code> class handles the low-level communication between the client and last.fm.<br/>
@@ -43,7 +42,7 @@ import static net.roarsoftware.util.StringUtilities.md5;
 public class Caller {
 
 	private static final String PARAM_API_KEY = "api_key";
-	private static final String PARAM_METHOD = "method";
+	//private static final String PARAM_METHOD = "method";
 
 	private static final String DEFAULT_API_ROOT = "http://ws.audioscrobbler.com/2.0/";
 	private static final Caller instance = new Caller();
@@ -310,7 +309,7 @@ public class Caller {
 		return builder.toString();
 	}
 
-	private String createSignature(Map<String, String> params, String secret) {
+/*	private String createSignature(Map<String, String> params, String secret) {
 		Set<String> sorted = new TreeSet<String>(params.keySet());
 		StringBuilder builder = new StringBuilder(50);
 		for (String s : sorted) {
@@ -320,7 +319,7 @@ public class Caller {
 		builder.append(secret);
 		return md5(builder.toString());
 	}
-
+*/
 	public Proxy getProxy() {
 		return proxy;
 	}
