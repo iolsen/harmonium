@@ -90,7 +90,7 @@ public class Geo {
 		for (DomElement domElement : element.getChildren("event")) {
 			events.add(Event.eventFromElement(domElement));
 		}
-		int currentPage = Integer.valueOf(element.getAttribute("page"));
+		//int currentPage = Integer.valueOf(element.getAttribute("page"));
 		int totalPages = Integer.valueOf(element.getAttribute("totalpages"));
 		return new PaginatedResult<Event>(page, totalPages, events);
 	}
@@ -118,7 +118,7 @@ public class Geo {
 		for (DomElement domElement : element.getChildren("event")) {
 			events.add(Event.eventFromElement(domElement));
 		}
-		int currentPage = Integer.valueOf(element.getAttribute("page"));
+		//int currentPage = Integer.valueOf(element.getAttribute("page"));
 		int totalPages = Integer.valueOf(element.getAttribute("totalpages"));
 		return new PaginatedResult<Event>(page, totalPages, events);
 	}

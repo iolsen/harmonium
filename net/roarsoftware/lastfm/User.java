@@ -248,6 +248,7 @@ public class User extends ImageHolder {
 		return Chart.getWeeklyChartList("user", user, apiKey);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static Collection<Chart> getWeeklyChartListAsCharts(String user, String apiKey) {
 		return Chart.getWeeklyChartListAsCharts("user", user, apiKey);
 	}

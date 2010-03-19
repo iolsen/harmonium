@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.Proxy;
+//import java.net.Proxy;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -155,7 +155,7 @@ public class Scrobbler {
 				.format("s=%s&a=%s&t=%s&b=%s&l=%s&n=%s&m=", sessionId, encode(artist), encode(track), b, l, n);
 		if (Caller.getInstance().isDebugMode())
 			System.out.println("now playing: " + body);
-		Proxy proxy = Caller.getInstance().getProxy();
+		//Proxy proxy = Caller.getInstance().getProxy();
 		HttpURLConnection urlConnection = Caller.getInstance().openConnection(nowPlayingUrl);
 		urlConnection.setRequestMethod("POST");
 		urlConnection.setDoOutput(true);

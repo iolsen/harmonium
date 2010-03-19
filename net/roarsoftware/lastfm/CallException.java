@@ -3,6 +3,7 @@ package net.roarsoftware.lastfm;
 /**
  * @author Janni Kovacs
  */
+@SuppressWarnings("serial")
 public class CallException extends RuntimeException {
 
 	public CallException() {

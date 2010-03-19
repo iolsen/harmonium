@@ -58,6 +58,7 @@ public class Group {
 		return Chart.getWeeklyChartList("group", group, apiKey);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static Collection<Chart> getWeeklyChartListAsCharts(String group, String apiKey) {
 		return Chart.getWeeklyChartListAsCharts("group", group, apiKey);
 	}

@@ -102,6 +102,7 @@ public abstract class Cache {
 	 * @param params The request parameters
 	 * @return a cache entry name
 	 */
+	@SuppressWarnings("unchecked")
 	public static String createCacheEntryName(String method, Map<String, String> params) {
 		if (!(params instanceof SortedMap)) {
 			params = new TreeMap<String, String>(params);

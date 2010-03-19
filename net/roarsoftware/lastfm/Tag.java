@@ -19,9 +19,6 @@ public class Tag implements Comparable<Tag> {
 	private String url;
 	private int count;
 
-	private Tag() {
-	}
-
 	Tag(String name) {
 		this.name = name;
 	}
@@ -157,6 +154,7 @@ public class Tag implements Comparable<Tag> {
 		return Chart.getWeeklyChartList("tag", tag, apiKey);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static Collection<Chart> getWeeklyChartListAsCharts(String tag, String apiKey) {
 		return Chart.getWeeklyChartListAsCharts("tag", tag, apiKey);
 	}
