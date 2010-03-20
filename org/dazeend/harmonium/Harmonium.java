@@ -16,6 +16,9 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
+import javazoom.spi.mpeg.sampled.file.IcyListener;
+import javazoom.spi.mpeg.sampled.file.tag.IcyInputStream;
+
 import org.blinkenlights.jid3.ID3Exception;
 import org.dazeend.harmonium.music.ArtSource;
 import org.dazeend.harmonium.music.EditablePlaylist;
@@ -438,12 +441,39 @@ public class Harmonium extends HDApplication {
 			{
 				System.out.println("Fetching MP3 stream for playback: " + uri);
 				
+                try
+                {
+    	            URL url = new URL(uri);
+    	            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    	            conn.setInstanceFollowRedirects(true);
+
+                    conn.setRequestProperty("Icy-Metadata", "1");
+                    conn.setRequestProperty("User-Agent", "WinampMPEG/5.0");
+                    conn.setRequestProperty("Accept", "audio/mpeg");
+
+                    InputStream inputStream = conn.getInputStream();
+
+                    IcyInputStream icyInputStream = new IcyInputStream(inputStream);
+                    final IcyListener icyListener = IcyListener.getInstance();
+                    icyInputStream.addTagParseListener(icyListener);
+
+    	            return new BufferedInputStream(icyInputStream, 102400);
+                }
+                catch (Throwable t)
+                {
+                	t.printStackTrace();
+                }
+
 	            URL url = new URL(uri);
 	            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 	            conn.setInstanceFollowRedirects(true);
-	            InputStream x = conn.getInputStream();
-	            return new BufferedInputStream(x, 102400);
-			}
+
+                conn.setRequestProperty("Accept", "audio/mpeg");
+
+                InputStream inputStream = conn.getInputStream();
+
+	            return new BufferedInputStream(inputStream, 102400);
+}
 			else if (lowerUri.endsWith(".mp3"))
 			{
 	            File file = new File(MusicCollection.getMusicCollection(this).getMusicRoot(), URLDecoder.decode(uri, "UTF-8"));

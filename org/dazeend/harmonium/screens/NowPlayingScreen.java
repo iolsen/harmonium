@@ -595,12 +595,12 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 	{
     	HmeEvent.ResourceInfo resourceInfo = (HmeEvent.ResourceInfo) event;
     	
-//    	if (this.app.getFactoryPreferences().inDebugMode() && this.musicStream != null)
-//    		System.out.println("Stream status: " + this.musicStream.getStatus());
-    	
     	// Check that this event is for the music stream
     	if( (this.musicStream != null) && (event.getID() == this.musicStream.getID() ) ) 
     	{
+        	if (this.app.getFactoryPreferences().inDebugMode() && this.musicStream != null)
+        		System.out.println("Stream status: " + this.musicStream.getStatus());
+
         	// Check the type of status sent
     		switch( resourceInfo.getStatus() ) 
     		{
@@ -658,11 +658,13 @@ public class NowPlayingScreen extends HManagedResourceScreen {
 	    		case RSRC_STATUS_CLOSED:
 	    		case RSRC_STATUS_COMPLETE:
 	    		case RSRC_STATUS_ERROR:
+	    			
 					// the current track has finished, so check if there's another track to play.
 	    			if( this.app.getDiscJockey().isAtEndOfPlaylist() && ( ! this.app.getDiscJockey().isRepeating() ) ) 
 	    			{
-	 
 	    				// There's not another track to play
+		    			stopPlayback();
+
 	    				this.app.resetInactivityTimer();
 	    				
 	    				// Pop the screen saver if it is showing
