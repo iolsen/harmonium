@@ -255,7 +255,8 @@ public class Factory implements IFactory
         
         try {
             in = getStream(baseUri);
-        } catch (IOException e) {
+        } catch (Exception e) {
+        	e.printStackTrace();
             http.reply(404, e.getMessage());
             return null;
         }
