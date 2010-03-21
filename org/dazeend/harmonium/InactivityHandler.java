@@ -64,13 +64,13 @@ public final class InactivityHandler {
 			// If we've been inactive, but there's music playing and we're not on the Now Playing screen,
 			// go to the Now Playing screen.  Next time we go inactive we'll enable the screen saver.
 			if (this.app.getDiscJockey().isPlaying() && (this.app.getCurrentScreen().getClass() != NowPlayingScreen.class) 
-					&& this.app.getDiscJockey().getNowPlayingScreen() != null) {
+					&& this.app.getNowPlayingScreen() != null) {
 				
 				if (this.app.isInDebugMode())
 					System.out.println("INACTIVITY DEBUG: Resetting and pushing now playing screen.");
 
 				resetInactivityTimer();
-				this.app.push(this.app.getDiscJockey().getNowPlayingScreen(), IBananas.TRANSITION_LEFT);
+				this.app.push(this.app.getNowPlayingScreen(), IBananas.TRANSITION_LEFT);
 				return;
 			}
 			

@@ -3,6 +3,7 @@ package org.dazeend.harmonium.screens;
 import java.util.Collections;
 import java.util.List;
 
+import org.dazeend.harmonium.DiscJockey;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.music.HPLFile;
 import org.dazeend.harmonium.music.MusicCollection;
@@ -23,7 +24,7 @@ public class AddToPlaylistScreen extends HListScreen {
 		this.musicItem = musicItem;
 		
 		// if there's music playing, and we're not saving the current playlist, put "Now Playing" at the top.
-		if ( this.app.getDiscJockey().hasCurrentPlaylist() && !(musicItem instanceof Harmonium.DiscJockey.CurrentPlaylist)) {
+		if ( this.app.getDiscJockey().hasCurrentPlaylist() && !(musicItem instanceof DiscJockey.CurrentPlaylist)) {
 			this.list.add(NP_PLAYLIST_LABEL);
 		}
 		

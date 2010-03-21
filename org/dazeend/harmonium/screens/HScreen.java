@@ -2,7 +2,6 @@ package org.dazeend.harmonium.screens;
 
 import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
-import org.dazeend.harmonium.PlayRate;
 import org.dazeend.harmonium.music.PlayableCollection;
 
 import com.tivo.hme.bananas.BEvent;
@@ -64,21 +63,21 @@ public class HScreen extends HManagedResourceScreen {
 	 * @see com.tivo.hme.bananas.BScreen#handleAction(com.tivo.hme.bananas.BView, java.lang.Object)
 	 */
 	@Override
-	public boolean handleAction(BView arg0, Object arg1) {
+	public boolean handleAction(BView arg0, Object arg1) 
+	{
 		// All "pop" actions are handled the same way, so handle them here.
-		if(arg1.equals("pop")) {
+		if(arg1.equals("pop")) 
+		{
 			this.app.resetInactivityTimer();
-			if(getBApp().getStackDepth() <= 1) {
-				if( (this.app.getDiscJockey().getNowPlaying() != null) && (! this.app.getDiscJockey().getPlayRate().equals(PlayRate.STOP) ) ) {
+			if(getBApp().getStackDepth() <= 1) 
+			{
+				if(this.app.getDiscJockey().isPlaying())
 					this.app.push(new ExitScreen(this.app), TRANSITION_LEFT);
-				}
-				else {
+				else
 					getBApp().setActive(false);
-				}
 			}
-			else {
+			else
 				app.pop();
-			}
 		}
 		return super.handleAction(arg0, arg1);
 	}

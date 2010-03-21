@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.Harmonium;
-import org.dazeend.harmonium.screens.NowPlayingScreen;
 
 public class MP3Stream extends HMusic implements Playable
 {
@@ -25,27 +24,6 @@ public class MP3Stream extends HMusic implements Playable
 	public String getURI()
 	{
 		return _uri;
-	}
-
-	public boolean pause(NowPlayingScreen nowPlayingScreen)
-	{
-		return false;
-	}
-
-	public boolean play(NowPlayingScreen nowPlayingScreen)
-	{
-		return nowPlayingScreen.play(this); 
-	}
-
-	public boolean stop(NowPlayingScreen nowPlayingScreen)
-	{
-		nowPlayingScreen.stopPlayback();
-		return true;
-	}
-
-	public boolean unpause(NowPlayingScreen nowPlayingScreen)
-	{
-		return false;
 	}
 
 	public List<Playable> getMembers(Harmonium app)
