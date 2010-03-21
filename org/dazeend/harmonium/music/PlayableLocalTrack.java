@@ -6,7 +6,7 @@ import java.io.File;
  * The public interface for all tracks that can be played from local files.
  * It should be implemented by each file type to play (MP3, AAC, MP3, OggVorbis, etc.) 
  */
-public interface PlayableLocalTrack extends PlayableTrack, PlayableRateChangeable
+public interface PlayableLocalTrack extends PlayableTrack
 {
 	/**
 	 * Gets filename of track on disk.

@@ -21,7 +21,6 @@ import org.blinkenlights.jid3.v2.APICID3V2Frame;
 import org.blinkenlights.jid3.v2.ID3V2_3_0Tag;
 import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.Harmonium;
-import org.dazeend.harmonium.screens.NowPlayingScreen;
 
 import net.roarsoftware.lastfm.Album;
 import net.roarsoftware.lastfm.ImageSize;
@@ -642,72 +641,6 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 	//@Override
 	public int getTrackNumber() {
 		return this.trackNumber;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dazeend.harmonium.Playable#play()
-	 */
-	//@Override
-	public boolean play(NowPlayingScreen nowPlayingScreen) 
-	{
-		return nowPlayingScreen.play(this); 
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.dazeend.harmonium.music.Playable#stop()
-	 */
-	//@Override
-	public boolean stop(NowPlayingScreen nowPlayingScreen) {
-		nowPlayingScreen.stopPlayback();
-		return true;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dazeend.harmonium.Playable#pause()
-	 */
-	//@Override
-	public boolean pause(NowPlayingScreen nowPlayingScreen) {
-		if( nowPlayingScreen.getMusicStream() != null ) {
-			if(! nowPlayingScreen.getMusicStream().isPaused() ) {
-				nowPlayingScreen.getMusicStream().pause();
-			}
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.dazeend.harmonium.Playable#unpause()
-	 */
-	//@Override
-	public boolean unpause(NowPlayingScreen nowPlayingScreen) {
-		if( nowPlayingScreen.getMusicStream() != null ) {
-			if(nowPlayingScreen.getMusicStream().isPaused() ) {
-				nowPlayingScreen.getMusicStream().play();
-			}
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.dazeend.harmonium.Playable#setPlayRate()
-	 */
-	//@Override
-	public boolean setPlayRate(NowPlayingScreen nowPlayingScreen, float speed) {
-		
-		if(nowPlayingScreen.getMusicStream() == null) {
-			
-		}
-		if(nowPlayingScreen.getMusicStream() != null) {
-			nowPlayingScreen.getMusicStream().setSpeed(speed);
-			return true;
-		}
-		return false;
 	}
 
 	/* (non-Javadoc)

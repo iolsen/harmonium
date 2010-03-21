@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
-import org.dazeend.harmonium.Harmonium.DiscJockey;
-import org.dazeend.harmonium.Harmonium.DiscJockey.CurrentPlaylist;
+import org.dazeend.harmonium.DiscJockey;
+import org.dazeend.harmonium.DiscJockey.CurrentPlaylist;
 import org.dazeend.harmonium.music.EditablePlaylist;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlayableLocalTrack;

@@ -65,7 +65,7 @@ public class BrowsePlaylistsScreen extends HSkipListScreen
 	    	if (code == KEY_PLAY)
 			{
 	        	if ( selected instanceof String && selected.equals(NOW_PLAYING_PLAYLIST)) {
-	        		this.app.push(this.app.getDiscJockey().getNowPlayingScreen(), TRANSITION_LEFT);
+	        		this.app.push(this.app.getNowPlayingScreen(), TRANSITION_LEFT);
 	        	}
 	        	else {
 					PlaylistFile playlist = (PlaylistFile)selected;

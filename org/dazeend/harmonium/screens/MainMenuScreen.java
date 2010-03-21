@@ -68,8 +68,8 @@ public class MainMenuScreen extends HListScreen {
         		return true;
         	}
         	else if(menuOption.equals(NOW_PLAYING)) {
-        		if(this.app.getDiscJockey().isPlaying() && (this.app.getDiscJockey().getNowPlayingScreen() != null) ) {
-        			this.app.push(this.app.getDiscJockey().getNowPlayingScreen(), TRANSITION_LEFT);
+        		if(this.app.getDiscJockey().isPlaying() && (this.app.getNowPlayingScreen() != null) ) {
+        			this.app.push(this.app.getNowPlayingScreen(), TRANSITION_LEFT);
         		}
         		return true;
         	}

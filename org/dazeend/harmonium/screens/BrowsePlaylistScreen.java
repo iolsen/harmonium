@@ -85,7 +85,7 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 				{
 					return true;
 				}
-        		this.app.push(this.app.getDiscJockey().getNowPlayingScreen(), TRANSITION_LEFT);
+        		this.app.push(this.app.getNowPlayingScreen(), TRANSITION_LEFT);
         	}
         	
             return true;
@@ -121,7 +121,7 @@ public class BrowsePlaylistScreen extends HAlbumInfoListScreen {
 				{
 					return true;
 				}
-        		this.app.push(this.app.getDiscJockey().getNowPlayingScreen(), TRANSITION_LEFT);
+        		this.app.push(this.app.getNowPlayingScreen(), TRANSITION_LEFT);
 			}
 				
 			return true;
