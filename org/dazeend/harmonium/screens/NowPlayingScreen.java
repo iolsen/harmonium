@@ -276,21 +276,17 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
     			artistNameLabelText.setValue("Artist");
 
     			PlayableTrack pt = (PlayableTrack)nowPlaying;
-    		    if(pt.getDiscNumber() > 0) {
+    		    if (pt.getDiscNumber() > 0)
     				this.albumNameText.setValue(pt.getAlbumName() + " - Disc " + pt.getDiscNumber());
-    			}
-    			else {
+    			else
     				this.albumNameText.setValue(pt.getAlbumName() );
-    			}
     		    
                 this.albumArtistText.setValue(pt.getAlbumArtistName());
                 
-                if(pt.getReleaseYear() == 0) {
+                if(pt.getReleaseYear() == 0)
         			this.yearText.setValue("");
-        		}
-        		else {
+        		else
         			this.yearText.setValue(pt.getReleaseYear());
-        		}
                 
                 this.trackNameText.setValue(pt.getTrackName());
                 this.artistNameText.setValue(pt.getArtistName());
@@ -351,7 +347,8 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 	 * because, we may exit this screen to the screensaver (which doesn't use the standard background).
 	 *
 	 */
-	private void pop() {
+	private void pop() 
+	{
 		this.app.setBackgroundImage();
 		this.app.pop();
 	}
@@ -376,32 +373,36 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 			// We are in the simulator, so set a PNG background.
 			
 			// Change the background based on the new aspect ratio.
-			if( (aspectRatio > 1.7) && (aspectRatio < 1.8) ) {
+			if( (aspectRatio > 1.7) && (aspectRatio < 1.8) ) 
+			{
 				// The current aspect ratio is approximately 16:9. 
 				// Use the high definition background meant for 720p.
 				String url = this.getContext().getBaseURI().toString();
-				try {
-					url += URLEncoder.encode("now_playing_720.png", "UTF-8");
-				}
-				catch(UnsupportedEncodingException e) {
-				}
+				
+				try {url += URLEncoder.encode("now_playing_720.png", "UTF-8");}
+				catch(UnsupportedEncodingException e) {}
+				
 				this.app.getRoot().setResource(this.createStream(url, "image/png", true));
 			}
-			else {
+			else 
+			{
 				// Default background is standard definition 640 x 480 (4:3)
 				this.app.getRoot().setResource("now_playing_sd.png");
 			}
 		}
-		else {
+		else 
+		{
 			// We are running on a real TiVo, so use an MPEG background to conserve memory.
 			
 			// Change the background based on the new aspect ratio.
-			if( (aspectRatio > 1.7) && (aspectRatio < 1.8) ) {
+			if( (aspectRatio > 1.7) && (aspectRatio < 1.8) ) 
+			{
 				// The current aspect ratio is approximately 16:9. 
 				// Use the high definition background meant for 720p.		
 				this.app.getRoot().setResource("now_playing_720.mpg");
 			}
-			else {
+			else 
+			{
 				// Default background is standard definition 640 x 480 (4:3)
 				this.app.getRoot().setResource("now_playing_sd.mpg");
 			}
@@ -414,85 +415,88 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 	 * Handles key presses from TiVo remote control.
 	 */
 	@Override
-	public boolean handleKeyPress(int key, long rawcode) {
-		
-		if (key == KEY_CLEAR) {
+	public boolean handleKeyPress(int key, long rawcode)
+	{
+		if (key == KEY_CLEAR) 
+		{
 			this.app.setInactive();
 			return true;
 		}
 			
 		this.app.checkKeyPressToResetInactivityTimer(key);
 		
-		switch(key) {
-		case KEY_INFO:
-			pop();
-			BrowsePlaylistScreen bps;
-			BScreen s = app.getCurrentScreen();
-			if (s instanceof BrowsePlaylistScreen) {
-				bps = (BrowsePlaylistScreen)s;
-				if(bps.isNowPlayingPlaylist()) {
-					bps.focusNowPlaying();
-					return true;
+		switch(key) 
+		{
+			case KEY_INFO:
+				pop();
+				BrowsePlaylistScreen bps;
+				BScreen s = app.getCurrentScreen();
+				if (s instanceof BrowsePlaylistScreen) 
+				{
+					bps = (BrowsePlaylistScreen)s;
+					if(bps.isNowPlayingPlaylist()) 
+					{
+						bps.focusNowPlaying();
+						return true;
+					}
 				}
-			}
-			bps = new BrowsePlaylistScreen(app);
-			app.push(bps, TRANSITION_LEFT);
-			bps.focusNowPlaying();
-			return true;
-		case KEY_LEFT:
-			if (this.app.getDiscJockey().isSeeking())
-				this.app.play("bonk.snd");
-			else
-				this.pop();
-			return true;
-
-		case KEY_FORWARD:
-			this.app.getDiscJockey().fastForward();
-			return true;
-			
-		case KEY_REVERSE:
-			this.app.getDiscJockey().rewind();
-			return true;
-			
-		case KEY_PLAY:
-			this.app.getDiscJockey().playNormalSpeed();
-			return true;
-			
-		case KEY_PAUSE:
-			this.app.getDiscJockey().togglePause();
-			return true;
-			
-		case KEY_CHANNELUP:
-
-			if (this.app.getDiscJockey().playNext())
-				this.app.play("pageup.snd");
-			else
-				this.app.play("bonk.snd");
-			
-			return true;
-			
-		case KEY_CHANNELDOWN:
-			
-			if (this.app.getDiscJockey().playPrevious())
-				this.app.play("pagedown.snd");
-			else
-				this.app.play("bonk.snd");
-
-			return true;
-			
-		case KEY_REPLAY:
-			this.app.play("select.snd");
-			this.app.getDiscJockey().toggleRepeatMode();
-			return true;
-			
-		case KEY_ADVANCE:
-			this.app.play("select.snd");
-			this.app.getDiscJockey().toggleShuffleMode();
-			return true;
+				bps = new BrowsePlaylistScreen(app);
+				app.push(bps, TRANSITION_LEFT);
+				bps.focusNowPlaying();
+				return true;
+			case KEY_LEFT:
+				if (this.app.getDiscJockey().isSeeking())
+					this.app.play("bonk.snd");
+				else
+					this.pop();
+				return true;
+	
+			case KEY_FORWARD:
+				this.app.getDiscJockey().fastForward();
+				return true;
+				
+			case KEY_REVERSE:
+				this.app.getDiscJockey().rewind();
+				return true;
+				
+			case KEY_PLAY:
+				this.app.getDiscJockey().playNormalSpeed();
+				return true;
+				
+			case KEY_PAUSE:
+				this.app.getDiscJockey().togglePause();
+				return true;
+				
+			case KEY_CHANNELUP:
+	
+				if (this.app.getDiscJockey().playNext())
+					this.app.play("pageup.snd");
+				else
+					this.app.play("bonk.snd");
+				
+				return true;
+				
+			case KEY_CHANNELDOWN:
+				
+				if (this.app.getDiscJockey().playPrevious())
+					this.app.play("pagedown.snd");
+				else
+					this.app.play("bonk.snd");
+	
+				return true;
+				
+			case KEY_REPLAY:
+				this.app.play("select.snd");
+				this.app.getDiscJockey().toggleRepeatMode();
+				return true;
+				
+			case KEY_ADVANCE:
+				this.app.play("select.snd");
+				this.app.getDiscJockey().toggleShuffleMode();
+				return true;
 		}
 		
 		return super.handleKeyPress(key, rawcode);
-
 	}
 
 	public void playRateChanging(PlayRate newPlayRate)
@@ -539,7 +543,8 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 		 * @param timeLength	length of time this ProgressBar tracks in milliseconds
 		 * @param fontSize		the font to use for text in the ProgressBar
 		 */
-		public ProgressBar(NowPlayingScreen parent, int x, int y, int width, int fontSize) {
+		public ProgressBar(NowPlayingScreen parent, int x, int y, int width, int fontSize) 
+		{
 			super(parent.getNormal(), x, y, width, 0, false);
 			
 			// Create font. Use FONT_METRIC_BASIC flag so that we get font metrics.
