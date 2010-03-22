@@ -37,6 +37,12 @@ public class DiscJockey extends View
 	private boolean shuffleMode = false;	// true if play list is being played in shuffle mode, otherwise false.
 	private boolean repeatMode = false;		// true if playlist should start over when end is reached
 	
+	private DiscJockey(Harmonium app) 
+	{
+		super(app.getRoot(), 1, 1, 1, 1, false);
+		this.app = app;
+	}
+
 	public synchronized static DiscJockey getDiscJockey(Harmonium app) 
 	{
 		if(app.getDiscJockey() == null) {
@@ -53,10 +59,50 @@ public class DiscJockey extends View
 		_listener = listener;
 	}
 
-	private DiscJockey(Harmonium app) 
-	{
-		super(app.getRoot(), 1, 1, 1, 1, false);
-		this.app = app;
+	/**
+	 * Plays an MP3. 
+	 * 
+	 * @param mp3File
+	 */
+	private boolean play(Playable playable) {
+	
+		// Stop any track that might be playing
+		stop();
+	
+		// Make sure that the file exists on disk and hasn't been deleted
+		if (playable instanceof PlayableLocalTrack)
+		{
+			PlayableLocalTrack plt = (PlayableLocalTrack)playable;
+			if( ( plt.getTrackFile() == null ) || ( !plt.getTrackFile().exists() ) )
+			return false;
+		}
+	
+		this.nowPlaying = playable;
+		this.playRate = PlayRate.NORMAL;
+		
+		if (_listener != null)
+			_listener.nowPlayingChanged(playable);
+		
+		//
+	    // Construct the URI to send to the receiver. The receiver will
+	    // connect back to our factory and ask for the file. The URI
+	    // consists of:
+	    //
+	    // (our base URI) + (the Playable's URI)
+	    //
+		
+		String url = this.getApp().getContext().getBaseURI().toString();
+	    try {
+	        url += URLEncoder.encode(playable.getURI(), "UTF-8");
+	    } catch (UnsupportedEncodingException e) {
+	        e.printStackTrace();
+	    }
+	
+	    // MP3's are played as a streamed resource   
+	    this.nowPlayingResource = this.createStream(url, playable.getContentType(), true);
+	    this.setResource(this.nowPlayingResource); 
+	    
+	    return true;
 	}
 
 	public void play(List<PlayableCollection> playlist, Boolean shuffleMode, Boolean repeatMode) 
@@ -192,7 +238,9 @@ public class DiscJockey extends View
 			if( !this.play(nowPlaying) ) 
 				return this.playNext();
 			
-			updateListenerForNowPlayingChange();
+			if (_listener != null)
+				_listener.nowPlayingChanged(nowPlaying);
+
 			return true;
 		}
 		return false;
@@ -281,19 +329,13 @@ public class DiscJockey extends View
 			this.nowPlaying = currentQueue.get(this.musicIndex);
 			if (!play(nowPlaying))
 				return this.playPrevious();
-			updateListenerForNowPlayingChange();
+
+			if (_listener != null)
+				_listener.nowPlayingChanged(nowPlaying);
+
 			return true;
 		}
 		return false;
-	}
-	
-	private void updateListenerForNowPlayingChange()
-	{
-		if (_listener != null)
-		{
-			_listener.nowPlayingChanged(nowPlaying);
-			_listener.nextTrackChanged(getNextTrack());
-		}
 	}
 	
 	public void playItemInQueue(Playable playItem) throws Exception {
@@ -311,7 +353,10 @@ public class DiscJockey extends View
 		this.nowPlaying = playItem;
 
 		if (play(nowPlaying))
-			updateListenerForNowPlayingChange();
+		{
+			if (_listener != null)
+				_listener.nowPlayingChanged(nowPlaying);
+		}
 		else
 			this.playPrevious();
 	}
@@ -333,6 +378,21 @@ public class DiscJockey extends View
 			// Re-set the music stream
 			this.nowPlayingResource = null;
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.dazeend.harmonium.Playable#pause()
+	 */
+	//@Override
+	public boolean pause()
+	{
+		if (nowPlayingResource != null)
+		{
+			if (!nowPlayingResource.isPaused())
+				nowPlayingResource.pause();
+			return true;
+		}
+		return false;
 	}
 
 	public synchronized boolean togglePause() 
@@ -369,6 +429,29 @@ public class DiscJockey extends View
 			}
 		}
 		return false;
+	}
+
+	private double handleElapsedChanged(HmeEvent.ResourceInfo resourceInfo)
+	{
+		if (this.nowPlaying == null)
+			return 0;
+		
+		long duration = this.nowPlaying.getDuration();  // TODO save duration as field?
+		
+		String[] positionInfo = resourceInfo.getMap().get("pos").toString().split("/");
+		msElapsed = Long.parseLong(positionInfo[0]);
+	
+		double fractionComplete = (double)msElapsed / duration;
+		
+		if (_listener != null)
+			_listener.timeElapsedChanged(msElapsed, duration, fractionComplete);
+		
+		return fractionComplete;
+	}
+
+	public int getSecondsElapsed() 
+	{
+		return (int)(msElapsed / 1000);
 	}
 
 	/**
@@ -511,6 +594,104 @@ public class DiscJockey extends View
 		}
 	}
 	
+	@Override
+		public boolean handleEvent(HmeEvent event) 
+		{
+			// Check to see if this event is of a type that we want to handle
+			if (event.getOpCode() == EVT_RSRC_INFO)
+			{
+		    	HmeEvent.ResourceInfo resourceInfo = (HmeEvent.ResourceInfo) event;
+		    	
+		    	// Check that this event is for the music stream
+		    	if( (nowPlayingResource != null) && (event.getID() == nowPlayingResource.getID() ) ) 
+		    	{
+	//	        	if (this.app.getFactoryPreferences().inDebugMode() && nowPlayingResource != null)
+	//	        		System.out.println("Stream status: " + nowPlayingResource.getStatus());
+	
+		        	// Check the type of status sent
+		    		switch( resourceInfo.getStatus() ) 
+		    		{
+			    		case RSRC_STATUS_PLAYING:
+			    			
+			    			handleElapsedChanged(resourceInfo);
+							break;
+							
+			    		case RSRC_STATUS_SEEKING:
+			
+			    			double fractionComplete = handleElapsedChanged(resourceInfo);
+			        		
+			        		// Since we're using our custom duration rather than the one the Tivo sends in the event,
+			        		// trickplay doesn't automatically stop at the beginning or end of a track when fast forwarding
+			        		// or rewinding. Implement it.
+			        		double lowerLimit = 0;
+			        		double upperLimit = .95;
+			        		if(Float.parseFloat( resourceInfo.getMap().get("speed").toString() ) < 0  && fractionComplete <= lowerLimit) 
+			        		{
+			        			// We are rewinding and are about to hit the beginning of the track. 
+			        			// Position the track at our lower limit and drop back to NORMAL speed.
+			        			long position = (long)( this.nowPlaying.getDuration() * lowerLimit);
+			        			this.nowPlayingResource.setPosition(position);
+			        			this.playNormalSpeed();
+			        		}
+			        		if( Float.parseFloat( resourceInfo.getMap().get("speed").toString() ) > 1 && fractionComplete >= upperLimit ) 
+			        		{
+			        			// We are fast forwarding and are about to hit the end of the track. 
+			        			// Position the track at our upper limit and drop back to NORMAL speed.
+			        			long position = (long)( this.nowPlaying.getDuration() * upperLimit);
+			
+			        			this.nowPlayingResource.setPosition(position);
+			        			this.playNormalSpeed();
+			        		}
+			        		break;
+			        		
+			    		case RSRC_STATUS_CLOSED:
+			    		case RSRC_STATUS_COMPLETE:
+			    		case RSRC_STATUS_ERROR:
+			    			
+							// the current track has finished, so check if there's another track to play.
+			    			if( this.app.getDiscJockey().isAtEndOfPlaylist() && ( ! this.app.getDiscJockey().isRepeating() ) ) 
+			    			{
+			    				// There's not another track to play
+				    			stop();
+	
+			    				this.app.resetInactivityTimer();
+			    				
+			    				// TODO: move the screen pops, I think
+			    				
+			    				// Pop the screen saver if it is showing
+			    				if(this.app.getCurrentScreen().getClass() == ScreenSaverScreen.class)
+			    					this.app.pop();
+			    				
+			    				// Pop this Now Playing Screen only if it is showing.
+			    				if(this.app.getCurrentScreen().equals(this)) 
+			    					this.app.pop();
+							}
+							break;
+					}
+			    }
+			}
+	
+			boolean result = super.handleEvent(event);
+	
+			// Check to see if this event is of a type that we want to handle
+			if( this.nowPlayingResource != null && event.getID() == nowPlayingResource.getID()					
+				&& event.getClass() == HmeEvent.ResourceInfo.class)
+			{
+				// This is a ResourceInfo event which we will read for information about the status of
+				// music that is being streamed.
+				HmeEvent.ResourceInfo  resourceInfo = (HmeEvent.ResourceInfo) event;
+				
+				// Has the current track finished playing?
+				if (resourceInfo.getStatus() >= RSRC_STATUS_CLOSED) 
+				{
+					// the current track has finished, so play the next one
+					playNext();
+				}
+			}
+			
+			return result;
+		}
+
 	public class CurrentPlaylist extends EditablePlaylist {
 
 		private DiscJockey _dj;
@@ -577,187 +758,5 @@ public class DiscJockey extends View
 			if (_dj._listener != null)
 				_dj._listener.nowPlayingChanged(_dj.nowPlaying);
 		}
-	}
-
-	public int getSecondsElapsed() 
-	{
-		return (int)(msElapsed / 1000);
-	}
-
-	@Override
-	public boolean handleEvent(HmeEvent event) 
-	{
-		// Check to see if this event is of a type that we want to handle
-		if (event.getOpCode() == EVT_RSRC_INFO)
-		{
-	    	HmeEvent.ResourceInfo resourceInfo = (HmeEvent.ResourceInfo) event;
-	    	
-	    	// Check that this event is for the music stream
-	    	if( (nowPlayingResource != null) && (event.getID() == nowPlayingResource.getID() ) ) 
-	    	{
-//	        	if (this.app.getFactoryPreferences().inDebugMode() && nowPlayingResource != null)
-//	        		System.out.println("Stream status: " + nowPlayingResource.getStatus());
-
-	        	// Check the type of status sent
-	    		switch( resourceInfo.getStatus() ) 
-	    		{
-		    		case RSRC_STATUS_PLAYING:
-		    			
-		    			handleElapsedChanged(resourceInfo);
-						break;
-						
-		    		case RSRC_STATUS_SEEKING:
-		
-		    			double fractionComplete = handleElapsedChanged(resourceInfo);
-		        		
-		        		// Since we're using our custom duration rather than the one the Tivo sends in the event,
-		        		// trickplay doesn't automatically stop at the beginning or end of a track when fast forwarding
-		        		// or rewinding. Implement it.
-		        		double lowerLimit = 0;
-		        		double upperLimit = .95;
-		        		if(Float.parseFloat( resourceInfo.getMap().get("speed").toString() ) < 0  && fractionComplete <= lowerLimit) 
-		        		{
-		        			// We are rewinding and are about to hit the beginning of the track. 
-		        			// Position the track at our lower limit and drop back to NORMAL speed.
-		        			long position = (long)( this.nowPlaying.getDuration() * lowerLimit);
-		        			this.nowPlayingResource.setPosition(position);
-		        			this.playNormalSpeed();
-		        		}
-		        		if( Float.parseFloat( resourceInfo.getMap().get("speed").toString() ) > 1 && fractionComplete >= upperLimit ) 
-		        		{
-		        			// We are fast forwarding and are about to hit the end of the track. 
-		        			// Position the track at our upper limit and drop back to NORMAL speed.
-		        			long position = (long)( this.nowPlaying.getDuration() * upperLimit);
-		
-		        			this.nowPlayingResource.setPosition(position);
-		        			this.playNormalSpeed();
-		        		}
-		        		break;
-		        		
-		    		case RSRC_STATUS_CLOSED:
-		    		case RSRC_STATUS_COMPLETE:
-		    		case RSRC_STATUS_ERROR:
-		    			
-						// the current track has finished, so check if there's another track to play.
-		    			if( this.app.getDiscJockey().isAtEndOfPlaylist() && ( ! this.app.getDiscJockey().isRepeating() ) ) 
-		    			{
-		    				// There's not another track to play
-			    			stop();
-
-		    				this.app.resetInactivityTimer();
-		    				
-		    				// TODO: move the screen pops, I think
-		    				
-		    				// Pop the screen saver if it is showing
-		    				if(this.app.getCurrentScreen().getClass() == ScreenSaverScreen.class)
-		    					this.app.pop();
-		    				
-		    				// Pop this Now Playing Screen only if it is showing.
-		    				if(this.app.getCurrentScreen().equals(this)) 
-		    					this.app.pop();
-						}
-						break;
-				}
-		    }
-		}
-
-		boolean result = super.handleEvent(event);
-
-		// Check to see if this event is of a type that we want to handle
-		if( this.nowPlayingResource != null && event.getID() == nowPlayingResource.getID()					
-			&& event.getClass() == HmeEvent.ResourceInfo.class)
-		{
-			// This is a ResourceInfo event which we will read for information about the status of
-			// music that is being streamed.
-			HmeEvent.ResourceInfo  resourceInfo = (HmeEvent.ResourceInfo) event;
-			
-			// Has the current track finished playing?
-			if (resourceInfo.getStatus() >= RSRC_STATUS_CLOSED) 
-			{
-				// the current track has finished, so play the next one
-				playNext();
-			}
-		}
-		
-		return result;
-	}
-
-	private double handleElapsedChanged(HmeEvent.ResourceInfo resourceInfo)
-	{
-		if (this.nowPlaying == null)
-			return 0;
-		
-    	long duration = this.nowPlaying.getDuration();  // TODO save duration as field?
-		
-		String[] positionInfo = resourceInfo.getMap().get("pos").toString().split("/");
-		msElapsed = Long.parseLong(positionInfo[0]);
-
-    	double fractionComplete = (double)msElapsed / duration;
-    	
-		if (_listener != null)
-			_listener.timeElapsedChanged(msElapsed, duration, fractionComplete);
-		
-		return fractionComplete;
-	}
-
-	/**
-	 * Plays an MP3. 
-	 * 
-	 * @param mp3File
-	 */
-	private boolean play(Playable playable) {
-
-		// Stop any track that might be playing
-		stop();
-
-		// Make sure that the file exists on disk and hasn't been deleted
-		if (playable instanceof PlayableLocalTrack)
-		{
-			PlayableLocalTrack plt = (PlayableLocalTrack)playable;
-			if( ( plt.getTrackFile() == null ) || ( !plt.getTrackFile().exists() ) )
-			return false;
-		}
-
-		this.nowPlaying = playable;
-		this.playRate = PlayRate.NORMAL;
-		
-		if (_listener != null)
-			_listener.nowPlayingChanged(playable);
-		
-		//
-        // Construct the URI to send to the receiver. The receiver will
-        // connect back to our factory and ask for the file. The URI
-        // consists of:
-        //
-        // (our base URI) + (the Playable's URI)
-        //
-		
-		String url = this.getApp().getContext().getBaseURI().toString();
-        try {
-            url += URLEncoder.encode(playable.getURI(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
- 
-        // MP3's are played as a streamed resource   
-        this.nowPlayingResource = this.createStream(url, playable.getContentType(), true);
-        this.setResource(this.nowPlayingResource); 
-        
-        return true;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.dazeend.harmonium.Playable#pause()
-	 */
-	//@Override
-	public boolean pause()
-	{
-		if (nowPlayingResource != null)
-		{
-			if (!nowPlayingResource.isPaused())
-				nowPlayingResource.pause();
-			return true;
-		}
-		return false;
 	}
 }
