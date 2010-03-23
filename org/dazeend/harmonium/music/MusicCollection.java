@@ -448,8 +448,13 @@ public class MusicCollection implements PlayableCollection {
 								String mapKey = trackFile.getCanonicalPath();
 								this.trackMap.put(mapKey, mp3);
 								
+								//Disable album art updates during build. This means it will fetch album art from http on demand rather than at the start of harmonium
+								//this doesnt seem to work very well...need to come back to this
+								//boolean configuredValue = this.hFactory.getPreferences().includeHTTP();
+								//this.hFactory.getPreferences().setIncludeHTTP(false);
 								// Add the MP3File to this music collection
 								this.addTrack(this.hFactory.getPreferences(), mp3);
+								//this.hFactory.getPreferences().setIncludeHTTP(configuredValue);
 								
 							}
 							catch(NumberFormatException e) {
