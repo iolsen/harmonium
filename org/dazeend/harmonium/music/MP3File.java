@@ -1,18 +1,29 @@
 package org.dazeend.harmonium.music;
 
+import java.applet.Applet;
+
 import java.awt.Image;
+import java.awt.image.BufferedImage;
+
+
 import java.awt.Toolkit;
+import java.awt.MediaTracker;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+
 
 import org.blinkenlights.jid3.ID3Exception;
 import org.blinkenlights.jid3.v1.ID3V1Tag;
@@ -306,7 +317,7 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 	 */
 	//@Override
 	public boolean hasAlbumArt(FactoryPreferences prefs) {
-		
+
 		if ( albumImageFetched )
 			return hasAlbumArt;
 		
@@ -439,13 +450,11 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 		Image img = null;
 		String apiKey = "7984437bf046cc74c368f02bf9de16de";
 		Album albumInfo = Album.getInfo(artistName,albumName,apiKey);
-		if (albumInfo != null)
-		{
+		if (albumInfo != null) {
 			String ImageURL = albumInfo.getImageURL(ImageSize.valueOf("LARGE"));
 
 			//lets prevent some MalformedURLExceptions by making sure we actually have something in our URL
-			if(ImageURL.length() > 0)
-			{
+			if(ImageURL.length() > 0) {
 				try {
 					URL url = new URL(ImageURL);
 					img = Toolkit.getDefaultToolkit().createImage(url);
@@ -458,8 +467,47 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 			}
 		}
 
-		if (img == null && prefs.inDebugMode()) {
+		if (img == null && prefs.inDebugMode()) 
+		{
 			System.out.println("No Album Art Found by http For Artist: " + artistName + " Album: " + albumName);
+		}
+
+		if(img != null) 
+		{
+			org.blinkenlights.jid3.MP3File mp3File = new org.blinkenlights.jid3.MP3File(this.trackFile);
+
+			// Get any ID3v2.3 tag that exists in the mp3 file and load its data
+			ID3V2_3_0Tag v23Tag;
+			try {
+				v23Tag = (ID3V2_3_0Tag) mp3File.getID3V2Tag();
+			}
+			catch(ID3Exception e) {
+				//Dont update the ID3 tag and move on, the image is still good for the cache.
+				System.out.println("Album Art Found But Exception when getting ID3V2 tag for " + this.trackFile.getAbsolutePath());
+				return img;
+			}
+
+		
+			if(v23Tag != null) 
+			{
+				//Get the byte representation of the image
+				ImageAttributes ImageMeasurer = new ImageAttributes(img);
+				byte[] pictureData = ImageMeasurer.getImageBytes();
+				//Create a new ID3 frame and load  it with the picture data
+				APICID3V2Frame newFrontCover = new APICID3V2Frame("image/jpeg",APICID3V2Frame.PictureType.FrontCover,"Album Cover Retrieved by Harmonium",pictureData);
+				v23Tag.addAPICFrame(newFrontCover);
+				//Update the ID3 information stored in memory
+				mp3File.setID3Tag(v23Tag);
+				//Write the ID3 information to the Hard Disk
+				mp3File.sync();
+				if(prefs.inDebugMode()) 
+				{
+					System.out.println("Wrote cover art to " + this.trackFile.getAbsolutePath());
+				}
+			}
+			else if(prefs.inDebugMode()) 
+				System.out.println("Album Art Found But No ID3V2 tag for " + this.trackFile.getAbsolutePath());
+			
 		}
 		
 		return img;
@@ -489,9 +537,8 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 				img = getAlbumArtFromFile(prefs);
 
 			//If we still dont have it, give the online service a shot.
-			if (img == null){
+			if (img == null && prefs.includeHTTP())
 				img = getAlbumArtFromHTTP(prefs);
-			}
 			
 			hasAlbumArt = (img != null);
 		} 
@@ -761,4 +808,57 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 	{
 		return "audio/mpeg";
 	}
+
+	//I defined this class here because I only need it for this very specific purpose. 
+	//If we decide to expand on this for other things then we could throw this into its own file.
+	public class ImageAttributes extends Applet {
+	
+		public MediaTracker tr;
+		public Image intImg;
+
+		public ImageAttributes(Image img){
+			//We have to do this to ensure the image has loaded, otherwise when we 
+			//attempt to create the BufferedImage our width and height will be -1
+			intImg = img;
+			tr = new MediaTracker(this);
+			tr.addImage(intImg, 0);
+			try {
+  				tr.waitForAll();
+			} catch(InterruptedException e) {
+  				e.printStackTrace();
+			}
+		}
+
+
+		public byte[] getImageBytes(){
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			
+        		try {
+            			ImageIO.write(getBufferedImage(intImg), "JPEG", baos);
+				baos.flush();
+				byte[] resultImage = baos.toByteArray();
+				baos.close();
+				return resultImage;
+        		} catch (IOException e) {
+            			e.printStackTrace();
+				return null;
+        		}
+			
+
+        		
+
+		}
+
+		private BufferedImage getBufferedImage(Image image) {
+			ByteArrayOutputStream baos=new ByteArrayOutputStream(1000);
+        		BufferedImage bi = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+			bi.getGraphics().drawImage(image, 0,0,null);
+        		return bi;
+    		}
+
+	}
 }
+
+
+
+

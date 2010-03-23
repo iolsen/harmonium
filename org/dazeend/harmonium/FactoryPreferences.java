@@ -12,6 +12,7 @@ public class FactoryPreferences {
 	private boolean			ignoreEmbeddedArt = false;
 	private boolean			ignoreJpgFileArt = false;
 	private boolean			preferJpgFileArt = false;
+	private boolean			includeHTTP = false;
 
 	public FactoryPreferences(IArgumentList args) {
 		
@@ -70,6 +71,7 @@ public class FactoryPreferences {
 		this.ignoreEmbeddedArt = args.getBoolean("-ignoreEmbeddedArt");
 		this.ignoreJpgFileArt = args.getBoolean("-ignoreJpgFileArt");
 		this.preferJpgFileArt = args.getBoolean("-preferJpgFileArt");
+		this.includeHTTP = args.getBoolean("-includeHTTPAlbumArt");
 	}
 		
 	/**
@@ -106,6 +108,16 @@ public class FactoryPreferences {
 	public final boolean preferJpgFileArt()
 	{
 		return preferJpgFileArt;
+	}
+
+	public final boolean includeHTTP()
+	{
+		return includeHTTP;
+	}
+
+	public final void setIncludeHTTP(boolean newValue)
+	{
+		includeHTTP = newValue;
 	}
 	
 	

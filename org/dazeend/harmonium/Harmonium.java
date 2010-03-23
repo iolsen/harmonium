@@ -363,7 +363,7 @@ public class Harmonium extends HDApplication {
 	 */
 	public static class HarmoniumFactory extends Factory {
 		
-		private final static String VERSION = "0.8 ({REV})";
+		private final static String VERSION = "0.8 (e1747c73aa39)";
 
 		private FactoryPreferences preferences;
 		private final Hashtable<String, Long> _durationTable = new Hashtable<String, Long>();
