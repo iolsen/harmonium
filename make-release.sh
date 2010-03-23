@@ -9,8 +9,8 @@ fi
 #######################
 # update from repo
 #######################
-#hg pull $1
-#hg update --clean
+hg pull $1
+hg update --clean
 
 #######################
 # get version info
