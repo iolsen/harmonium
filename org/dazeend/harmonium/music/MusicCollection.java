@@ -311,7 +311,7 @@ public class MusicCollection implements PlayableCollection {
 	 * Creates a new cache file with the tracks in this music collection
 	 */
 	private synchronized void writeCache() {
-		File cacheFile = new File(this.musicRoot + File.separator + HARMONIUM_CACHE_FILE_NAME);
+		File cacheFile = new File(this.musicRoot + File.separator + ".harmonium" + File.separator + HARMONIUM_CACHE_FILE_NAME);
 		File tempFile;
 		try {
 			// Create a temp file
@@ -392,7 +392,7 @@ public class MusicCollection implements PlayableCollection {
 		System.out.println("Looking for music collection cache...");
 		System.out.flush();
 		
-		File cacheFile = new File(this.musicRoot + File.separator + HARMONIUM_CACHE_FILE_NAME);
+		File cacheFile = new File(this.musicRoot + File.separator + ".harmonium" + File.separator + HARMONIUM_CACHE_FILE_NAME);
 		if(cacheFile.exists() && cacheFile.canRead()) {
 			// A cache file exists, so use it to reconstitute the music collection
 			try {
