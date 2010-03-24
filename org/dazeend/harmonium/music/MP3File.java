@@ -451,10 +451,10 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 		String apiKey = "7984437bf046cc74c368f02bf9de16de";
 		Album albumInfo = Album.getInfo(artistName,albumName,apiKey);
 		if (albumInfo != null) {
-			String ImageURL = albumInfo.getImageURL(ImageSize.valueOf("LARGE"));
+			String ImageURL = albumInfo.getImageURL(ImageSize.valueOf("EXTRALARGE"));
 
 			//lets prevent some MalformedURLExceptions by making sure we actually have something in our URL
-			if(ImageURL.length() > 0) {
+			if(ImageURL != null && ImageURL.length() > 0) {
 				try {
 					URL url = new URL(ImageURL);
 					img = Toolkit.getDefaultToolkit().createImage(url);
@@ -474,6 +474,8 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 
 		if(img != null) 
 		{
+			saveAlbumArtToCache(img,prefs);
+			/*
 			org.blinkenlights.jid3.MP3File mp3File = new org.blinkenlights.jid3.MP3File(this.trackFile);
 
 			// Get any ID3v2.3 tag that exists in the mp3 file and load its data
@@ -507,7 +509,7 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 			}
 			else if(prefs.inDebugMode()) 
 				System.out.println("Album Art Found But No ID3V2 tag for " + this.trackFile.getAbsolutePath());
-			
+			*/
 		}
 		
 		return img;
@@ -536,6 +538,10 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 			if (img == null && !prefs.preferJpgFileArt() && !prefs.ignoreJpgFileArt())
 				img = getAlbumArtFromFile(prefs);
 
+			//See if we have cached downloaded art
+			if (img == null)
+				img = retrieveAlbumArtFromCache(prefs);
+
 			//If we still dont have it, give the online service a shot.
 			if (img == null && prefs.includeHTTP())
 				img = getAlbumArtFromHTTP(prefs);
@@ -553,6 +559,64 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 		}
 		
 		return img;
+	}
+
+	public void saveAlbumArtToCache(Image coverArt, FactoryPreferences prefs) {
+		//see if album exists, if it does return its artsource
+		//Album.artSource.getAlbumArt()
+		String albumArtCacheFolder = prefs.getMusicRoot()+File.separator+".harmonium"+File.separator+"imageCache"+File.separator+"albumArt";
+		String fileNameTemp = artistName.trim()+"-"+albumName.trim();
+		fileNameTemp = fileNameTemp.replaceAll("[\\/:\"*?<>|]+","");
+		String fileName = albumArtCacheFolder+File.separator+fileNameTemp;
+
+
+		File targetFileName = new File(fileName + ".jpg");
+		//did we already fetch this albums art?
+		if (targetFileName.exists())
+			return;
+
+
+		//Perhaps the cache doesnt exist yet? Create it then!
+		File targetDir = new File(albumArtCacheFolder);
+		if (!targetDir.exists())
+			targetDir.mkdirs();
+
+		if(prefs.inDebugMode()) 
+			System.out.println("Album Art Saved To " + fileName + ".jpg");
+
+		ImageAttributes ImageMeasurer = new ImageAttributes(coverArt);
+		ImageMeasurer.saveToFile(fileName);
+
+		
+		
+		
+	}
+
+	public Image retrieveAlbumArtFromCache(FactoryPreferences prefs) {
+		
+		if (prefs.inDebugMode())
+			System.out.println("Retrieving cache-based cover art for " + this.trackFile.getAbsolutePath());
+
+		String albumArtCacheFolder = prefs.getMusicRoot()+File.separator+".harmonium"+File.separator+"imageCache"+File.separator+"albumArt";
+		//Strip illegal charachters from the artist and album name
+		String fileNameTemp = artistName.trim()+"-"+albumName.trim();
+		fileNameTemp = fileNameTemp.replaceAll("[\\/:\"*?<>|]+","");
+		String fileName = albumArtCacheFolder+File.separator+fileNameTemp;
+
+		try {
+			File targetFileName = new File(fileName + ".jpg");
+
+			//did we already fetch this albums art?
+			if (targetFileName.exists()){
+				Image returnImage = ImageIO.read(targetFileName);
+				return returnImage;
+			}
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+
 	}
 
 	/* (non-Javadoc)
@@ -848,6 +912,25 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
         		
 
 		}
+
+		public void saveToFile(String fileName){
+
+			BufferedImage buffImage = getBufferedImage(intImg);
+			save(buffImage, fileName, "jpg");        		
+
+		}
+
+		private void save(BufferedImage image, String fileName, String ext) {
+			File file = new File(fileName + "." + ext);
+			try {
+				ImageIO.write(image, ext, file);  // ignore returned boolean
+			} 
+			catch(IOException e) {
+				System.out.println("Write error for " + file.getPath() +
+				": " + e.getMessage());
+			}
+		}
+
 
 		private BufferedImage getBufferedImage(Image image) {
 			ByteArrayOutputStream baos=new ByteArrayOutputStream(1000);
