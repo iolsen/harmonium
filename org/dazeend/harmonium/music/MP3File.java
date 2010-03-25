@@ -564,7 +564,7 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 	public void saveAlbumArtToCache(Image coverArt, FactoryPreferences prefs) {
 		//see if album exists, if it does return its artsource
 		//Album.artSource.getAlbumArt()
-		String albumArtCacheFolder = prefs.getMusicRoot()+File.separator+".harmonium"+File.separator+"imageCache"+File.separator+"albumArt";
+		String albumArtCacheFolder = MusicCollection.getMusicCollection(null).getAlbumArtCacheFolderPath();
 		String fileNameTemp = artistName.trim()+"-"+albumName.trim();
 		fileNameTemp = fileNameTemp.replaceAll("[\\/:\"*?<>|]+","");
 		String fileName = albumArtCacheFolder+File.separator+fileNameTemp;
@@ -597,7 +597,7 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 		if (prefs.inDebugMode())
 			System.out.println("Retrieving cache-based cover art for " + this.trackFile.getAbsolutePath());
 
-		String albumArtCacheFolder = prefs.getMusicRoot()+File.separator+".harmonium"+File.separator+"imageCache"+File.separator+"albumArt";
+		String albumArtCacheFolder = MusicCollection.getMusicCollection(null).getAlbumArtCacheFolderPath();
 		//Strip illegal charachters from the artist and album name
 		String fileNameTemp = artistName.trim()+"-"+albumName.trim();
 		fileNameTemp = fileNameTemp.replaceAll("[\\/:\"*?<>|]+","");

@@ -32,8 +32,11 @@ public class MusicCollection implements PlayableCollection {
 	
 	// Static variables
 	private static MusicCollection INSTANCE;		// This is the only instance of MusicCollection that should exist.
-	private static String HARMONIUM_CACHE_VERSION = "# Harmonium Cache File v1.0 #";
-	private static String HARMONIUM_CACHE_FILE_NAME = ".HarmoniumCache";
+	
+	private static final String HARMONIUM_CACHE_VERSION = "# Harmonium Cache File v1.0 #";
+	private static final String HARMONIUM_CACHE_FOLDER_NAME = ".harmonium";
+	private static final String HARMONIUM_CACHE_FILE_NAME = ".HarmoniumCache";
+	private static final String HARMONIUM_ALBUM_ART_FOLDER_NAME = "albumArt";
 	
 	// Instance variables
 	private List<AlbumArtist>	albumArtistList = new ArrayList<AlbumArtist>();
@@ -310,17 +313,24 @@ public class MusicCollection implements PlayableCollection {
 	/**
 	 * Creates a new cache file with the tracks in this music collection
 	 */
-	private synchronized void writeCache() {
-		File cacheFile = new File(this.musicRoot + File.separator + ".harmonium" + File.separator + HARMONIUM_CACHE_FILE_NAME);
+	private synchronized void writeCache() 
+	{
+		File cacheFolder = new File(getCacheFolderPath());
+		if (!cacheFolder.exists())
+			cacheFolder.mkdir();
+
 		File tempFile;
-		try {
+		try 
+		{
 			// Create a temp file
 			tempFile = File.createTempFile("harmonium", ".txt");
 			tempFile.deleteOnExit();
 		}
-		catch(IOException e) {
+		catch(IOException e) 
+		{
 			// Couldn't create the temp file. Bail out.
-			return;
+			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		
 		// Get a list of all the tracks in the music collection
@@ -328,7 +338,7 @@ public class MusicCollection implements PlayableCollection {
 		
 		try{
 			// Open the temp file for writing. (We'll write the temp file, then move it at the end.)
-			FileWriter fout = new FileWriter(cacheFile);
+			FileWriter fout = new FileWriter(tempFile);
 			BufferedWriter cacheWriter = new BufferedWriter(fout);
 			
 			// Write the cache file header
@@ -373,12 +383,15 @@ public class MusicCollection implements PlayableCollection {
 			cacheWriter.close();
 			fout.close();
 			
-			// move the temp file to it's final location
+			// move the temp file to its final location
+			File cacheFile = new File(cacheFolder.getPath() + File.separator + HARMONIUM_CACHE_FILE_NAME);
 			tempFile.renameTo(cacheFile);
 		}
 		catch(IOException e) {
 			// There was an error in writing the temp file.
 			tempFile.delete();
+			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 	
@@ -392,7 +405,7 @@ public class MusicCollection implements PlayableCollection {
 		System.out.println("Looking for music collection cache...");
 		System.out.flush();
 		
-		File cacheFile = new File(this.musicRoot + File.separator + ".harmonium" + File.separator + HARMONIUM_CACHE_FILE_NAME);
+		File cacheFile = new File(getCacheFilePath());
 		if(cacheFile.exists() && cacheFile.canRead()) {
 			// A cache file exists, so use it to reconstitute the music collection
 			try {
@@ -478,7 +491,9 @@ public class MusicCollection implements PlayableCollection {
 				cacheReader.close();
 				fin.close();
 			}
-			catch(Exception e) {
+			catch(Exception e) 
+			{
+				e.printStackTrace();
 			}
  			
 		}
@@ -848,6 +863,18 @@ public class MusicCollection implements PlayableCollection {
 	 */
 	public String getMusicRoot() {
 		return musicRoot;
+	}
+	
+	public String getCacheFolderPath() {
+		return musicRoot + File.separator + HARMONIUM_CACHE_FOLDER_NAME;
+	}
+	
+	public String getCacheFilePath() {
+		return getCacheFolderPath() + File.separator + HARMONIUM_CACHE_FILE_NAME;
+	}
+	
+	public String getAlbumArtCacheFolderPath() {
+		return getCacheFolderPath() + File.separator + HARMONIUM_ALBUM_ART_FOLDER_NAME;
 	}
 
 	/* (non-Javadoc)
