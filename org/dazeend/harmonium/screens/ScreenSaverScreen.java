@@ -164,10 +164,20 @@ public class ScreenSaverScreen extends HManagedResourceScreen implements DiscJoc
 		try 
     		{
 	       		// Update views with new info
-	    		new Thread() {
-	    			public void run() {
-			    		ImageResource albumArtImage = createManagedImage(artSource, albumArtView.getWidth(), albumArtView.getHeight());
-			    		setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
+	    		new Thread() 
+	    		{
+	    			public void run() 
+	    			{
+	    				if (artSource.hasAlbumArt(app.getFactoryPreferences()))
+	    				{
+				    		ImageResource albumArtImage = createManagedImage(artSource, albumArtView.getWidth(), albumArtView.getHeight());
+				    		setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
+	    				}
+	    				else
+	    				{
+	    					// Don't display the cheesy art placeholder on the screen saver.
+	    					albumArtView.setResource(null);
+	    				}
 			    		flush(); // Necessay to ensure UI updates, because we're in another thread.
 	    			}
 	    		}.start();

@@ -779,13 +779,17 @@ public class DiscJockey extends View implements TagParseListener
 			}
 			else if (tag.getName().equalsIgnoreCase("StreamUrl") && nowPlaying instanceof MP3Stream)
 			{
-				MP3Stream nowPlayingStream = (MP3Stream)nowPlaying;
-				nowPlayingStream.setArtUrl(tag.getValue().toString());
-				if (nowPlayingStream.hasAlbumArt(this.app.getFactoryPreferences()));
+				String lowerUrl = tag.getValue().toString();
+				if (lowerUrl.startsWith("http://"))
 				{
-					for (DiscJockeyListener listener : _listeners)
-						listener.artChanged(nowPlayingStream);
-					flush();
+					MP3Stream nowPlayingStream = (MP3Stream)nowPlaying;
+					nowPlayingStream.setArtUrl(tag.getValue().toString());
+					if (nowPlayingStream.hasAlbumArt(this.app.getFactoryPreferences()));
+					{
+						for (DiscJockeyListener listener : _listeners)
+							listener.artChanged(nowPlayingStream);
+						flush();
+					}
 				}
 			}
 		}
