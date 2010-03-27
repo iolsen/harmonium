@@ -139,23 +139,27 @@ public class MP3Stream extends HMusic implements Playable
 			
 		    try
 			{
-		    	_img = Toolkit.getDefaultToolkit().getImage(new URL(_url));
-		    	
-		    	java.awt.MediaTracker mt = new java.awt.MediaTracker(new java.awt.Canvas());
-		    	mt.addImage(_img, 0);
-	    		mt.waitForAll(2000);
+		    	String lowerUrl = _url.toLowerCase();
+				if (lowerUrl.startsWith("http://"))
+				{
+			    	_img = Toolkit.getDefaultToolkit().getImage(new URL(_url));
+			    	
+			    	java.awt.MediaTracker mt = new java.awt.MediaTracker(new java.awt.Canvas());
+			    	mt.addImage(_img, 0);
+		    		mt.waitForAll(2000);
 
-	    		if (_img.getWidth(null) < 1 || _img.getHeight(null) < 1)
-	    		{
-			    	if (prefs.inDebugMode())
-			    		System.out.println("Failed to fetch art for mp3 stream from " + _url);
-			    	_img = null;
-	    		}
-	    		else
-	    		{
-			    	if (prefs.inDebugMode())
-			    		System.out.println("Successfully fetched art for mp3 stream from " + _url);
-	    		}
+		    		if (_img.getWidth(null) < 1 || _img.getHeight(null) < 1)
+		    		{
+				    	if (prefs.inDebugMode())
+				    		System.out.println("Failed to fetch art for mp3 stream from " + _url);
+				    	_img = null;
+		    		}
+		    		else
+		    		{
+				    	if (prefs.inDebugMode())
+				    		System.out.println("Successfully fetched art for mp3 stream from " + _url);
+		    		}
+				}
 			} 
 			catch (Exception e)
 			{

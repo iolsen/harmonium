@@ -764,7 +764,7 @@ public class DiscJockey extends View implements TagParseListener
 		}
 	}
 
-	public void tagParsed(TagParseEvent tpe)
+	public synchronized void tagParsed(TagParseEvent tpe)
 	{
 		try
 		{
@@ -786,16 +786,12 @@ public class DiscJockey extends View implements TagParseListener
 			}
 			else if (tag.getName().equalsIgnoreCase("StreamUrl") && nowPlayingStream != null)
 			{
-				String lowerUrl = tag.getValue().toString();
-				if (lowerUrl.startsWith("http://"))
+				nowPlayingStream.setArtUrl(tag.getValue().toString());
+				if (nowPlayingStream.hasAlbumArt(this.app.getFactoryPreferences()));
 				{
-					nowPlayingStream.setArtUrl(tag.getValue().toString());
-					if (nowPlayingStream.hasAlbumArt(this.app.getFactoryPreferences()));
-					{
-						for (DiscJockeyListener listener : _listeners)
-							listener.artChanged(nowPlayingStream);
-						flush();
-					}
+					for (DiscJockeyListener listener : _listeners)
+						listener.artChanged(nowPlayingStream);
+					flush();
 				}
 			}
 		}
