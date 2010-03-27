@@ -1,5 +1,6 @@
 package org.dazeend.harmonium;
 
+import org.dazeend.harmonium.music.ArtSource;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlayableTrack;
 
@@ -7,6 +8,9 @@ public interface DiscJockeyListener
 {
 	public void nowPlayingChanged(final Playable nowPlaying);
 	public void nextTrackChanged(final PlayableTrack nextTrack);
+	
+	public void artChanged(final ArtSource artSource);
+	public void trackTitleChanged(final String title);
 	
 	public void shuffleChanged(final boolean shuffle);
 	public void repeatChanged(final boolean repeat);

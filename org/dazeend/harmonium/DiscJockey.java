@@ -7,7 +7,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javazoom.spi.mpeg.sampled.file.tag.MP3Tag;
+import javazoom.spi.mpeg.sampled.file.tag.TagParseEvent;
+import javazoom.spi.mpeg.sampled.file.tag.TagParseListener;
+
 import org.dazeend.harmonium.music.EditablePlaylist;
+import org.dazeend.harmonium.music.MP3Stream;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlayableCollection;
 import org.dazeend.harmonium.music.PlayableLocalTrack;
@@ -18,12 +23,12 @@ import com.tivo.hme.sdk.HmeEvent;
 import com.tivo.hme.sdk.StreamResource;
 import com.tivo.hme.sdk.View;
 
-public class DiscJockey extends View
+public class DiscJockey extends View implements TagParseListener
 {
 	public static final int BACK_UP_AFTER_SECONDS = 2;
 	
 	private Harmonium app;
-	private DiscJockeyListener _listener;
+	private final List<DiscJockeyListener> _listeners = new ArrayList<DiscJockeyListener>(2);
 	
 	private Playable nowPlaying;	// the currently playing track
 	private StreamResource nowPlayingResource;
@@ -54,9 +59,9 @@ public class DiscJockey extends View
 		}
 	}
 	
-	public void setListener(DiscJockeyListener listener)
+	public void addListener(DiscJockeyListener listener)
 	{
-		_listener = listener;
+		_listeners.add(listener);
 	}
 
 	/**
@@ -80,8 +85,8 @@ public class DiscJockey extends View
 		this.nowPlaying = playable;
 		this.playRate = PlayRate.NORMAL;
 		
-		if (_listener != null)
-			_listener.nowPlayingChanged(playable);
+		for (DiscJockeyListener listener : _listeners)
+			listener.nowPlayingChanged(playable);
 		
 		//
 	    // Construct the URI to send to the receiver. The receiver will
@@ -99,6 +104,7 @@ public class DiscJockey extends View
 	    }
 	
 	    // MP3's are played as a streamed resource   
+	    this.app.setLastRequestedStream(playable.getURI());
 	    this.nowPlayingResource = this.createStream(url, playable.getContentType(), true);
 	    this.setResource(this.nowPlayingResource); 
 	    
@@ -177,8 +183,8 @@ public class DiscJockey extends View
 		this.musicQueue.addAll(nextIndex, list);
 
 		//We need to updateNext here just incase the playlist only had one song in it
-		if (_listener != null)
-			_listener.nextTrackChanged(this.getNextTrack());
+		for (DiscJockeyListener listener : _listeners)
+			listener.nextTrackChanged(this.getNextTrack());
 
 		app.pushNowPlayingScreen();
 	}
@@ -196,8 +202,8 @@ public class DiscJockey extends View
 		this.musicQueue.addAll(list);
 
 		//We need to updateNext here just incase the playlist only had one song in it
-		if (_listener != null)
-			_listener.nextTrackChanged(this.getNextTrack());
+		for (DiscJockeyListener listener : _listeners)
+			listener.nextTrackChanged(this.getNextTrack());
 
 		app.pushNowPlayingScreen();
 	}
@@ -238,8 +244,8 @@ public class DiscJockey extends View
 			if( !this.play(nowPlaying) ) 
 				return this.playNext();
 			
-			if (_listener != null)
-				_listener.nowPlayingChanged(nowPlaying);
+			for (DiscJockeyListener listener : _listeners)
+				listener.nowPlayingChanged(nowPlaying);
 
 			return true;
 		}
@@ -330,8 +336,8 @@ public class DiscJockey extends View
 			if (!play(nowPlaying))
 				return this.playPrevious();
 
-			if (_listener != null)
-				_listener.nowPlayingChanged(nowPlaying);
+			for (DiscJockeyListener listener : _listeners)
+				listener.nowPlayingChanged(nowPlaying);
 
 			return true;
 		}
@@ -354,8 +360,8 @@ public class DiscJockey extends View
 
 		if (play(nowPlaying))
 		{
-			if (_listener != null)
-				_listener.nowPlayingChanged(nowPlaying);
+			for (DiscJockeyListener listener : _listeners)
+				listener.nowPlayingChanged(nowPlaying);
 		}
 		else
 			this.playPrevious();
@@ -420,8 +426,8 @@ public class DiscJockey extends View
 		{
 			if (newPlayRate != this.playRate)
 			{
-				if (_listener != null)
-					_listener.playRateChanging(newPlayRate);
+				for (DiscJockeyListener listener : _listeners)
+					listener.playRateChanging(newPlayRate);
 
 				this.playRate = newPlayRate;
 				nowPlayingResource.setSpeed(newPlayRate.getSpeed());
@@ -443,8 +449,8 @@ public class DiscJockey extends View
 	
 		double fractionComplete = (double)msElapsed / duration;
 		
-		if (_listener != null)
-			_listener.timeElapsedChanged(msElapsed, duration, fractionComplete);
+		for (DiscJockeyListener listener : _listeners)
+			listener.timeElapsedChanged(msElapsed, duration, fractionComplete);
 		
 		return fractionComplete;
 	}
@@ -485,9 +491,9 @@ public class DiscJockey extends View
 	
 	public EditablePlaylist getCurrentPlaylist() {
 		if (this.shuffleMode)
-			return new CurrentPlaylist(this, shuffledMusicQueue, musicQueue);
+			return new CurrentPlaylist(shuffledMusicQueue, musicQueue);
 		else
-			return new CurrentPlaylist(this, musicQueue, shuffledMusicQueue);
+			return new CurrentPlaylist(musicQueue, shuffledMusicQueue);
 	}
 	
 	public boolean hasCurrentPlaylist() {
@@ -547,8 +553,8 @@ public class DiscJockey extends View
 		else
 			this.musicIndex = getNowPlayingIndex();
 
-		if (_listener != null)
-			_listener.shuffleChanged(shuffleMode);
+		for (DiscJockeyListener listener : _listeners)
+			listener.shuffleChanged(shuffleMode);
 	}
 	
 	// Returns the index of the currently playing song in the non-shuffle queue.
@@ -562,10 +568,11 @@ public class DiscJockey extends View
 	/**
 	 * Toggles the repeat mode of the playlist.
 	 */
-	public void toggleRepeatMode() {
+	public void toggleRepeatMode() 
+	{
 		this.repeatMode = ! this.repeatMode;
-		if (_listener != null)
-			_listener.repeatChanged(repeatMode);
+		for (DiscJockeyListener listener : _listeners)
+			listener.repeatChanged(repeatMode);
 	}
 	
 	/**
@@ -605,8 +612,8 @@ public class DiscJockey extends View
 		    	// Check that this event is for the music stream
 		    	if( (nowPlayingResource != null) && (event.getID() == nowPlayingResource.getID() ) ) 
 		    	{
-	//	        	if (this.app.getFactoryPreferences().inDebugMode() && nowPlayingResource != null)
-	//	        		System.out.println("Stream status: " + nowPlayingResource.getStatus());
+//		        	if (this.app.getFactoryPreferences().inDebugMode() && nowPlayingResource != null)
+//		        		System.out.println("Stream status: " + nowPlayingResource.getStatus());
 	
 		        	// Check the type of status sent
 		    		switch( resourceInfo.getStatus() ) 
@@ -694,11 +701,9 @@ public class DiscJockey extends View
 
 	public class CurrentPlaylist extends EditablePlaylist {
 
-		private DiscJockey _dj;
 		private List<Playable> _otherTracks;
 		
-		private CurrentPlaylist(DiscJockey dj, List<Playable> currentTracks, List<Playable> otherTracks) {
-			_dj = dj;
+		private CurrentPlaylist(List<Playable> currentTracks, List<Playable> otherTracks) {
 			_tracks = currentTracks;
 			_otherTracks = otherTracks;
 		}
@@ -721,7 +726,7 @@ public class DiscJockey extends View
 		public Playable remove(int i) throws IllegalArgumentException
 		{
 			// You can't remove the song that's currently playing.
-			if (_dj.musicIndex == i)
+			if (musicIndex == i)
 			{
 				return null;
 			}
@@ -738,25 +743,55 @@ public class DiscJockey extends View
 		@Override
 		public void save() throws IOException
 		{
-			Playable nowPlaying = _dj.getNowPlaying();
 			int newIndex = _tracks.indexOf(nowPlaying);
-			_dj.musicIndex = newIndex;
-			_dj.nowPlaying = _tracks.get(newIndex);
+			musicIndex = newIndex;
+			nowPlaying = _tracks.get(newIndex);
 
-			if (_dj.isShuffling())
+			if (isShuffling())
 			{
-				_dj.shuffledMusicQueue = _tracks;
-				_dj.musicQueue = _otherTracks;
+				shuffledMusicQueue = _tracks;
+				musicQueue = _otherTracks;
 			}
 			else
 			{
-				_dj.musicQueue = _tracks;
-				_dj.shuffledMusicQueue = _otherTracks;
+				musicQueue = _tracks;
+				shuffledMusicQueue = _otherTracks;
 			}
 			
 			// TODO: just next track changed?
-			if (_dj._listener != null)
-				_dj._listener.nowPlayingChanged(_dj.nowPlaying);
+			for (DiscJockeyListener listener : _listeners)
+				listener.nowPlayingChanged(nowPlaying);
+		}
+	}
+
+	public void tagParsed(TagParseEvent tpe)
+	{
+		try
+		{
+			MP3Tag tag = tpe.getTag();
+			System.out.println("TagParseEvent: [" + tag.getName() + "][" + tag.getValue() + "]");
+			
+			if (tag.getName().equalsIgnoreCase("StreamTitle"))
+			{
+				for (DiscJockeyListener listener : _listeners)
+					listener.trackTitleChanged(tag.getValue().toString());
+				flush();
+			}
+			else if (tag.getName().equalsIgnoreCase("StreamUrl") && nowPlaying instanceof MP3Stream)
+			{
+				MP3Stream nowPlayingStream = (MP3Stream)nowPlaying;
+				nowPlayingStream.setArtUrl(tag.getValue().toString());
+				if (nowPlayingStream.hasAlbumArt(this.app.getFactoryPreferences()));
+				{
+					for (DiscJockeyListener listener : _listeners)
+						listener.artChanged(nowPlayingStream);
+					flush();
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
 		}
 	}
 }
