@@ -10,18 +10,25 @@ import java.util.regex.Pattern;
 
 import javax.swing.ImageIcon;
 
+import net.roarsoftware.lastfm.Track;
+
 import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.LastFm;
 
-public class MP3Stream extends HMusic implements Playable
+public class MP3Stream extends HMusic implements PlayableTrack
 {
 	private String _uri;
 	private UrlArtSource _artSource;
 	private String _tagParsedStreamTitle;
 	
-	private static final Pattern _tagParseTitlePattern = Pattern.compile("(.+)\\b\\s*-\\s*(.+)\\b");
+	private String _tagParsedArtist;
+	private String _tagParsedTrackName;
+	private String _fetchedAlbumName;
 
+	private static final Pattern _tagParseTitlePattern = Pattern.compile("(.+)\\b\\s*-\\s*(.+)\\b");
+	private static final Pattern _tagParseTitleWithParensPattern = Pattern.compile("(.+)\\b\\s*-\\s*(.*)(?:\\s+\\(.*\\))");
+	
 	public MP3Stream(String uri)
 	{
 		_uri = uri;
@@ -93,16 +100,18 @@ public class MP3Stream extends HMusic implements Playable
 
 	public String getDisplayArtistName()
 	{
-		return "";
+		return getArtistName();
 	}
 
 	public String getAlbumArtistName()
 	{
-		return "";
+		return getArtistName();
 	}
 
 	public String getAlbumName()
 	{
+		if (_fetchedAlbumName != null)
+			return _fetchedAlbumName;
 		return "";
 	}
 
@@ -132,6 +141,45 @@ public class MP3Stream extends HMusic implements Playable
 		{
 			_url = url;
 			_artHashKey = url;
+		}
+		
+		private Track parseArtistAndTrack(FactoryPreferences prefs, Matcher m)
+		{
+			if (_tagParsedStreamTitle == null || _tagParsedStreamTitle.isEmpty())
+				return null;
+			
+			if (m.lookingAt())
+			{
+				if (prefs.inDebugMode())
+				{
+					System.out.println("Parsed Artist: [" + m.group(1) + "]");
+					System.out.println(" Parsed Track: [" + m.group(2) + "]");
+				}
+				Track track = LastFm.fetchTrackInfo(m.group(1), m.group(2));
+				
+				if (track != null)
+				{
+					_tagParsedArtist = m.group(1);
+					_tagParsedTrackName = m.group(2);
+
+					_fetchedAlbumName = track.getAlbum();
+
+					_img = LastFm.fetchArtForTrack(track);
+					
+					try
+					{
+						java.awt.MediaTracker mt = new java.awt.MediaTracker(new java.awt.Canvas());
+				    	mt.addImage(_img, 0);
+			    		mt.waitForAll(2000);
+					}
+					catch (Exception e)
+					{
+						_img = null;
+					}
+					return track;
+				}
+			}
+			return null;
 		}
 		
 		public synchronized Image getAlbumArt(FactoryPreferences prefs)
@@ -180,28 +228,23 @@ public class MP3Stream extends HMusic implements Playable
 			{
 				if (_img == null && _tagParsedStreamTitle != null) // TODO add http-art preference check here
 				{
-					Matcher m = _tagParseTitlePattern.matcher(_tagParsedStreamTitle);
-					if (m.lookingAt())
-					{
-						if (prefs.inDebugMode())
-						{
-							System.out.println("Parsed Artist: [" + m.group(1) + "]");
-							System.out.println(" Parsed Track: [" + m.group(2) + "]");
-						}
-						_img = LastFm.fetchAlbumArtForTrack(m.group(1), m.group(2));
+					_artHashKey = _tagParsedStreamTitle;
 
-						java.awt.MediaTracker mt = new java.awt.MediaTracker(new java.awt.Canvas());
-				    	mt.addImage(_img, 0);
-			    		mt.waitForAll(2000);
+					Matcher m = _tagParseTitleWithParensPattern.matcher(_tagParsedStreamTitle);
+					Track track = parseArtistAndTrack(prefs, m);
+					if (track == null)
+					{
+						m = _tagParseTitlePattern.matcher(_tagParsedStreamTitle);
+						track = parseArtistAndTrack(prefs, m);
 					}
+
 					if (prefs.inDebugMode())
 					{
-						if (_img == null)
-							System.out.println("Failed to retrieve last.fm album art for stream: " + _tagParsedStreamTitle);
+						if (track == null)
+							System.out.println("Failed to retrieve last.fm info for stream: " + _tagParsedStreamTitle);
 						else
 						{
-							System.out.println("Successfully retrieved last.fm album art for stream: " + _tagParsedStreamTitle);
-							_artHashKey = _tagParsedStreamTitle;
+							System.out.println("Successfully retrieved last.fm info for stream: " + _tagParsedStreamTitle);
 						}
 					}
 				}
@@ -259,5 +302,37 @@ public class MP3Stream extends HMusic implements Playable
 			
 			return false;
 		}
+	}
+
+	public String getArtistName()
+	{
+		if (_tagParsedArtist != null)
+			return _tagParsedArtist;
+		
+		return "";
+	}
+
+	public int getDiscNumber()
+	{
+		return 0;
+	}
+
+	public String getTrackName()
+	{
+		if (_tagParsedTrackName != null)
+			return _tagParsedTrackName;
+		if (_tagParsedStreamTitle != null)
+			return _tagParsedStreamTitle;
+		return _uri;
+	}
+
+	public String getTrackNameTitleSortForm()
+	{
+		return _uri;
+	}
+
+	public int getTrackNumber()
+	{
+		return 0;
 	}
 }

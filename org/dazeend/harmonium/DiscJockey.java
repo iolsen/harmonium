@@ -781,7 +781,7 @@ public class DiscJockey extends View implements TagParseListener
 				if (nowPlayingStream != null)
 					nowPlayingStream.setTagParsedStreamTitle(streamTitle);
 				for (DiscJockeyListener listener : _listeners)
-					listener.trackTitleChanged(streamTitle);
+					listener.nowPlayingChanged(nowPlaying);
 				flush();
 			}
 			else if (tag.getName().equalsIgnoreCase("StreamUrl") && nowPlayingStream != null)
@@ -790,7 +790,7 @@ public class DiscJockey extends View implements TagParseListener
 				if (nowPlayingStream.hasAlbumArt(this.app.getFactoryPreferences()));
 				{
 					for (DiscJockeyListener listener : _listeners)
-						listener.artChanged(nowPlayingStream);
+						listener.nowPlayingChanged(nowPlaying);
 					flush();
 				}
 			}
