@@ -20,6 +20,8 @@ public class MP3Stream extends HMusic implements Playable
 	private UrlArtSource _artSource;
 	private String _tagParsedStreamTitle;
 	
+	private static final Pattern _tagParseTitlePattern = Pattern.compile("(.+)\\b\\s*-\\s*(.+)\\b");
+
 	public MP3Stream(String uri)
 	{
 		_uri = uri;
@@ -174,8 +176,7 @@ public class MP3Stream extends HMusic implements Playable
 			// If the stream itself failed to provide art, try to get it ourselves from last.fm
 			if (_img == null && _tagParsedStreamTitle != null) // TODO add http-art preference check here
 			{
-				Pattern titlePattern = Pattern.compile("(.+?)\\s*-\\s*(.*)");
-				Matcher m = titlePattern.matcher(_tagParsedStreamTitle);
+				Matcher m = _tagParseTitlePattern.matcher(_tagParsedStreamTitle);
 				if (m.lookingAt())
 					_img = LastFm.fetchAlbumArtForTrack(m.group(1), m.group(2));
 				if (prefs.inDebugMode())
