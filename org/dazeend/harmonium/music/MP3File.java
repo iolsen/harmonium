@@ -1,21 +1,15 @@
 package org.dazeend.harmonium.music;
 
 import java.applet.Applet;
-
 import java.awt.Image;
-import java.awt.image.BufferedImage;
-
-
-import java.awt.Toolkit;
 import java.awt.MediaTracker;
-
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -24,7 +18,6 @@ import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-
 import org.blinkenlights.jid3.ID3Exception;
 import org.blinkenlights.jid3.v1.ID3V1Tag;
 import org.blinkenlights.jid3.v1.ID3V1_1Tag;
@@ -32,10 +25,7 @@ import org.blinkenlights.jid3.v2.APICID3V2Frame;
 import org.blinkenlights.jid3.v2.ID3V2_3_0Tag;
 import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.Harmonium;
-
-import net.roarsoftware.lastfm.Album;
-import net.roarsoftware.lastfm.ImageSize;
-import java.net.URL;
+import org.dazeend.harmonium.LastFm;
 
 import com.tivo.hme.sdk.util.Mp3Helper;
 
@@ -444,28 +434,7 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 	//This function connects to last.fm, retrieves a URL to album art and downloads the album art
 	private Image getAlbumArtFromHTTP(FactoryPreferences prefs) throws Exception
 	{
-		if (prefs.inDebugMode())
-			System.out.println("Retrieving http-based cover art for " + this.trackFile.getAbsolutePath());
-		
-		Image img = null;
-		String apiKey = "7984437bf046cc74c368f02bf9de16de";
-		Album albumInfo = Album.getInfo(artistName,albumName,apiKey);
-		if (albumInfo != null) {
-			String ImageURL = albumInfo.getImageURL(ImageSize.valueOf("EXTRALARGE"));
-
-			//lets prevent some MalformedURLExceptions by making sure we actually have something in our URL
-			if(ImageURL != null && ImageURL.length() > 0) {
-				try {
-					URL url = new URL(ImageURL);
-					img = Toolkit.getDefaultToolkit().createImage(url);
-					if (prefs.inDebugMode())
-						System.out.println("Found album cover by http for " + artistName + "-" + albumName);
-				}
-				catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+		Image img = LastFm.fetchAlbumArt(artistName, albumName);
 
 		if (img == null && prefs.inDebugMode()) 
 		{
@@ -474,6 +443,9 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 
 		if(img != null) 
 		{
+			if (prefs.inDebugMode())
+				System.out.println("Found album cover by http for " + artistName + "-" + albumName);
+
 			saveAlbumArtToCache(img,prefs);
 			/*
 			org.blinkenlights.jid3.MP3File mp3File = new org.blinkenlights.jid3.MP3File(this.trackFile);
@@ -877,6 +849,7 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 	//If we decide to expand on this for other things then we could throw this into its own file.
 	public class ImageAttributes extends Applet {
 	
+		private static final long serialVersionUID = 1L;
 		public MediaTracker tr;
 		public Image intImg;
 
@@ -933,8 +906,8 @@ public class MP3File extends HMusic implements PlayableLocalTrack {
 
 
 		private BufferedImage getBufferedImage(Image image) {
-			ByteArrayOutputStream baos=new ByteArrayOutputStream(1000);
-        		BufferedImage bi = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+			//ByteArrayOutputStream baos=new ByteArrayOutputStream(1000);
+        	BufferedImage bi = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
 			bi.getGraphics().drawImage(image, 0,0,null);
         		return bi;
     		}

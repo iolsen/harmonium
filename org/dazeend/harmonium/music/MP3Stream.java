@@ -5,16 +5,20 @@ import java.awt.Toolkit;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.ImageIcon;
 
 import org.dazeend.harmonium.FactoryPreferences;
 import org.dazeend.harmonium.Harmonium;
+import org.dazeend.harmonium.LastFm;
 
 public class MP3Stream extends HMusic implements Playable
 {
 	private String _uri;
 	private UrlArtSource _artSource;
+	private String _tagParsedStreamTitle;
 	
 	public MP3Stream(String uri)
 	{
@@ -29,6 +33,11 @@ public class MP3Stream extends HMusic implements Playable
 	public String getURI()
 	{
 		return _uri;
+	}
+	
+	public String getTagParsedStreamTitle()
+	{
+		return _tagParsedStreamTitle;
 	}
 
 	public List<Playable> getMembers(Harmonium app)
@@ -105,6 +114,11 @@ public class MP3Stream extends HMusic implements Playable
 		_artSource = new UrlArtSource(url);
 	}
 
+	public void setTagParsedStreamTitle(String streamTitle)
+	{
+		_tagParsedStreamTitle = streamTitle;
+	}
+
 	private class UrlArtSource implements ArtSource
 	{
 		private final String _url;
@@ -152,6 +166,23 @@ public class MP3Stream extends HMusic implements Playable
 					e.printStackTrace();
 		    	}
 			}
+			
+			// If the stream itself failed to provide art, try to get it ourselves from last.fm
+			if (_img == null && _tagParsedStreamTitle != null) // TODO add http-art preference check here
+			{
+				Pattern titlePattern = Pattern.compile("(.+?)\\s*-\\s*(.*)");
+				Matcher m = titlePattern.matcher(_tagParsedStreamTitle);
+				if (m.lookingAt())
+					_img = LastFm.fetchAlbumArtForTrack(m.group(1), m.group(2));
+				if (prefs.inDebugMode())
+				{
+					if (_img == null)
+						System.out.println("Failed to retrieve last.fm album art for stream: " + _tagParsedStreamTitle);
+					else
+						System.out.println("Successfully retrieved last.fm album art for stream: " + _tagParsedStreamTitle);
+				}
+			}
+			
 	    	return _img;
 		}
 

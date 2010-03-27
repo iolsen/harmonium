@@ -266,9 +266,8 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
        		// Update views with new info
     		new Thread() {
     			public void run() {
-		    		ImageResource albumArtImage = createManagedImage( nowPlaying, albumArtView.getWidth(), albumArtView.getHeight());
-		    		setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
-		    		flush(); // Necessay to ensure UI updates, because we're in another thread.
+    				artChanged(nowPlaying);
+		    		flush(); // Necessary to ensure UI updates, because we're in another thread.
     			}
     		}.start();
 	

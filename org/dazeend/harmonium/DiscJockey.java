@@ -771,18 +771,24 @@ public class DiscJockey extends View implements TagParseListener
 			MP3Tag tag = tpe.getTag();
 			System.out.println("TagParseEvent: [" + tag.getName() + "][" + tag.getValue() + "]");
 			
+			MP3Stream nowPlayingStream = null;
+			if (nowPlaying instanceof MP3Stream)
+				nowPlayingStream = (MP3Stream)nowPlaying;
+
 			if (tag.getName().equalsIgnoreCase("StreamTitle"))
 			{
+				String streamTitle = tag.getValue().toString();
+				if (nowPlayingStream != null)
+					nowPlayingStream.setTagParsedStreamTitle(streamTitle);
 				for (DiscJockeyListener listener : _listeners)
-					listener.trackTitleChanged(tag.getValue().toString());
+					listener.trackTitleChanged(streamTitle);
 				flush();
 			}
-			else if (tag.getName().equalsIgnoreCase("StreamUrl") && nowPlaying instanceof MP3Stream)
+			else if (tag.getName().equalsIgnoreCase("StreamUrl") && nowPlayingStream != null)
 			{
 				String lowerUrl = tag.getValue().toString();
 				if (lowerUrl.startsWith("http://"))
 				{
-					MP3Stream nowPlayingStream = (MP3Stream)nowPlaying;
 					nowPlayingStream.setArtUrl(tag.getValue().toString());
 					if (nowPlayingStream.hasAlbumArt(this.app.getFactoryPreferences()));
 					{
