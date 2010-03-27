@@ -126,10 +126,12 @@ public class MP3Stream extends HMusic implements Playable
 		private final String _url;
 		private Image _img;
 		private boolean _fetchAttempted;
+		private String _artHashKey;
 		
 		public UrlArtSource(String url)
 		{
 			_url = url;
+			_artHashKey = url;
 		}
 		
 		public synchronized Image getAlbumArt(FactoryPreferences prefs)
@@ -197,7 +199,10 @@ public class MP3Stream extends HMusic implements Playable
 						if (_img == null)
 							System.out.println("Failed to retrieve last.fm album art for stream: " + _tagParsedStreamTitle);
 						else
+						{
 							System.out.println("Successfully retrieved last.fm album art for stream: " + _tagParsedStreamTitle);
+							_artHashKey = _tagParsedStreamTitle;
+						}
 					}
 				}
 			}
@@ -216,7 +221,7 @@ public class MP3Stream extends HMusic implements Playable
 
 		public String getArtHashKey()
 		{
-			return _url;
+			return _artHashKey;
 		}
 
 		public Image getScaledAlbumArt(FactoryPreferences prefs, int width, int height)
