@@ -16,32 +16,51 @@ public class LastFm
 	public static Image fetchAlbumArt(String artistName, String albumName)
 	{
 		Image img = null;
-		Album albumInfo = Album.getInfo(artistName, albumName, API_KEY);
-		if (albumInfo != null) 
+		
+		if (artistName != null && albumName != null)
 		{
-			String ImageURL = albumInfo.getImageURL(ImageSize.valueOf("EXTRALARGE"));
+			Album albumInfo = Album.getInfo(artistName, albumName, API_KEY);
+			if (albumInfo != null) 
+			{
+				String imageURL = albumInfo.getImageURL(ImageSize.valueOf("EXTRALARGE"));
 
-			//lets prevent some MalformedURLExceptions by making sure we actually have something in our URL
-			if(ImageURL != null && ImageURL.length() > 0) {
-				try {
-					URL url = new URL(ImageURL);
-					img = Toolkit.getDefaultToolkit().createImage(url);
-				}
-				catch (IOException e) {
-					e.printStackTrace();
+				//lets prevent some MalformedURLExceptions by making sure we actually have something in our URL
+				if(imageURL != null && imageURL.length() > 0) {
+					try {
+						URL url = new URL(imageURL);
+						img = Toolkit.getDefaultToolkit().createImage(url);
+					}
+					catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
+		
 		return img;
 	}
 	
-	public static Image fetchAlbumArtForTrack(String artistName, String trackName)
+	public static Track fetchTrackInfo(String artistName, String trackName)
+	{
+		return Track.getInfo(artistName, trackName, API_KEY);
+	}
+	
+	public static Image fetchArtForTrack(Track track)
 	{
 		Image img = null;
+		
+		String imageURL = track.getImageURL(ImageSize.valueOf("EXTRALARGE"));
 
-		Track trackInfo = Track.getInfo(artistName, trackName, API_KEY);
-		if (trackInfo != null)
-			img = fetchAlbumArt(artistName, trackInfo.getName());
+		//lets prevent some MalformedURLExceptions by making sure we actually have something in our URL
+		if(imageURL != null && imageURL.length() > 0) {
+			try {
+				URL url = new URL(imageURL);
+				img = Toolkit.getDefaultToolkit().createImage(url);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		return img;
 	}
