@@ -23,7 +23,6 @@ import org.dazeend.harmonium.screens.ExitScreen;
 import org.dazeend.harmonium.screens.HManagedResourceScreen;
 import org.dazeend.harmonium.screens.MainMenuScreen;
 import org.dazeend.harmonium.screens.NowPlayingScreen;
-import org.dazeend.harmonium.screens.ScreenSaverScreen;
 
 import com.almilli.tivo.bananas.hd.HDApplication;
 import com.tivo.hme.bananas.BScreen;
