@@ -612,8 +612,8 @@ public class DiscJockey extends View implements TagParseListener
 		    	// Check that this event is for the music stream
 		    	if( (nowPlayingResource != null) && (event.getID() == nowPlayingResource.getID() ) ) 
 		    	{
-//		        	if (this.app.getFactoryPreferences().inDebugMode() && nowPlayingResource != null)
-//		        		System.out.println("Stream status: " + nowPlayingResource.getStatus());
+		        	if (this.app.getFactoryPreferences().inDebugMode() && nowPlayingResource != null)
+		        		System.out.println("Stream status: " + nowPlayingResource.getStatus());
 	
 		        	// Check the type of status sent
 		    		switch( resourceInfo.getStatus() ) 
@@ -764,7 +764,7 @@ public class DiscJockey extends View implements TagParseListener
 		}
 	}
 
-	public synchronized void tagParsed(TagParseEvent tpe)
+	public void tagParsed(TagParseEvent tpe)
 	{
 		try
 		{
