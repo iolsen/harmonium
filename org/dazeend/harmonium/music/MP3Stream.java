@@ -174,18 +174,41 @@ public class MP3Stream extends HMusic implements Playable
 			}
 			
 			// If the stream itself failed to provide art, try to get it ourselves from last.fm
-			if (_img == null && _tagParsedStreamTitle != null) // TODO add http-art preference check here
+			try
 			{
-				Matcher m = _tagParseTitlePattern.matcher(_tagParsedStreamTitle);
-				if (m.lookingAt())
-					_img = LastFm.fetchAlbumArtForTrack(m.group(1), m.group(2));
-				if (prefs.inDebugMode())
+				if (_img == null && _tagParsedStreamTitle != null) // TODO add http-art preference check here
 				{
-					if (_img == null)
-						System.out.println("Failed to retrieve last.fm album art for stream: " + _tagParsedStreamTitle);
-					else
-						System.out.println("Successfully retrieved last.fm album art for stream: " + _tagParsedStreamTitle);
+					Matcher m = _tagParseTitlePattern.matcher(_tagParsedStreamTitle);
+					if (m.lookingAt())
+					{
+						if (prefs.inDebugMode())
+						{
+							System.out.println("Parsed Artist: [" + m.group(1) + "]");
+							System.out.println(" Parsed Track: [" + m.group(2) + "]");
+						}
+						_img = LastFm.fetchAlbumArtForTrack(m.group(1), m.group(2));
+
+						java.awt.MediaTracker mt = new java.awt.MediaTracker(new java.awt.Canvas());
+				    	mt.addImage(_img, 0);
+			    		mt.waitForAll(2000);
+					}
+					if (prefs.inDebugMode())
+					{
+						if (_img == null)
+							System.out.println("Failed to retrieve last.fm album art for stream: " + _tagParsedStreamTitle);
+						else
+							System.out.println("Successfully retrieved last.fm album art for stream: " + _tagParsedStreamTitle);
+					}
 				}
+			}
+			catch (Exception e)
+			{
+				_img = null;
+		    	if (prefs.inDebugMode())
+		    	{
+		    		System.out.println("Failed to retrieve last.fm album art for stream: " + _tagParsedStreamTitle);
+					e.printStackTrace();
+		    	}
 			}
 			
 	    	return _img;
