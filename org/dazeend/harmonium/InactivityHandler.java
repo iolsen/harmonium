@@ -111,7 +111,10 @@ public final class InactivityHandler {
 		BScreen currentScreen = app.getCurrentScreen();
 		if (currentScreen != screenSaverScreen) {
 			if (screenSaverScreen == null)
+			{
 				screenSaverScreen = new ScreenSaverScreen(this.app);
+				app.getDiscJockey().addListener(screenSaverScreen);
+			}
 			app.push(screenSaverScreen, IBananas.TRANSITION_FADE);
 			app.flush();
 		}

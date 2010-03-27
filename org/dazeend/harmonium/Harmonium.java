@@ -13,7 +13,6 @@ import java.net.URLEncoder;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
-import javazoom.spi.mpeg.sampled.file.IcyListener;
 import javazoom.spi.mpeg.sampled.file.tag.IcyInputStream;
 
 import org.blinkenlights.jid3.ID3Exception;
@@ -54,13 +53,14 @@ public class Harmonium extends HDApplication {
 	
 	private AlbumArtCache albumArtCache = AlbumArtCache.getAlbumArtCache(this);
 	
-	private ScreenSaverScreen screenSaverScreen;
 	private NowPlayingScreen nowPlayingScreen;	
 	
 	// Are we in the simulator?
 	private boolean inSimulator = false;
 	
 	private Harmonium app;
+
+	private String _requestedStream;
 	
 	
 	/* (non-Javadoc)
@@ -232,19 +232,15 @@ public class Harmonium extends HDApplication {
 		return albumArtCache;
 	}
 	
-	public ScreenSaverScreen getScreenSaverScreen() {
-		return screenSaverScreen;
-	}
-	
 	public void pushNowPlayingScreen()
 	{
 		// push Now Playing Screen
 		if(this.nowPlayingScreen == null) 
 		{
 			this.nowPlayingScreen = new NowPlayingScreen(this);
+			discJockey.addListener(this.nowPlayingScreen);
 		}
 
-		discJockey.setListener(this.nowPlayingScreen);
 		this.app.push(this.nowPlayingScreen, TRANSITION_NONE);
 	}
 	
@@ -322,6 +318,18 @@ public class Harmonium extends HDApplication {
 		}
 
 		return result;
+	}
+
+	public void setLastRequestedStream(String uri)
+	{
+		String lowerUri = uri.toLowerCase();
+		if (lowerUri.startsWith("http://"))
+			_requestedStream = uri;
+	}
+
+	public String getLastRequestedStream()
+	{
+		return _requestedStream;
 	}
 
 	/* (non-Javadoc)
@@ -428,6 +436,18 @@ public class Harmonium extends HDApplication {
         	return _durationTable.remove(uri);
 		}
 
+        private Harmonium getAppThatRequestedStream(String requestedUri)
+        {
+			for (int i = 0; i < active.size(); i++) 
+			{
+				Harmonium app = (Harmonium)active.elementAt(i);
+				String lastStreamUri = app.getLastRequestedStream();
+				if (lastStreamUri != null && lastStreamUri.equals(requestedUri))
+					return app;
+			}
+			return null;
+        }
+        
 	    /* (non-Javadoc)
          * @see com.tivo.hme.sdk.MP3Factory#getMP3StreamFromURI(java.lang.String)
          */
@@ -437,6 +457,8 @@ public class Harmonium extends HDApplication {
 			if (lowerUri.startsWith("http://"))
 			{
 				System.out.println("Fetching MP3 stream for playback: " + uri);
+				
+				Harmonium app = getAppThatRequestedStream(uri);
 				
                 try
                 {
@@ -451,8 +473,8 @@ public class Harmonium extends HDApplication {
                     InputStream inputStream = conn.getInputStream();
 
                     IcyInputStream icyInputStream = new IcyInputStream(inputStream);
-                    final IcyListener icyListener = IcyListener.getInstance();
-                    icyInputStream.addTagParseListener(icyListener);
+                    if (app != null)
+                    	icyInputStream.addTagParseListener(app.getDiscJockey());
 
     	            return new BufferedInputStream(icyInputStream, 102400);
                 }

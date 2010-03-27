@@ -7,6 +7,7 @@ import org.dazeend.harmonium.DiscJockeyListener;
 import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.PlayRate;
+import org.dazeend.harmonium.music.ArtSource;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlayableTrack;
 
@@ -17,7 +18,7 @@ import com.tivo.hme.sdk.HmeEvent;
 import com.tivo.hme.sdk.ImageResource;
 import com.tivo.hme.sdk.Resource;
 
-public class NowPlayingScreen extends HManagedResourceScreen implements DiscJockeyListener 
+public class NowPlayingScreen extends HManagedResourceScreen implements DiscJockeyListener
 {
 	// These are the fields that might be updated
 	private BView albumArtView;
@@ -666,5 +667,16 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 			String secondsLabel = String.format("%02d", seconds);
 			return minutes + ":" + secondsLabel;
 		}
+	}
+	
+	public void artChanged(final ArtSource artSource)
+	{
+		ImageResource albumArtImage = createManagedImage(artSource, albumArtView.getWidth(), albumArtView.getHeight());
+		setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
+	}
+	
+	public void trackTitleChanged(final String title)
+	{
+        this.trackNameText.setValue(title);
 	}
 }

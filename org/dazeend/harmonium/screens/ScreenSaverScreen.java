@@ -1,28 +1,28 @@
 package org.dazeend.harmonium.screens;
 
-import java.awt.Color;
-
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.dazeend.harmonium.DiscJockeyListener;
 import org.dazeend.harmonium.Harmonium;
+import org.dazeend.harmonium.PlayRate;
+import org.dazeend.harmonium.music.ArtSource;
 import org.dazeend.harmonium.music.Playable;
+import org.dazeend.harmonium.music.PlayableTrack;
 
-import com.tivo.hme.bananas.BScreen;
-import com.tivo.hme.bananas.BText;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.ImageResource;
 import com.tivo.hme.sdk.Resource;
 import com.tivo.hme.sdk.View;
 
 
-public class ScreenSaverScreen extends HManagedResourceScreen {
+public class ScreenSaverScreen extends HManagedResourceScreen implements DiscJockeyListener 
+{
 
 	Harmonium app;
 	Resource oldBackground = null;
 	
-	private Playable nowPlaying = null;
 	private BView albumArtView;
 	private Timer moveTimer;
 
@@ -32,11 +32,11 @@ public class ScreenSaverScreen extends HManagedResourceScreen {
 		this.app = app;
 
 		int screenWidth 	= app.getWidth();
-		int screenHeight 	= app.getHeight();
+//		int screenHeight 	= app.getHeight();
 		int safeTitleH	= app.getSafeTitleHorizontal();
-		int safeTitleV	= app.getSafeTitleVertical();
-		int hIndent = (int)( ( screenWidth - (2 * safeTitleH) ) * 0.01 );
-		int vIndent = (int)( ( screenHeight - (2 * safeTitleV) ) * 0.01 );
+//		int safeTitleV	= app.getSafeTitleVertical();
+//		int hIndent = (int)( ( screenWidth - (2 * safeTitleH) ) * 0.01 );
+//		int vIndent = (int)( ( screenHeight - (2 * safeTitleV) ) * 0.01 );
 
 		int albumInfoRowHeight = app.hSkin.paragraphFontSize + (app.hSkin.paragraphFontSize / 4);
 				
@@ -47,8 +47,6 @@ public class ScreenSaverScreen extends HManagedResourceScreen {
 		// Define the y-coordinate for album art so that the info is verticaly centered in the screen
 		int albumArtViewY = ( this.getHeight() - ( artSide + (3 * albumInfoRowHeight) ) ) / 2;
 		this.albumArtView = new BView( this.getNormal(), safeTitleH, albumArtViewY, artSide, artSide);
-
-		this.updateScreenSaver();
 	}
 	
 	/* (non-Javadoc)
@@ -80,44 +78,20 @@ public class ScreenSaverScreen extends HManagedResourceScreen {
 		moveTimer = new Timer();
 		moveTimer.schedule(new MoveArtCheckTimerTask(this), 7000, 7000);
 		
-		this.updateScreenSaver();
+		if (app.getDiscJockey().isPlaying())
+		{
+			Playable nowPlaying = app.getDiscJockey().getNowPlaying();
+			if (nowPlaying != null)
+				artChanged(nowPlaying);
+		}
 
 		return status;
 	}
 
-	public void updateScreenSaver() {
-		this.nowPlaying = this.app.getDiscJockey().getNowPlaying();
-
-		if(this.nowPlaying != null)
-		{
-			app.getRoot().setPainting(false);
-
-			try 
-	    		{
-		       		// Update views with new info
-		    		new Thread() {
-		    			public void run() {
-				    		ImageResource albumArtImage = createManagedImage( nowPlaying, albumArtView.getWidth(), albumArtView.getHeight());
-				    		setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
-				    		flush(); // Necessay to ensure UI updates, because we're in another thread.
-		    			}
-		    		}.start();
-	
-		    	}
-		    	finally 
-		    	{
-		    		app.getRoot().setPainting(true);
-		    	}
-		}
-	}
-
 	public void moveAlbumArt()
 	{
-		if(this.app.getDiscJockey().getNowPlaying() != this.nowPlaying)
-			this.updateScreenSaver();
-
 		int screenWidth 	= app.getWidth();
-		int screenHeight 	= app.getHeight();
+		//int screenHeight 	= app.getHeight();
 		int safeTitleH	= app.getSafeTitleHorizontal();
 		int safeTitleV	= app.getSafeTitleVertical();
 		int artSide = Math.min(480,(screenWidth - (2 * safeTitleH) ) / 2 );
@@ -181,5 +155,62 @@ public class ScreenSaverScreen extends HManagedResourceScreen {
 		public void run() {
 			handler.moveAlbumArt();
 		}
+	}
+
+	public void artChanged(final ArtSource artSource)
+	{
+		app.getRoot().setPainting(false);
+
+		try 
+    		{
+	       		// Update views with new info
+	    		new Thread() {
+	    			public void run() {
+			    		ImageResource albumArtImage = createManagedImage(artSource, albumArtView.getWidth(), albumArtView.getHeight());
+			    		setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
+			    		flush(); // Necessay to ensure UI updates, because we're in another thread.
+	    			}
+	    		}.start();
+
+	    	}
+	    	finally 
+	    	{
+	    		app.getRoot().setPainting(true);
+	    	}
+	}
+
+	public void nextTrackChanged(PlayableTrack nextTrack)
+	{
+		// Do nothing
+	}
+
+	public void nowPlayingChanged(final Playable nowPlaying)
+	{
+		artChanged(nowPlaying);
+	}
+
+	public void playRateChanging(PlayRate newPlayRate)
+	{
+		// Do nothing
+	}
+
+	public void repeatChanged(boolean repeat)
+	{
+		// Do nothing
+	}
+
+	public void shuffleChanged(boolean shuffle)
+	{
+		// Do nothing
+	}
+
+	public void timeElapsedChanged(long msElapsed, long msDuration, double fractionComplete)
+	{
+		// Do nothing
+	}
+
+	public void trackTitleChanged(String title)
+	{
+		// Do nothing
 	}
 }
