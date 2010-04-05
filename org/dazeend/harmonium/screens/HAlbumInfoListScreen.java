@@ -317,7 +317,7 @@ public class HAlbumInfoListScreen extends HPlaylistAddCapableListScreen {
 		    	// When used in a playlist, the album art may or may not be different from the row that just lost focus.
 	        	// Here we store the artist and album of the row losing focus, so we can compare when we regain focus
 		    	// and do nothing if the album hasn't changed.  This prevents the "flicker" of crossfading to the same image.
-		        if (oldMusicItem == null || 
+		        if (oldMusicItem == null || oldMusicItem.getAlbumName() == null || oldMusicItem.getAlbumArtistName() == null ||
 	        		oldMusicItem.getAlbumName().compareToIgnoreCase(newMusicItem.getAlbumName()) != 0 || 
 	        		oldMusicItem.getAlbumArtistName().compareToIgnoreCase(newMusicItem.getAlbumArtistName()) != 0) {
 			    	

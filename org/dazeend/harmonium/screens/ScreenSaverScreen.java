@@ -8,7 +8,6 @@ import org.dazeend.harmonium.DiscJockeyListener;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.PlayRate;
 import org.dazeend.harmonium.music.ArtSource;
-import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlayableTrack;
 
 import com.tivo.hme.bananas.BView;
@@ -32,11 +31,7 @@ public class ScreenSaverScreen extends HManagedResourceScreen implements DiscJoc
 		this.app = app;
 
 		int screenWidth 	= app.getWidth();
-//		int screenHeight 	= app.getHeight();
 		int safeTitleH	= app.getSafeTitleHorizontal();
-//		int safeTitleV	= app.getSafeTitleVertical();
-//		int hIndent = (int)( ( screenWidth - (2 * safeTitleH) ) * 0.01 );
-//		int vIndent = (int)( ( screenHeight - (2 * safeTitleV) ) * 0.01 );
 
 		int albumInfoRowHeight = app.hSkin.paragraphFontSize + (app.hSkin.paragraphFontSize / 4);
 				
@@ -78,20 +73,12 @@ public class ScreenSaverScreen extends HManagedResourceScreen implements DiscJoc
 		moveTimer = new Timer();
 		moveTimer.schedule(new MoveArtCheckTimerTask(this), 7000, 7000);
 		
-		if (app.getDiscJockey().isPlaying())
-		{
-			Playable nowPlaying = app.getDiscJockey().getNowPlaying();
-			if (nowPlaying != null)
-				artChanged(nowPlaying);
-		}
-
 		return status;
 	}
 
 	public void moveAlbumArt()
 	{
 		int screenWidth 	= app.getWidth();
-		//int screenHeight 	= app.getHeight();
 		int safeTitleH	= app.getSafeTitleHorizontal();
 		int safeTitleV	= app.getSafeTitleVertical();
 		int artSide = Math.min(480,(screenWidth - (2 * safeTitleH) ) / 2 );
@@ -159,44 +146,29 @@ public class ScreenSaverScreen extends HManagedResourceScreen implements DiscJoc
 
 	public void artChanged(final ArtSource artSource)
 	{
-		app.getRoot().setPainting(false);
-
-		try 
-    		{
-	       		// Update views with new info
-	    		new Thread() 
-	    		{
-	    			public void run() 
-	    			{
-	    				if (artSource.hasAlbumArt(app.getFactoryPreferences()))
-	    				{
-				    		ImageResource albumArtImage = createManagedImage(artSource, albumArtView.getWidth(), albumArtView.getHeight());
-				    		setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
-	    				}
-	    				else
-	    				{
-	    					// Don't display the cheesy art placeholder on the screen saver.
-	    					albumArtView.setResource(null);
-	    				}
-			    		flush(); // Necessay to ensure UI updates, because we're in another thread.
-	    			}
-	    		}.start();
-
-	    	}
-	    	finally 
-	    	{
-	    		app.getRoot().setPainting(true);
-	    	}
+   		// Update views with new info
+		new Thread() 
+		{
+			public void run() 
+			{
+				if (artSource.hasAlbumArt(app.getFactoryPreferences()))
+				{
+		    		ImageResource albumArtImage = createManagedImage(artSource, albumArtView.getWidth(), albumArtView.getHeight());
+		    		setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
+				}
+				else
+				{
+					// Don't display the cheesy art placeholder on the screen saver.
+					albumArtView.setResource(null);
+				}
+	    		flush(); // Necessary to ensure UI updates, because we're in another thread.
+			}
+		}.start();
 	}
 
 	public void nextTrackChanged(PlayableTrack nextTrack)
 	{
 		// Do nothing
-	}
-
-	public void nowPlayingChanged(final Playable nowPlaying)
-	{
-		artChanged(nowPlaying);
 	}
 
 	public void playRateChanging(PlayRate newPlayRate)
@@ -219,7 +191,37 @@ public class ScreenSaverScreen extends HManagedResourceScreen implements DiscJoc
 		// Do nothing
 	}
 
-	public void trackTitleChanged(String title)
+	public void trackNameChanged(String title)
+	{
+		// Do nothing
+	}
+
+	public void albumArtistChanged(String albumArtistName)
+	{
+		// Do nothing
+	}
+
+	public void albumChanged(String albumName, int DiscNumber)
+	{
+		// Do nothing
+	}
+
+	public void beginUpdate()
+	{
+		app.getRoot().setPainting(false);
+	}
+
+	public void endUpdate()
+	{
+		app.getRoot().setPainting(true);
+	}
+
+	public void releaseYearChanged(int releaseYear)
+	{
+		// Do nothing
+	}
+
+	public void trackArtistChanged(String trackArtistName)
 	{
 		// Do nothing
 	}
