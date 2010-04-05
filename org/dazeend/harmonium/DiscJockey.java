@@ -11,12 +11,14 @@ import javazoom.spi.mpeg.sampled.file.tag.MP3Tag;
 import javazoom.spi.mpeg.sampled.file.tag.TagParseEvent;
 import javazoom.spi.mpeg.sampled.file.tag.TagParseListener;
 
+import org.dazeend.harmonium.music.ArtSource;
 import org.dazeend.harmonium.music.EditablePlaylist;
 import org.dazeend.harmonium.music.MP3Stream;
 import org.dazeend.harmonium.music.Playable;
 import org.dazeend.harmonium.music.PlayableCollection;
 import org.dazeend.harmonium.music.PlayableLocalTrack;
 import org.dazeend.harmonium.music.PlayableTrack;
+import org.dazeend.harmonium.music.StreamTrackData;
 import org.dazeend.harmonium.screens.ScreenSaverScreen;
 
 import com.tivo.hme.sdk.HmeEvent;
@@ -42,10 +44,13 @@ public class DiscJockey extends View implements TagParseListener
 	private boolean shuffleMode = false;	// true if play list is being played in shuffle mode, otherwise false.
 	private boolean repeatMode = false;		// true if playlist should start over when end is reached
 	
+	private final StreamTrackData _streamTrackData; // Used for displaying art and other track info for mp3 streams.
+	
 	private DiscJockey(Harmonium app) 
 	{
 		super(app.getRoot(), 1, 1, 1, 1, false);
 		this.app = app;
+		_streamTrackData = new StreamTrackData(app);
 	}
 
 	public synchronized static DiscJockey getDiscJockey(Harmonium app) 
@@ -69,24 +74,23 @@ public class DiscJockey extends View implements TagParseListener
 	 * 
 	 * @param mp3File
 	 */
-	private boolean play(Playable playable) {
+	private boolean play(Playable p) {
 	
 		// Stop any track that might be playing
 		stop();
-	
+		
 		// Make sure that the file exists on disk and hasn't been deleted
-		if (playable instanceof PlayableLocalTrack)
+		if (p instanceof PlayableLocalTrack)
 		{
-			PlayableLocalTrack plt = (PlayableLocalTrack)playable;
+			PlayableLocalTrack plt = (PlayableLocalTrack)p;
 			if( ( plt.getTrackFile() == null ) || ( !plt.getTrackFile().exists() ) )
-			return false;
+				return false;
 		}
 	
-		this.nowPlaying = playable;
+		this.nowPlaying = p;
 		this.playRate = PlayRate.NORMAL;
 		
-		for (DiscJockeyListener listener : _listeners)
-			listener.nowPlayingChanged(playable);
+		nowPlayingChanged(p);
 		
 		//
 	    // Construct the URI to send to the receiver. The receiver will
@@ -98,19 +102,85 @@ public class DiscJockey extends View implements TagParseListener
 		
 		String url = this.getApp().getContext().getBaseURI().toString();
 	    try {
-	        url += URLEncoder.encode(playable.getURI(), "UTF-8");
+	        url += URLEncoder.encode(p.getURI(), "UTF-8");
 	    } catch (UnsupportedEncodingException e) {
 	        e.printStackTrace();
 	    }
 	
 	    // MP3's are played as a streamed resource   
-	    this.app.setLastRequestedStream(playable.getURI());
-	    this.nowPlayingResource = this.createStream(url, playable.getContentType(), true);
+	    this.app.setLastRequestedStream(p.getURI());
+	    this.nowPlayingResource = this.createStream(url, p.getContentType(), true);
 	    this.setResource(this.nowPlayingResource); 
 	    
 	    return true;
 	}
 
+	private void nowPlayingChanged(Playable p)
+	{
+		PlayableTrack pt = null;
+		if (p instanceof PlayableTrack)
+			pt = (PlayableTrack)p;
+		
+		for (DiscJockeyListener listener : _listeners)
+		{
+			try
+			{
+				listener.beginUpdate();
+				
+				listener.artChanged(p);
+
+				if (pt != null)
+				{
+					listener.trackNameChanged(pt.getTrackName());
+					listener.trackArtistChanged(pt.getArtistName());
+					listener.albumChanged(pt.getAlbumName(), pt.getDiscNumber());
+				}
+				else
+				{
+					listener.trackNameChanged(p.getURI());
+					listener.trackArtistChanged(null);
+					listener.albumChanged(p.getAlbumName(), 0);
+				}
+				
+				listener.albumArtistChanged(p.getAlbumArtistName());
+				listener.releaseYearChanged(p.getReleaseYear());
+				
+				listener.nextTrackChanged(getNextTrack());
+	
+				listener.shuffleChanged(shuffleMode);
+				listener.repeatChanged(repeatMode);
+			}
+			finally
+			{
+				listener.endUpdate();
+			}
+		}
+	}
+
+	public void streamTrackDataChanged(ArtSource artSource, String albumArtist, String trackArtist, String albumName, String trackName, int releaseYear)
+	{
+		for (DiscJockeyListener listener : _listeners)
+		{
+			try
+			{
+				listener.beginUpdate();
+				
+				if (artSource != null)
+					listener.artChanged(artSource);
+
+				listener.albumArtistChanged(albumArtist);
+				listener.trackArtistChanged(trackArtist);
+				listener.albumChanged(albumName, 0);
+				listener.trackNameChanged(trackName);
+				listener.releaseYearChanged(releaseYear);
+			}
+			finally
+			{
+				listener.endUpdate();
+			}
+		}
+	}
+	
 	public void play(List<PlayableCollection> playlist, Boolean shuffleMode, Boolean repeatMode) 
 	{
 		play(playlist, shuffleMode, repeatMode, null);
@@ -244,9 +314,6 @@ public class DiscJockey extends View implements TagParseListener
 			if( !this.play(nowPlaying) ) 
 				return this.playNext();
 			
-			for (DiscJockeyListener listener : _listeners)
-				listener.nowPlayingChanged(nowPlaying);
-
 			return true;
 		}
 		return false;
@@ -336,9 +403,6 @@ public class DiscJockey extends View implements TagParseListener
 			if (!play(nowPlaying))
 				return this.playPrevious();
 
-			for (DiscJockeyListener listener : _listeners)
-				listener.nowPlayingChanged(nowPlaying);
-
 			return true;
 		}
 		return false;
@@ -358,13 +422,8 @@ public class DiscJockey extends View implements TagParseListener
 		this.musicIndex = index;
 		this.nowPlaying = playItem;
 
-		if (play(nowPlaying))
-		{
-			for (DiscJockeyListener listener : _listeners)
-				listener.nowPlayingChanged(nowPlaying);
-		}
-		else
-			this.playPrevious();
+		if (!play(nowPlaying))
+			playPrevious();
 	}
 		
 	public void stop() 
@@ -758,12 +817,14 @@ public class DiscJockey extends View implements TagParseListener
 				shuffledMusicQueue = _otherTracks;
 			}
 			
-			// TODO: just next track changed?
 			for (DiscJockeyListener listener : _listeners)
-				listener.nowPlayingChanged(nowPlaying);
+				listener.nextTrackChanged(getNextTrack());
 		}
 	}
 
+	/**
+	 * When playing icecast streams, this gets called with information about the stream.
+	 */
 	public void tagParsed(TagParseEvent tpe)
 	{
 		try
@@ -771,28 +832,20 @@ public class DiscJockey extends View implements TagParseListener
 			MP3Tag tag = tpe.getTag();
 			System.out.println("TagParseEvent: [" + tag.getName() + "][" + tag.getValue() + "]");
 			
+			// This shouldn't get called unless a stream is playing, but just in case...
 			MP3Stream nowPlayingStream = null;
 			if (nowPlaying instanceof MP3Stream)
 				nowPlayingStream = (MP3Stream)nowPlaying;
-
+			else
+				return;
+			
 			if (tag.getName().equalsIgnoreCase("StreamTitle"))
 			{
-				String streamTitle = tag.getValue().toString();
-				if (nowPlayingStream != null)
-					nowPlayingStream.setTagParsedStreamTitle(streamTitle);
-				for (DiscJockeyListener listener : _listeners)
-					listener.nowPlayingChanged(nowPlaying);
-				flush();
+				_streamTrackData.setTagParsedStreamTitle(tag.getValue().toString());
 			}
 			else if (tag.getName().equalsIgnoreCase("StreamUrl") && nowPlayingStream != null)
 			{
-				nowPlayingStream.setArtUrl(tag.getValue().toString());
-				if (nowPlayingStream.hasAlbumArt(this.app.getFactoryPreferences()));
-				{
-					for (DiscJockeyListener listener : _listeners)
-						listener.nowPlayingChanged(nowPlaying);
-					flush();
-				}
+				_streamTrackData.setTagParsedStreamUrl(tag.getValue().toString());
 			}
 		}
 		catch (Exception ex)

@@ -247,70 +247,36 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 		this.nextTrackText.setShadow(false);
 		this.nextTrackText.setFlags(RSRC_HALIGN_LEFT);
 		this.nextTrackText.setFont(app.hSkin.paragraphFont);
-		
-		nowPlayingChanged(this.app.getDiscJockey().getNowPlaying());
+	}
+	
+	public void beginUpdate()
+	{
+    	app.getRoot().setPainting(false);
+	}
+	
+	public void endUpdate()
+	{
+		app.getRoot().setPainting(true);
 	}
 	
 	/**
 	 * Update the screen to a new music item
-	 * 
-	 * @param nowPlaying
 	 */
 	public void nowPlayingChanged(final Playable nowPlaying) 
 	{
 		// turn off painting while we update the images
-    	app.getRoot().setPainting(false);
     	
     	try 
     	{
        		// Update views with new info
-    		new Thread() {
-    			public void run() {
-    				artChanged(nowPlaying);
-		    		flush(); // Necessary to ensure UI updates, because we're in another thread.
-    			}
-    		}.start();
 	
-    		if (nowPlaying instanceof PlayableTrack)
-    		{
-    			artistNameLabelText.setValue("Artist");
-
-    			PlayableTrack pt = (PlayableTrack)nowPlaying;
-    		    if (pt.getDiscNumber() > 0)
-    				this.albumNameText.setValue(pt.getAlbumName() + " - Disc " + pt.getDiscNumber());
-    			else
-    				this.albumNameText.setValue(pt.getAlbumName() );
-    		    
-                this.albumArtistText.setValue(pt.getAlbumArtistName());
-                
-                if(pt.getReleaseYear() == 0)
-        			this.yearText.setValue("");
-        		else
-        			this.yearText.setValue(pt.getReleaseYear());
-                
-                this.trackNameText.setValue(pt.getTrackName());
-                this.artistNameText.setValue(pt.getArtistName());
-    		}
-    		else
-    		{
-    			artistNameLabelText.setValue("");
-				
-    			this.albumNameText.setValue("");
-                this.albumArtistText.setValue("");
-    			this.yearText.setValue("");
-                this.trackNameText.setValue(nowPlaying.getURI());
-                this.artistNameText.setValue("");
-    		}
     		
-    		//timeElapsedChanged(0, nowPlaying.getDuration(), 0);
-            
             // update the shuffle and repeat mode indicators
             shuffleChanged(this.app.getDiscJockey().isShuffling());
             repeatChanged(this.app.getDiscJockey().isRepeating());
     	}
     	finally 
     	{
-    		app.getRoot().setPainting(true);
     	}
 	}
 
@@ -320,6 +286,86 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 			this.nextTrackText.setValue( nextTrack.getDisplayArtistName() + " - " + nextTrack.getTrackName() );
 		else
 			this.nextTrackText.setValue("");
+	}
+
+	public void playRateChanging(PlayRate newPlayRate)
+	{
+		this.app.play(newPlayRate.getSound());
+	}
+
+	public void artChanged(final ArtSource artSource)
+	{
+		new Thread() 
+		{
+			public void run() 
+			{
+				ImageResource albumArtImage = createManagedImage(artSource, albumArtView.getWidth(), albumArtView.getHeight());
+				setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
+	    		flush(); // Necessary to ensure UI updates, because we're in another thread.
+			}
+		}.start();
+	}
+	
+	public void trackNameChanged(final String title)
+	{
+        this.trackNameText.setValue(title);
+	}
+
+	public void albumArtistChanged(String albumArtistName)
+	{
+		if (albumArtistName != null && !albumArtistName.isEmpty())
+			albumArtistText.setValue(albumArtistName);
+		else
+            albumArtistText.setValue("");
+	}
+
+	public void albumChanged(String albumName, int discNumber)
+	{
+		if (albumName != null && !albumName.isEmpty())
+		{
+			if (discNumber > 0)
+				albumNameText.setValue(albumName + " - Disc " + discNumber);
+			else
+				albumNameText.setValue(albumName);
+		}
+		else
+			albumNameText.setValue("");
+	}
+
+	public void releaseYearChanged(int releaseYear)
+	{
+        if(releaseYear == 0)
+			yearText.setValue("");
+		else
+			yearText.setValue(releaseYear);
+	}
+
+	public void trackArtistChanged(String trackArtistName)
+	{
+		if (trackArtistName != null && !trackArtistName.isEmpty())
+		{
+			artistNameLabelText.setValue("Artist");
+			artistNameText.setValue(trackArtistName);
+		}
+		else
+		{
+			artistNameLabelText.setValue("");
+			artistNameText.setValue("");
+		}
+	}
+
+	public void timeElapsedChanged(long msElapsed, long msDuration, double fractionComplete)
+	{
+		// the current track is playing. Update the progress bar, if we know the length of the track.
+		if(this.progressBar != null) 
+		{
+			// TODO: move this?
+			this.progressBar.setDuration(msDuration);
+
+			// Set elapsed, which updates the elapsed label and the progress bar position.
+			if (msDuration > 0)
+				this.progressBar.setElapsed(msElapsed, fractionComplete);
+		}
 	}
 
 	public void repeatChanged(boolean repeat)
@@ -499,24 +545,6 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 		return super.handleKeyPress(key, rawcode);
 	}
 
-	public void playRateChanging(PlayRate newPlayRate)
-	{
-		this.app.play(newPlayRate.getSound());
-	}
-
-	public void timeElapsedChanged(long msElapsed, long msDuration, double fractionComplete)
-	{
-		// the current track is playing. Update the progress bar, if we know the length of the track.
-		if(this.progressBar != null) 
-		{
-			// TODO: move this?
-			this.progressBar.setDuration(msDuration);
-
-			// Set elapsed, which updates the elapsed label and the progress bar position.
-			if (msDuration > 0)
-				this.progressBar.setElapsed(msElapsed, fractionComplete);
-		}
-	}
 
 	/* (non-Javadoc)
 	 * Handles TiVo events
@@ -666,16 +694,5 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 			String secondsLabel = String.format("%02d", seconds);
 			return minutes + ":" + secondsLabel;
 		}
-	}
-	
-	public void artChanged(final ArtSource artSource)
-	{
-		ImageResource albumArtImage = createManagedImage(artSource, albumArtView.getWidth(), albumArtView.getHeight());
-		setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
-	}
-	
-	public void trackTitleChanged(final String title)
-	{
-        this.trackNameText.setValue(title);
 	}
 }
