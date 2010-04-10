@@ -19,6 +19,7 @@ import org.dazeend.harmonium.music.PlayableCollection;
 import org.dazeend.harmonium.music.PlayableLocalTrack;
 import org.dazeend.harmonium.music.PlayableTrack;
 import org.dazeend.harmonium.music.StreamTrackData;
+import org.dazeend.harmonium.screens.NowPlayingScreen;
 import org.dazeend.harmonium.screens.ScreenSaverScreen;
 
 import com.tivo.hme.sdk.HmeEvent;
@@ -722,14 +723,18 @@ public class DiscJockey extends View implements TagParseListener
 	
 			    				this.app.resetInactivityTimer();
 			    				
-			    				// TODO: move the screen pops, I think
+			    				for (DiscJockeyListener listener : _listeners)
+			    				{
+			    					if (listener instanceof ScreenSaverScreen)
+			    						listener.artChanged(null);
+			    				}
 			    				
 			    				// Pop the screen saver if it is showing
-			    				if(this.app.getCurrentScreen().getClass() == ScreenSaverScreen.class)
+			    				if(this.app.getCurrentScreen() instanceof ScreenSaverScreen)
 			    					this.app.pop();
 			    				
-			    				// Pop this Now Playing Screen only if it is showing.
-			    				if(this.app.getCurrentScreen().equals(this)) 
+			    				// Pop this Now Playing Screen if it is showing.
+			    				if(this.app.getCurrentScreen() instanceof NowPlayingScreen) 
 			    					this.app.pop();
 							}
 							break;
@@ -803,8 +808,11 @@ public class DiscJockey extends View implements TagParseListener
 		public void save() throws IOException
 		{
 			int newIndex = _tracks.indexOf(nowPlaying);
-			musicIndex = newIndex;
-			nowPlaying = _tracks.get(newIndex);
+			if (newIndex >= 0)
+			{
+				musicIndex = newIndex;
+				nowPlaying = _tracks.get(newIndex);
+			}
 
 			if (isShuffling())
 			{

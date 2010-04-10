@@ -151,7 +151,7 @@ public class ScreenSaverScreen extends HManagedResourceScreen implements DiscJoc
 		{
 			public void run() 
 			{
-				if (artSource.hasAlbumArt(app.getFactoryPreferences()))
+				if (artSource != null && artSource.hasAlbumArt(app.getFactoryPreferences()))
 				{
 		    		ImageResource albumArtImage = createManagedImage(artSource, albumArtView.getWidth(), albumArtView.getHeight());
 		    		setManagedResource(albumArtView, albumArtImage, RSRC_HALIGN_CENTER + RSRC_VALIGN_CENTER + RSRC_IMAGE_BESTFIT);
