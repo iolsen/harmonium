@@ -463,7 +463,7 @@ public class DiscJockey extends View implements TagParseListener
 
 	public synchronized boolean togglePause() 
 	{
-		if(this.nowPlayingResource != null) 
+		if(this.nowPlayingResource != null && this.nowPlaying instanceof PlayableLocalTrack) 
 		{
 			if( this.playRate.equals(PlayRate.PAUSE) )
 			{
