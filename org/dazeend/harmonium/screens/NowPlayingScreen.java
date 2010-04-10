@@ -498,11 +498,13 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 				return true;
 	
 			case KEY_FORWARD:
-				this.app.getDiscJockey().fastForward();
+				if (!this.app.getDiscJockey().fastForward())
+					this.app.play("bonk.snd");
 				return true;
 				
 			case KEY_REVERSE:
-				this.app.getDiscJockey().rewind();
+				if (!this.app.getDiscJockey().rewind())
+					this.app.play("bonk.snd");
 				return true;
 				
 			case KEY_PLAY:
@@ -510,7 +512,8 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 				return true;
 				
 			case KEY_PAUSE:
-				this.app.getDiscJockey().togglePause();
+				if (!this.app.getDiscJockey().togglePause())
+					this.app.play("bonk.snd");
 				return true;
 				
 			case KEY_CHANNELUP:
