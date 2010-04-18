@@ -1,14 +1,14 @@
 package org.dazeend.harmonium;
 
 import org.dazeend.harmonium.music.ArtSource;
-import org.dazeend.harmonium.music.PlayableTrack;
+import org.dazeend.harmonium.music.Playable;
 
 public interface DiscJockeyListener
 {
 	public void beginUpdate();
 	public void endUpdate();
 	
-	public void nextTrackChanged(final PlayableTrack nextTrack);
+	public void nextTrackChanged(final Playable nextPlayable);
 	public void artChanged(final ArtSource artSource);
 	public void trackNameChanged(final String trackName);
 	public void albumChanged(final String albumName, final int DiscNumber);

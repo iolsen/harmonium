@@ -8,8 +8,7 @@ import org.dazeend.harmonium.DiscJockeyListener;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.PlayRate;
 import org.dazeend.harmonium.music.ArtSource;
-import org.dazeend.harmonium.music.PlayableTrack;
-
+import org.dazeend.harmonium.music.Playable;
 import com.tivo.hme.bananas.BView;
 import com.tivo.hme.sdk.ImageResource;
 import com.tivo.hme.sdk.Resource;
@@ -166,7 +165,7 @@ public class ScreenSaverScreen extends HManagedResourceScreen implements DiscJoc
 		}.start();
 	}
 
-	public void nextTrackChanged(PlayableTrack nextTrack)
+	public void nextTrackChanged(Playable nextPlayable)
 	{
 		// Do nothing
 	}

@@ -33,6 +33,11 @@ public class MP3Stream extends HMusic implements Playable
 		return members;
 	}
 
+	public String toString()
+	{
+		return _uri;
+	}
+	
 	public String toStringTitleSortForm()
 	{
 		return _uri;
