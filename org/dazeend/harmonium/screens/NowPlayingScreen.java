@@ -32,6 +32,7 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 	private BText nextTrackText;
 	private ProgressBar progressBar;
 	private BText artistNameLabelText;
+	private BText nextLabelText;
 
 	/**
 	 * @param app
@@ -196,7 +197,7 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 				2 * this.app.hSkin.paragraphFontSize,
 				footerHeight
 		);
-		BText nextLabelText = new BText(	this.getNormal(),
+		this.nextLabelText = new BText(	this.getNormal(),
 				this.shuffleModeText.getX() + this.shuffleModeText.getWidth(),
 				footerTop,
 				2 * this.app.hSkin.paragraphFontSize,
@@ -240,7 +241,6 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 		nextLabelText.setShadow(false);
 		nextLabelText.setFlags(RSRC_HALIGN_LEFT);
 		nextLabelText.setFont(app.hSkin.paragraphFont);
-		nextLabelText.setValue("Next:");
 
 		// init next track Text
 		this.nextTrackText.setColor(HSkin.PARAGRAPH_TEXT_COLOR);
@@ -280,13 +280,33 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
     	}
 	}
 
-	public void nextTrackChanged(PlayableTrack nextTrack)
+	public void nextTrackChanged(Playable nextPlayable)
 	{
-		if (nextTrack != null)
-			this.nextTrackText.setValue( nextTrack.getDisplayArtistName() + " - " + nextTrack.getTrackName() );
-		else
-			this.nextTrackText.setValue("");
-	}
+		if (nextPlayable != null)
+		{
+			this.nextLabelText.setValue("Next:");
+			if (nextPlayable instanceof PlayableTrack)
+			{
+				PlayableTrack nextTrack = (PlayableTrack)nextPlayable;
+				String trackName = nextTrack.getTrackName();
+				String artistName = nextTrack.getDisplayArtistName();
+				if ( trackName != null && !trackName.isEmpty() )
+				{
+					if (artistName != null && !artistName.isEmpty())
+						this.nextTrackText.setValue( artistName + " - " + trackName );
+					else
+						this.nextTrackText.setValue( trackName );
+					return;
+				}
+			}
+
+			this.nextTrackText.setValue( nextPlayable.toString() );
+			return;
+		}
+
+		this.nextLabelText.setValue("");
+		this.nextTrackText.setValue("");
+}
 
 	public void playRateChanging(PlayRate newPlayRate)
 	{
@@ -375,7 +395,7 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 		else
 			this.repeatModeText.setValue("Off");
 		
-		nextTrackChanged(app.getDiscJockey().getNextTrack());
+		nextTrackChanged(app.getDiscJockey().getNextPlayable());
 	}
 
 	public void shuffleChanged(boolean shuffle)
@@ -385,7 +405,7 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 		else
 			this.shuffleModeText.setValue("Off");
 		
-		nextTrackChanged(app.getDiscJockey().getNextTrack());
+		nextTrackChanged(app.getDiscJockey().getNextPlayable());
 	}
 
 	/**
@@ -393,7 +413,7 @@ public class NowPlayingScreen extends HManagedResourceScreen implements DiscJock
 	 * because, we may exit this screen to the screensaver (which doesn't use the standard background).
 	 *
 	 */
-	private void pop() 
+	public void pop() 
 	{
 		this.app.setBackgroundImage();
 		this.app.pop();

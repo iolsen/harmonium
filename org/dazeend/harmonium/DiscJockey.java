@@ -146,7 +146,7 @@ public class DiscJockey extends View implements TagParseListener
 				listener.albumArtistChanged(p.getAlbumArtistName());
 				listener.releaseYearChanged(p.getReleaseYear());
 				
-				listener.nextTrackChanged(getNextTrack());
+				listener.nextTrackChanged(getNextPlayable());
 	
 				listener.shuffleChanged(shuffleMode);
 				listener.repeatChanged(repeatMode);
@@ -255,7 +255,7 @@ public class DiscJockey extends View implements TagParseListener
 
 		//We need to updateNext here just incase the playlist only had one song in it
 		for (DiscJockeyListener listener : _listeners)
-			listener.nextTrackChanged(this.getNextTrack());
+			listener.nextTrackChanged(this.getNextPlayable());
 
 		app.pushNowPlayingScreen();
 	}
@@ -274,7 +274,7 @@ public class DiscJockey extends View implements TagParseListener
 
 		//We need to updateNext here just incase the playlist only had one song in it
 		for (DiscJockeyListener listener : _listeners)
-			listener.nextTrackChanged(this.getNextTrack());
+			listener.nextTrackChanged(this.getNextPlayable());
 
 		app.pushNowPlayingScreen();
 	}
@@ -320,10 +320,10 @@ public class DiscJockey extends View implements TagParseListener
 		return false;
 	}
 	
-	public PlayableTrack getNextTrack() 
+	public Playable getNextPlayable() 
 	{
 		int nextIndex;
-		Playable nextTrack;
+		Playable nextPlayable;
 		
 		List<Playable> currentQueue;
 		if (this.shuffleMode)
@@ -350,14 +350,10 @@ public class DiscJockey extends View implements TagParseListener
 				nextIndex = this.musicIndex + 1;
 			}
 			
-			nextTrack = currentQueue.get(nextIndex);
+			nextPlayable = currentQueue.get(nextIndex);
 			
-			// return the title of the next track to be played
-			if (nextTrack instanceof PlayableTrack)
-			{
-				PlayableTrack pt = (PlayableTrack)nextTrack;
-				return pt;
-			}
+			// return the next Playable to be played
+			return nextPlayable;
 		}
 
 		return null;
@@ -735,7 +731,9 @@ public class DiscJockey extends View implements TagParseListener
 			    				
 			    				// Pop this Now Playing Screen if it is showing.
 			    				if(this.app.getCurrentScreen() instanceof NowPlayingScreen) 
-			    					this.app.pop();
+			    					((NowPlayingScreen)this.app.getCurrentScreen()).pop();
+			    				
+			    				flush();
 							}
 							break;
 					}
@@ -826,7 +824,7 @@ public class DiscJockey extends View implements TagParseListener
 			}
 			
 			for (DiscJockeyListener listener : _listeners)
-				listener.nextTrackChanged(getNextTrack());
+				listener.nextTrackChanged(getNextPlayable());
 		}
 	}
 
