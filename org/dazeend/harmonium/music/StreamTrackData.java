@@ -64,8 +64,9 @@ public class StreamTrackData
 	
 	public synchronized void setTagParsedStreamTitle(String streamTitle) 
 	{
+		String fixed = streamTitle.replace('`', '\'');
 		waitYourTurn();
-		_tagParsedStreamTitle = streamTitle;
+		_tagParsedStreamTitle = fixed;
 	}
 	
 	public synchronized void setTagParsedStreamUrl(String streamUrl)
