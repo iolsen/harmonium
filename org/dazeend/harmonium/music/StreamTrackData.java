@@ -19,8 +19,8 @@ public class StreamTrackData
 	private String _tagParsedStreamTitle;
 	private String _tagParsedStreamUrl;
 
-	private static final Pattern TAG_PARSE_TITLE_PATTERN = Pattern.compile("(.+)\\b\\s*-\\s*(.+)\\b");
-	private static final Pattern TAG_PARSE_TITLE_WITH_PARENS_PATTERN = Pattern.compile("(.+)\\b\\s*-\\s*(.*)(?:\\s+\\(.*\\))");
+	private static final Pattern TAG_PARSE_TITLE_PATTERN = Pattern.compile("(.+?)\\b\\s*-\\s*(.+)\\b");
+	private static final Pattern TAG_PARSE_TITLE_WITH_PARENS_PATTERN = Pattern.compile("(.+?)\\b\\s*-\\s*(.*)(?:\\s+\\(.*\\))");
 
 	private static final int NEXT_TAG_DELAY = 500;
 	private final Timer _timer = new Timer("WaitForNextTagEvent", true);
