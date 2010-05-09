@@ -38,7 +38,8 @@ public class ApplicationPreferences {
 	private static final String T_REPEAT = "trackRepeatMode";
 	private static final String PL_SHUFFLE = "playlistShuffleMode";
 	private static final String PL_REPEAT = "playlistRepeatMode";
-	private static final String SCREENSAVER = "screensaver";
+	private static final String SCREENSAVER_DELAY = "screensaver";
+	private static final String SCREENSAVER_TYPE = "screensaverType";
 	
 	// public static values used stored in keys as preferences
 	public static final String BOOLEAN_TRUE = "on";
@@ -47,7 +48,9 @@ public class ApplicationPreferences {
 	public static final String SORT_ALBUMS_BY_YEAR = "byYear";
 	public static final String SORT_TRACKS_BY_NAME = "byName";
 	public static final String SORT_TRACKS_BY_NUMBER = "byNumber";
-	
+	public static final String SCREENSAVER_TYPE_ART_ONLY = "artOnly";
+	public static final String SCREENSAVER_TYPE_BLANK = "blank";
+		
 	private static final int DEFAULT_SCREENSAVER_DELAY_MS = 300000; // 5 minutes
 	
 	// Music collection options
@@ -88,6 +91,7 @@ public class ApplicationPreferences {
 	
 	// application options
 	private int						screenSaverDelay;
+	private String					screenSaverType;
 	
 	
 	public ApplicationPreferences(IContext context) {
@@ -103,7 +107,6 @@ public class ApplicationPreferences {
 		String value;
 		
 		// initialize preferences. All boolean options default to OFF.
-		// TODO Check for NULL preferences before checking values
 		value = context.getPersistentData(MC_SHUFFLE);
 		if(value != null && value.equals(BOOLEAN_TRUE)) {
 			this.musicCollectionDefaultShuffleMode = true;
@@ -248,7 +251,7 @@ public class ApplicationPreferences {
 		}
 		
 		// The default screensaver mode is ON (unlike other boolean values)
-		value = context.getPersistentData(SCREENSAVER);
+		value = context.getPersistentData(SCREENSAVER_DELAY);
 		if (value == null)
 			this.screenSaverDelay = DEFAULT_SCREENSAVER_DELAY_MS;
 		else if (value.equals(BOOLEAN_FALSE))
@@ -264,6 +267,15 @@ public class ApplicationPreferences {
 				this.screenSaverDelay = DEFAULT_SCREENSAVER_DELAY_MS;
 			}
 		}
+		
+		// Default screensaver type is album art only.
+		value = context.getPersistentData(SCREENSAVER_TYPE);
+		if (value == null || value.equals(SCREENSAVER_TYPE_ART_ONLY))
+			this.setScreenSaverType(SCREENSAVER_TYPE_ART_ONLY);
+		else if (value.equals(SCREENSAVER_TYPE_BLANK))
+			this.setScreenSaverType(SCREENSAVER_TYPE_BLANK);
+		else
+			this.setScreenSaverType(SCREENSAVER_TYPE_ART_ONLY);
 	}
 
 	/**
@@ -666,12 +678,23 @@ public class ApplicationPreferences {
 	public int screenSaverDelay() {
 		return screenSaverDelay;
 	}
-
+	
 	/**
 	 * @param useScreenSaver the useScreenSaver to set
 	 */
 	public void setScreenSaverDelay(int value) {
 		this.screenSaverDelay = value;
-		this.context.setPersistentData(SCREENSAVER, String.valueOf(value));
+		this.context.setPersistentData(SCREENSAVER_DELAY, String.valueOf(value));
+	}
+
+	public void setScreenSaverType(String screenSaverType)
+	{
+		this.screenSaverType = screenSaverType;
+		this.context.setPersistentData(SCREENSAVER_TYPE, screenSaverType);
+	}
+
+	public String getScreenSaverType()
+	{
+		return screenSaverType;
 	}	
 }

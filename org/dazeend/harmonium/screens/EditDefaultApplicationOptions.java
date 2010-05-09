@@ -1,5 +1,6 @@
 package org.dazeend.harmonium.screens;
 
+import org.dazeend.harmonium.ApplicationPreferences;
 import org.dazeend.harmonium.HSkin;
 import org.dazeend.harmonium.Harmonium;
 
@@ -10,13 +11,17 @@ import com.tivo.hme.sdk.Resource;
 
 public class EditDefaultApplicationOptions extends HScreen {
 
-	private BButton screenSaverButton;
+	private BButton screenSaverDelayButton;
+	private BButton screenSaverTypeButton;
 	private BButton OKButton;
-	private ScreenSaverSetting sss;
+	private ScreenSaverDelaySetting delaySetting;
+	private ScreenSaverTypeSetting typeSetting;
 
 	private static final String OK_LABEL = "Set Options";
-	private static final String SS_DECREASE_ACTION = "screenSaverDecrease";
-	private static final String SS_INCREASE_ACTION = "screenSaverIncrease";
+	private static final String SSD_DECREASE_ACTION = "screenSaverDelayDecrease";
+	private static final String SSD_INCREASE_ACTION = "screenSaverDelayIncrease";
+	private static final String SST_DECREASE_ACTION = "screenSaverTypeDecrease";
+	private static final String SST_INCREASE_ACTION = "screenSaverTypeIncrease";
 	
 	
 	/**
@@ -28,35 +33,58 @@ public class EditDefaultApplicationOptions extends HScreen {
 		
 		this.app = app;
 		
-		// Create screensaver label
-		BText screenSaverText = new BText(	this, 
+		// Create screensaver delay label
+		BText screenSaverDelayText = new BText(	this, 
 										this.safeTitleH, 
 										this.screenHeight / 4, 
 										( this.screenWidth - (2 * this.safeTitleH) ) / 2,
 										this.rowHeight
 		);	
-		screenSaverText.setFont(this.app.hSkin.barFont);
-		screenSaverText.setColor(HSkin.NTSC_WHITE);
-		screenSaverText.setValue("Screen Blanking:");
-		screenSaverText.setFlags(RSRC_HALIGN_LEFT);
-		screenSaverText.setVisible(true);
-		setManagedView(screenSaverText);
+		screenSaverDelayText.setFont(this.app.hSkin.barFont);
+		screenSaverDelayText.setColor(HSkin.NTSC_WHITE);
+		screenSaverDelayText.setValue("Screen Saver:");
+		screenSaverDelayText.setFlags(RSRC_HALIGN_LEFT);
+		screenSaverDelayText.setVisible(true);
+		setManagedView(screenSaverDelayText);
 		
-		// Create screensaver button
+		// Create screensaver delay button
 		int buttonWidth = ( this.screenWidth - (2 * this.safeTitleH) ) / 3;
 		
-		this.screenSaverButton = new BButton(	this,
+		this.screenSaverDelayButton = new BButton(	this,
 											3 * ( this.screenWidth - (2 * this.safeTitleH) ) / 4,
 											this.screenHeight / 4,
 											buttonWidth,
 											this.rowHeight
 		);
-		
-		sss = new ScreenSaverSetting(app, screenSaverButton, app.getPreferences().screenSaverDelay());
-		
-		this.screenSaverButton.setFocusable(true);
-		this.setFocusDefault(this.screenSaverButton);
-		
+		delaySetting = new ScreenSaverDelaySetting(app, screenSaverDelayButton, app.getPreferences().screenSaverDelay());
+		this.screenSaverDelayButton.setFocusable(true);
+		this.setFocusDefault(this.screenSaverDelayButton);
+
+		// Create screensaver type label
+		BText screenSaverTypeText = new BText(	this, 
+										this.safeTitleH, 
+										this.screenHeight / 4 + (2 * this.rowHeight), 
+										( this.screenWidth - (2 * this.safeTitleH) ) / 2,
+										this.rowHeight
+		);	
+		screenSaverTypeText.setFont(this.app.hSkin.barFont);
+		screenSaverTypeText.setColor(HSkin.NTSC_WHITE);
+		screenSaverTypeText.setValue("Screen Saver Type:");
+		screenSaverTypeText.setFlags(RSRC_HALIGN_LEFT);
+		screenSaverTypeText.setVisible(true);
+		setManagedView(screenSaverTypeText);
+
+		// Create screensaver type button
+		//buttonWidth = ( this.screenWidth - (2 * this.safeTitleH) ) / 3;
+		this.screenSaverTypeButton = new BButton(	this,
+											3 * ( this.screenWidth - (2 * this.safeTitleH) ) / 4,
+											this.screenHeight / 4 + (2 * this.rowHeight),
+											buttonWidth,
+											this.rowHeight
+		);
+		typeSetting = new ScreenSaverTypeSetting(app, screenSaverTypeButton, app.getPreferences().getScreenSaverType());
+		this.screenSaverTypeButton.setFocusable(true);
+
 		// Create OK button
 		this.OKButton = new BButton(this.getNormal(),										// Put list on "normal" level
 									this.safeTitleH,										// x coord. of button
@@ -79,8 +107,9 @@ public class EditDefaultApplicationOptions extends HScreen {
 		
 		if(this.getFocus() != null && this.getFocus().equals(this.OKButton) && code == KEY_SELECT) {
 			// set screen saver delay preference
-			this.app.getPreferences().setScreenSaverDelay(sss.getCurrentValue());
+			this.app.getPreferences().setScreenSaverDelay(delaySetting.getCurrentValue());
 			this.app.updateScreenSaverDelay();
+			this.app.getPreferences().setScreenSaverType(typeSetting.getCurrentValue());
 			this.app.pop();
 			
 			return true;
@@ -97,25 +126,33 @@ public class EditDefaultApplicationOptions extends HScreen {
 	 */
 	@Override
 	public boolean handleAction(BView view, Object action) {
-		if(action.equals(SS_DECREASE_ACTION)) {
+		if(action.equals(SSD_DECREASE_ACTION)) {
 			this.app.play("updown.snd");
-			sss.decrease();
+			delaySetting.decrease();
 		}
-		else if(action.equals(SS_INCREASE_ACTION)) {
+		else if(action.equals(SSD_INCREASE_ACTION)) {
 			this.app.play("updown.snd");
-			sss.increase();
+			delaySetting.increase();
+		}
+		else if (action.equals(SST_DECREASE_ACTION)) {
+			this.app.play("updown.snd");
+			typeSetting.decrease();
+		}
+		else if (action.equals(SST_INCREASE_ACTION)) {
+			this.app.play("updown.snd");
+			typeSetting.increase();
 		}
 		return super.handleAction(view, action);
 	}
 
-	private class ScreenSaverSetting {
+	private class ScreenSaverDelaySetting {
 		
 		private int _currentIndex;
 		private BButton _button;		
 		private Resource[] _labels = new Resource[6];
 		private int[] _values = new int[6];
 		
-		public ScreenSaverSetting(Harmonium app, BButton button, int value) {
+		public ScreenSaverDelaySetting(Harmonium app, BButton button, int value) {
 			
 			_button = button;
 
@@ -150,11 +187,11 @@ public class EditDefaultApplicationOptions extends HScreen {
 			_button.setResource(_labels[_currentIndex]);
 			
 			if (_currentIndex == 0)
-				_button.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, null, SS_INCREASE_ACTION, null, H_DOWN, true);
+				_button.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, null, SSD_INCREASE_ACTION, null, H_DOWN, true);
 			else if (_currentIndex == 5)
-				_button.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, SS_DECREASE_ACTION, null, null, H_DOWN, true);
+				_button.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, SSD_DECREASE_ACTION, null, null, H_DOWN, true);
 			else
-				_button.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, SS_DECREASE_ACTION, SS_INCREASE_ACTION, null, H_DOWN, true);
+				_button.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, SSD_DECREASE_ACTION, SSD_INCREASE_ACTION, null, H_DOWN, true);
 
 			_button.getHighlights().refresh();
 		}
@@ -173,4 +210,63 @@ public class EditDefaultApplicationOptions extends HScreen {
 			return _values[_currentIndex];
 		}
 	}
+
+	private class ScreenSaverTypeSetting {
+		
+		private int _currentIndex;
+		private BButton _button;		
+		private Resource[] _labels = new Resource[2];
+		private String[] _values = new String[2];
+		
+		public ScreenSaverTypeSetting(Harmonium app, BButton button, String value) {
+			
+			_button = button;
+
+			_labels[0] = createText(app.hSkin.barFont, HSkin.NTSC_WHITE, "Blank");
+			_values[0] = ApplicationPreferences.SCREENSAVER_TYPE_BLANK;
+			_labels[1] = createText(app.hSkin.barFont, HSkin.NTSC_WHITE, "Album Art");
+			_values[1] = ApplicationPreferences.SCREENSAVER_TYPE_ART_ONLY;
+			
+			_currentIndex = -1;
+			for (int i = 0; i < _values.length; i++)
+			{
+				if (_values[i] == value) {
+					_currentIndex = i;
+					break;
+				}
+			}
+			if (_currentIndex == -1)
+				_currentIndex = 0;
+			
+			updateButton();
+		}
+		
+		private void updateButton() {
+			_button.setResource(_labels[_currentIndex]);
+			
+			if (_currentIndex == 0)
+				_button.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, null, SST_INCREASE_ACTION, H_UP, H_DOWN, true);
+			else if (_currentIndex == 1)
+				_button.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, SST_DECREASE_ACTION, null, H_UP, H_DOWN, true);
+			else
+				_button.setBarAndArrows(BAR_DEFAULT, BAR_DEFAULT, SST_DECREASE_ACTION, SST_INCREASE_ACTION, H_UP, H_DOWN, true);
+
+			_button.getHighlights().refresh();
+		}
+		
+		public synchronized void increase() {
+			_currentIndex++;
+			updateButton();
+		}
+		
+		public synchronized void decrease() {
+			_currentIndex--;
+			updateButton();
+		}
+		
+		public String getCurrentValue() {
+			return _values[_currentIndex];
+		}
+	}
+
 }
