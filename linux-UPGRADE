@@ -31,8 +31,13 @@ Server Requirements
 
     * Java runtime evironment version 6 or later.
 
-      Tested
-          Java(TM) SE Runtime Environment (build 1.6.0_16-b01)
+      Tested:
+          Java(TM) SE Runtime Environment 
+              - build 1.6.0_16-b01
+              - build 1.6.0_20-b02
+              
+      NOTE: Type "java -version" (without the quotes) at a command prompt to
+            determine the version of Java installed on your computer.
 
     * Connected to same network as TiVo.
 
@@ -86,5 +91,3 @@ Upgrade Instructions
 
       Example
           $ sudo /etc/init.d/harmonium start 
-
-

@@ -32,8 +32,13 @@ Server Requirements
 
     * Java runtime evironment version 6 or later.
 
-      Tested
-          Java(TM) SE Runtime Environment (build 1.6.0_16-b01)
+      Tested:
+          Java(TM) SE Runtime Environment 
+              - build 1.6.0_16-b01
+              - build 1.6.0_20-b02
+              
+      NOTE: Type "java -version" (without the quotes) at a command prompt to
+            determine the version of Java installed on your computer.
 
     * Connected to same network as TiVo.
 
@@ -95,6 +100,9 @@ Installation Instructions
       Example
           wrapper.app.parameter.6="/home/userid/playlists"
 
+      Note
+          The playlist directory must be different from the music directory.
+
    7. Save the wrapper.conf file, and exit the text editor.
 
    8. Change directories to the /etc/init.d directory and create a symbolic 
@@ -139,12 +147,14 @@ Installation Instructions
             Example
                 $ sudo chkconfig --level 35 harmonium on 
 
-            Note
-                When Harmonium first starts, it reads and catalogs the music 
-                files that it finds under your music root. This process may 
-                take several minutes. (A sample collection of 3500 music files 
-                takes 20 minutes to complete.) Until this process has
-                completed, Harmonium will not appear on your TiVo. 
+      NOTE: When Harmonium first starts, it reads and catalogs the music files
+            that it finds under your music root. This process may take several
+            minutes. (A sample collection of 3500 music files takes 20 minutes
+            to complete.) Until this process has completed, Harmonium will not
+            appear on your TiVo. 
+            
+            Subsequent Harmonium startups use the cache built during this 
+            initial startup, and are substantially faster.
 
   11. Start the daemon. Harmonium should restart automatically the next time 
       the computer is rebooted.
