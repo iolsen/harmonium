@@ -32,15 +32,20 @@ Server Requirements
     * Operating System: Microsoft Windows XP, Windows Vista,
       or Windows 7.
 
-      Tested
+      Tested:
           Windows XP SP3 32-bit
           Windows 7 Ultimate 32-bit
           Windows 7 Ultimate 64-bit
 
+      NOTE: Type "java -version" (without the quotes) at a command prompt to
+            determine the version of Java installed on your computer.
+
     * Java runtime evironment version 6 or later.
 
-      Tested
-          Sun Microsystems Java(TM) SE Runtime Environment (build 1.6.0_17-b04)
+      Tested:
+          Sun Microsystems Java(TM) SE Runtime Environment 
+              - build 1.6.0_17-b04
+              - build 1.6.0_20-b02
 
     * Connected to same network as TiVo.
 
