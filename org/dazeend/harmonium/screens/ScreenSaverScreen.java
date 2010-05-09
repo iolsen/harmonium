@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.dazeend.harmonium.ApplicationPreferences;
 import org.dazeend.harmonium.DiscJockeyListener;
 import org.dazeend.harmonium.Harmonium;
 import org.dazeend.harmonium.PlayRate;
@@ -20,6 +21,7 @@ public class ScreenSaverScreen extends HManagedResourceScreen implements DiscJoc
 
 	Harmonium app;
 	Resource oldBackground = null;
+	boolean showAlbumArt;
 	
 	private BView albumArtView;
 	private Timer moveTimer;
@@ -68,6 +70,9 @@ public class ScreenSaverScreen extends HManagedResourceScreen implements DiscJoc
 		
 		// Set the background to black when entering the screen
 		rootView.setResource("screensaver.mpg");
+		
+		showAlbumArt = !(this.app.getPreferences().getScreenSaverType().equals(ApplicationPreferences.SCREENSAVER_TYPE_BLANK)); 
+		albumArtView.setVisible(showAlbumArt);
 
 		moveTimer = new Timer();
 		moveTimer.schedule(new MoveArtCheckTimerTask(this), 7000, 7000);
